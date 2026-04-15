@@ -56,7 +56,10 @@
     "step3Desc": "见面、分享美食、结交新朋友",
     "popularMeals": "热门饭局",
     "dealsTitle": "餐厅优惠",
+    "dealsSubtitle": "4 家合作餐厅 · 6 场优惠饭局",
     "dealsComingSoon": "即将上线！敬请期待独家餐厅优惠",
+    "galleryTitle": "饭局相册",
+    "gallerySubtitle": "查看大家分享的精彩瞬间",
     "viewAll": "查看全部",
     "nearbyMapTitle": "附近的饭局",
     "nearbyMapSubtitle": "点击标记查看饭局详情",
@@ -269,5 +272,41 @@
     "terms": "使用条款",
     "contact": "联系我们",
     "copyright": "EatTogether. 保留所有权利。"
+  },
+  "attendance": {
+    "title": "确认参与者出席",
+    "subtitle": "请确认每位参与者是否实际出席了本次饭局",
+    "host": "发起人",
+    "attended": "已出席",
+    "noShow": "未出席",
+    "save": "保存确认",
+    "saved": "已保存",
+    "timeLeft": "剩余 {hours} 小时",
+    "noShowPenalty": "标记为未出席将扣除对方 -20 信用分"
+  },
+  "mealPhotos": {
+    "title": "饭局照片",
+    "photos": "张照片",
+    "addPhoto": "上传照片",
+    "viewGallery": "查看相册"
+  },
+  "gallery": {
+    "title": "饭局相册",
+    "all": "全部",
+    "recent": "最新",
+    "popular": "最热",
+    "photosCount": "张分享照片",
+    "likes": "喜欢"
+  },
+  "deals": {
+    "title": "餐厅优惠",
+    "heroTitle": "合作餐厅 · 专属优惠",
+    "heroDesc": "我们与曼谷优质餐厅合作，为你带来独家优惠套餐。每场优惠饭局都由餐厅主办，让陌生人在美食中建立新友谊！",
+    "active": "进行中",
+    "activeRestaurants": "家合作餐厅",
+    "upcomingMeals": "场优惠饭局",
+    "promotion": "专属优惠",
+    "perPerson": "每人",
+    "viewAllMeals": "查看该餐厅全部饭局"
   }
 }

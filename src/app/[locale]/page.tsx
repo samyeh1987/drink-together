@@ -19,6 +19,8 @@ import {
   Calendar,
   Globe,
   ChevronDown,
+  Image as ImageIcon,
+  BadgePercent,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
@@ -341,19 +343,39 @@ export default function HomePage() {
       </section>
 
       {/* Restaurant Deals Banner */}
-      <section className="px-4 mb-6">
-        <div className="bg-gradient-to-r from-gold/15 via-gold/10 to-coral/10 rounded-2xl p-4 border border-gold/15">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gold/20 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Sparkles className="w-5 h-5 text-gold" />
+      <section className="px-4 mb-4">
+        <Link href={`/${locale}/deals`}>
+          <div className="bg-gradient-to-r from-gold/15 via-gold/10 to-coral/10 rounded-2xl p-4 border border-gold/15 cursor-pointer group">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gold/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                <BadgePercent className="w-5 h-5 text-gold" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-dark text-sm">{t('home.dealsTitle')}</h3>
+                <p className="text-xs text-gray mt-0.5">{t('home.dealsSubtitle')}</p>
+              </div>
+              <ArrowRight className="w-4 h-4 text-gold flex-shrink-0 group-hover:translate-x-0.5 transition-transform" />
             </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-dark text-sm">{t('home.dealsTitle')}</h3>
-              <p className="text-xs text-gray mt-0.5">{t('home.dealsComingSoon')}</p>
-            </div>
-            <ArrowRight className="w-4 h-4 text-gold flex-shrink-0" />
           </div>
-        </div>
+        </Link>
+      </section>
+
+      {/* Photo Gallery Banner */}
+      <section className="px-4 mb-6">
+        <Link href={`/${locale}/gallery`}>
+          <div className="bg-gradient-to-r from-primary/15 via-coral/10 to-mint/10 rounded-2xl p-4 border border-primary/15 cursor-pointer group">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                <ImageIcon className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-dark text-sm">{t('home.galleryTitle')}</h3>
+                <p className="text-xs text-gray mt-0.5">{t('home.gallerySubtitle')}</p>
+              </div>
+              <ArrowRight className="w-4 h-4 text-primary flex-shrink-0 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </div>
+        </Link>
       </section>
 
       {/* Popular Meals - Single column on mobile */}

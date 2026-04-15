@@ -56,7 +56,10 @@
     "step3Desc": "Meet up, share great food, and make new friends",
     "popularMeals": "Popular Meals",
     "dealsTitle": "Restaurant Deals",
+    "dealsSubtitle": "4 partner restaurants · 6 exclusive meals",
     "dealsComingSoon": "Coming soon! Stay tuned for exclusive restaurant deals",
+    "galleryTitle": "Meal Gallery",
+    "gallerySubtitle": "Check out shared moments from meals",
     "viewAll": "View All",
     "nearbyMapTitle": "Nearby Meals",
     "nearbyMapSubtitle": "Tap a pin to see meal details",
@@ -268,5 +271,41 @@
     "terms": "Terms",
     "contact": "Contact",
     "copyright": "EatTogether. All rights reserved."
+  },
+  "attendance": {
+    "title": "Confirm Attendance",
+    "subtitle": "Please confirm whether each participant actually attended this meal",
+    "host": "Host",
+    "attended": "Attended",
+    "noShow": "No Show",
+    "save": "Save Confirmation",
+    "saved": "Saved",
+    "timeLeft": "{hours}h remaining",
+    "noShowPenalty": "Marking no-show will deduct -20 credit points"
+  },
+  "mealPhotos": {
+    "title": "Meal Photos",
+    "photos": "photos",
+    "addPhoto": "Upload",
+    "viewGallery": "View Gallery"
+  },
+  "gallery": {
+    "title": "Meal Gallery",
+    "all": "All",
+    "recent": "Recent",
+    "popular": "Popular",
+    "photosCount": "shared photos",
+    "likes": "likes"
+  },
+  "deals": {
+    "title": "Restaurant Deals",
+    "heroTitle": "Partner Restaurants · Exclusive Deals",
+    "heroDesc": "We partner with top Bangkok restaurants to bring you exclusive meal packages. Every deal meal is hosted by the restaurant, helping strangers bond over great food!",
+    "active": "Active",
+    "activeRestaurants": "partner restaurants",
+    "upcomingMeals": "upcoming deal meals",
+    "promotion": "Exclusive Deal",
+    "perPerson": "per person",
+    "viewAllMeals": "View all meals from this restaurant"
   }
 }
