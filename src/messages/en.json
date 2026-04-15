@@ -57,7 +57,11 @@
     "popularMeals": "Popular Meals",
     "dealsTitle": "Restaurant Deals",
     "dealsComingSoon": "Coming soon! Stay tuned for exclusive restaurant deals",
-    "viewAll": "View All"
+    "viewAll": "View All",
+    "nearbyMapTitle": "Nearby Meals",
+    "nearbyMapSubtitle": "Tap a pin to see meal details",
+    "viewDetails": "View Details",
+    "openMeals": "open now"
   },
   "meal": {
     "create": "Create a Meal",

@@ -20,6 +20,10 @@ import {
   Globe,
   ChevronDown,
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+// Dynamically import map to avoid SSR issues with leaflet
+const NearbyMap = dynamic(() => import('@/components/map/NearbyMap'), { ssr: false });
 
 // Demo meal data for UI preview
 const DEMO_MEALS = [
@@ -266,6 +270,17 @@ export default function HomePage() {
             </motion.div>
           </div>
         </div>
+      </section>
+
+      {/* Nearby Meals Map */}
+      <section className="py-4">
+        <NearbyMap
+          mapTitle={t('home.nearbyMapTitle')}
+          mapSubtitle={t('home.nearbyMapSubtitle')}
+          viewDetailsText={t('home.viewDetails')}
+          openMealsText={t('home.openMeals')}
+          locale={locale}
+        />
       </section>
 
       {/* How It Works - Compact horizontal cards */}

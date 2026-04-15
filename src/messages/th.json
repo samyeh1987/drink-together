@@ -57,7 +57,11 @@
     "popularMeals": "มื้ออาหารยอดนิยม",
     "dealsTitle": "โปรโมชั่นร้านอาหาร",
     "dealsComingSoon": "เร็วๆ นี้! รอชมโปรโมชั่นพิเศษจากร้านอาหาร",
-    "viewAll": "ดูทั้งหมด"
+    "viewAll": "ดูทั้งหมด",
+    "nearbyMapTitle": "มื้ออาหารใกล้เคียง",
+    "nearbyMapSubtitle": "แตะปักหมุดเพื่อดูรายละเอียด",
+    "viewDetails": "ดูรายละเอียด",
+    "openMeals": "มื้อที่เปิดรับ"
   },
   "meal": {
     "create": "จัดมื้ออาหาร",

@@ -57,7 +57,11 @@
     "popularMeals": "热门饭局",
     "dealsTitle": "餐厅优惠",
     "dealsComingSoon": "即将上线！敬请期待独家餐厅优惠",
-    "viewAll": "查看全部"
+    "viewAll": "查看全部",
+    "nearbyMapTitle": "附近的饭局",
+    "nearbyMapSubtitle": "点击标记查看饭局详情",
+    "viewDetails": "查看详情",
+    "openMeals": "场报名中"
   },
   "meal": {
     "create": "发起饭局",
