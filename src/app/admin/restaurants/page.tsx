@@ -8,8 +8,10 @@ import {
 } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
 import { DEMO_RESTAURANTS, CUISINE_EMOJI, type AdminRestaurant, type RestaurantDeal } from '../data';
+import { useAdminT } from '../AdminI18nProvider';
 
 export default function AdminRestaurantsPage() {
+  const t = useAdminT();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedRestaurant, setSelectedRestaurant] = useState<AdminRestaurant | null>(null);
@@ -43,24 +45,24 @@ export default function AdminRestaurantsPage() {
       {/* Page Title */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Restaurants</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage partner restaurants and their deal packages.</p>
+          <h1 className="text-2xl font-bold text-gray-800">{t('restaurants.title')}</h1>
+          <p className="text-sm text-gray-500 mt-1">{t('restaurants.subtitle')}</p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
           className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#FF6B35] text-white rounded-xl text-sm font-medium hover:bg-[#FF6B35]/90 transition-colors"
         >
-          <Plus className="w-4 h-4" /> Add Restaurant
+          <Plus className="w-4 h-4" /> {t('restaurants.addRestaurant')}
         </button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { label: 'Total Restaurants', value: stats.total, icon: Store, color: 'from-[#FF6B35] to-[#FF6B6B]' },
-          { label: 'Active', value: stats.active, icon: Star, color: 'from-[#2EC4B6] to-[#5DD9CE]' },
-          { label: 'Pending Approval', value: stats.pending, icon: Clock, color: 'from-yellow-500 to-yellow-600' },
-          { label: 'Active Deals', value: stats.totalDeals, icon: Package, color: 'from-purple-500 to-purple-600' },
+          { label: t('restaurants.totalRestaurants'), value: stats.total, icon: Store, color: 'from-[#FF6B35] to-[#FF6B6B]' },
+          { label: t('restaurants.active'), value: stats.active, icon: Star, color: 'from-[#2EC4B6] to-[#5DD9CE]' },
+          { label: t('restaurants.pendingApproval'), value: stats.pending, icon: Clock, color: 'from-yellow-500 to-yellow-600' },
+          { label: t('restaurants.activeDeals'), value: stats.totalDeals, icon: Package, color: 'from-purple-500 to-purple-600' },
         ].map(s => {
           const Icon = s.icon;
           return (
@@ -85,7 +87,7 @@ export default function AdminRestaurantsPage() {
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search restaurants..."
+            placeholder={t('restaurants.searchPlaceholder')}
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] transition-all"
           />
         </div>
@@ -151,11 +153,11 @@ export default function AdminRestaurantsPage() {
 
               <div className="flex items-center justify-between pt-3 border-t border-gray-50">
                 <div className="flex items-center gap-3 text-xs text-gray-500">
-                  <span>{restaurant.total_meals_hosted} meals</span>
-                  <span>{restaurant.total_deals} deals</span>
+                  <span>{restaurant.total_meals_hosted} {t('restaurants.meals')}</span>
+                  <span>{restaurant.total_deals} {t('restaurants.deals')}</span>
                 </div>
                 <div className="flex items-center gap-1 text-xs text-[#FF6B35] font-medium">
-                  View <ChevronRight className="w-3.5 h-3.5" />
+                  {t('restaurants.view')} <ChevronRight className="w-3.5 h-3.5" />
                 </div>
               </div>
             </div>
@@ -169,7 +171,7 @@ export default function AdminRestaurantsPage() {
           <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setSelectedRestaurant(null)} />
           <div className="relative w-full max-w-lg bg-white h-full overflow-y-auto shadow-xl">
             <div className="sticky top-0 bg-white z-10 px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-gray-800">Restaurant Details</h2>
+              <h2 className="text-lg font-bold text-gray-800">{t('restaurants.restaurantDetails')}</h2>
               <button onClick={() => setSelectedRestaurant(null)} className="p-1.5 rounded-lg hover:bg-gray-100">
                 <X className="w-5 h-5 text-gray-500" />
               </button>
@@ -190,12 +192,12 @@ export default function AdminRestaurantsPage() {
 
               {/* Contact Info */}
               <div className="space-y-3 bg-gray-50 rounded-xl p-4">
-                <h4 className="text-sm font-semibold text-gray-700">Contact Info</h4>
+                <h4 className="text-sm font-semibold text-gray-700">{t('restaurants.contactInfo')}</h4>
                 {[
-                  { icon: MapPin, label: 'Address', value: selectedRestaurant.address },
-                  { icon: Phone, label: 'Phone', value: selectedRestaurant.phone },
-                  { icon: Mail, label: 'Email', value: selectedRestaurant.email },
-                  { icon: Users, label: 'Contact Person', value: selectedRestaurant.contact_person },
+                  { icon: MapPin, label: t('restaurants.address'), value: selectedRestaurant.address },
+                  { icon: Phone, label: t('restaurants.phone'), value: selectedRestaurant.phone },
+                  { icon: Mail, label: t('restaurants.email'), value: selectedRestaurant.email },
+                  { icon: Users, label: t('restaurants.contactPerson'), value: selectedRestaurant.contact_person },
                 ].map(item => {
                   const Icon = item.icon;
                   return (
@@ -213,7 +215,7 @@ export default function AdminRestaurantsPage() {
               {/* Description */}
               {selectedRestaurant.description && (
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">About</h4>
+                  <h4 className="text-sm font-semibold text-gray-700 mb-2">{t('restaurants.about')}</h4>
                   <p className="text-sm text-gray-600 leading-relaxed">{selectedRestaurant.description}</p>
                 </div>
               )}
@@ -222,23 +224,23 @@ export default function AdminRestaurantsPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-gray-50 rounded-xl p-3 text-center">
                   <p className="text-xl font-bold text-gray-800">{selectedRestaurant.total_meals_hosted}</p>
-                  <p className="text-xs text-gray-500">Meals Hosted</p>
+                  <p className="text-xs text-gray-500">{t('restaurants.mealsHosted')}</p>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-3 text-center">
                   <p className="text-xl font-bold text-gray-800">{selectedRestaurant.total_deals}</p>
-                  <p className="text-xs text-gray-500">Active Deals</p>
+                  <p className="text-xs text-gray-500">{t('restaurants.activeDeals')}</p>
                 </div>
               </div>
 
               {/* Deals */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-sm font-semibold text-gray-700">Deal Packages</h4>
+                  <h4 className="text-sm font-semibold text-gray-700">{t('restaurants.dealPackages')}</h4>
                   <button
                     onClick={() => { setEditingDeal(null); setShowDealModal(true); }}
                     className="text-xs text-[#FF6B35] font-medium hover:underline flex items-center gap-1"
                   >
-                    <Plus className="w-3 h-3" /> Add Deal
+                    <Plus className="w-3 h-3" /> {t('restaurants.addDeal')}
                   </button>
                 </div>
                 <div className="space-y-3">
@@ -285,7 +287,7 @@ export default function AdminRestaurantsPage() {
               {/* Actions */}
               <div className="flex gap-3 pt-2">
                 <button className="flex-1 px-4 py-2.5 bg-[#FF6B35] text-white rounded-xl text-sm font-medium hover:bg-[#FF6B35]/90">
-                  Edit Restaurant
+                  {t('restaurants.editRestaurant')}
                 </button>
                 <button className="px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200">
                   <DollarSign className="w-4 h-4" />
@@ -302,14 +304,14 @@ export default function AdminRestaurantsPage() {
           <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => { setShowDealModal(false); setEditingDeal(null); }} />
           <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-800">{editingDeal ? 'Edit Deal' : 'Add Deal'}</h3>
+              <h3 className="text-lg font-bold text-gray-800">{editingDeal ? t('restaurants.editDeal') : t('restaurants.addDeal')}</h3>
               <button onClick={() => { setShowDealModal(false); setEditingDeal(null); }} className="p-1 rounded-lg hover:bg-gray-100">
                 <X className="w-4 h-4 text-gray-500" />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-600 mb-1.5">Deal Title</label>
+                <label className="block text-sm text-gray-600 mb-1.5">{t('restaurants.dealTitle')}</label>
                 <input
                   type="text"
                   defaultValue={editingDeal?.title || ''}
@@ -318,7 +320,7 @@ export default function AdminRestaurantsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1.5">Description</label>
+                <label className="block text-sm text-gray-600 mb-1.5">{t('restaurants.describeDeal')}</label>
                 <textarea
                   defaultValue={editingDeal?.description || ''}
                   rows={3}
@@ -328,34 +330,34 @@ export default function AdminRestaurantsPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1.5">Original Price (฿)</label>
+                  <label className="block text-sm text-gray-600 mb-1.5">{t('restaurants.originalPrice')}</label>
                   <input type="number" defaultValue={editingDeal?.original_price || ''} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]" />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1.5">Deal Price (฿)</label>
+                  <label className="block text-sm text-gray-600 mb-1.5">{t('restaurants.dealPrice')}</label>
                   <input type="number" defaultValue={editingDeal?.deal_price || ''} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1.5">Min Pax</label>
+                  <label className="block text-sm text-gray-600 mb-1.5">{t('restaurants.minPax')}</label>
                   <input type="number" defaultValue={editingDeal?.min_pax || ''} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]" />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1.5">Max Pax</label>
+                  <label className="block text-sm text-gray-600 mb-1.5">{t('restaurants.maxPax')}</label>
                   <input type="number" defaultValue={editingDeal?.max_pax || ''} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]" />
                 </div>
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1.5">Valid Until</label>
+                <label className="block text-sm text-gray-600 mb-1.5">{t('restaurants.validUntil')}</label>
                 <input type="date" defaultValue={editingDeal?.valid_until || ''} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]" />
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1.5">Status</label>
+                <label className="block text-sm text-gray-600 mb-1.5">{t('restaurants.status')}</label>
                 <select className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]">
-                  <option value="draft">Draft</option>
+                  <option value="draft">{t('restaurants.draft')}</option>
                   <option value="active">Active</option>
-                  <option value="expired">Expired</option>
+                  <option value="expired">{t('restaurants.expired')}</option>
                 </select>
               </div>
             </div>
@@ -377,7 +379,7 @@ export default function AdminRestaurantsPage() {
           <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setShowAddModal(false)} />
           <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-800">Add Restaurant</h3>
+              <h3 className="text-lg font-bold text-gray-800">{t('restaurants.addRestaurant')}</h3>
               <button onClick={() => setShowAddModal(false)} className="p-1 rounded-lg hover:bg-gray-100">
                 <X className="w-4 h-4 text-gray-500" />
               </button>
@@ -385,11 +387,11 @@ export default function AdminRestaurantsPage() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1.5">Name (English)</label>
+                  <label className="block text-sm text-gray-600 mb-1.5">{t('restaurants.nameEn')}</label>
                   <input className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]" placeholder="Restaurant name" />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1.5">Name (Local)</label>
+                  <label className="block text-sm text-gray-600 mb-1.5">{t('restaurants.nameLocal')}</label>
                   <input className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]" placeholder="ชื่อร้าน" />
                 </div>
               </div>
@@ -399,7 +401,7 @@ export default function AdminRestaurantsPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1.5">Cuisine Type</label>
+                  <label className="block text-sm text-gray-600 mb-1.5">{t('restaurants.cuisineType')}</label>
                   <select className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]">
                     {Object.entries(CUISINE_EMOJI).map(([k, v]) => (
                       <option key={k} value={k}>{v} {k}</option>
@@ -422,7 +424,7 @@ export default function AdminRestaurantsPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1.5">Description</label>
+                <label className="block text-sm text-gray-600 mb-1.5">{t('restaurants.descriptionField')}</label>
                 <textarea rows={3} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] resize-none" placeholder="About the restaurant..." />
               </div>
             </div>

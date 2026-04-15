@@ -8,8 +8,10 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DEMO_PHOTOS, ADMIN_STATUS_COLORS, type AdminPhoto } from '../data';
+import { useAdminT } from '../AdminI18nProvider';
 
 export default function AdminPhotosPage() {
+  const t = useAdminT();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedPhoto, setSelectedPhoto] = useState<AdminPhoto | null>(null);
@@ -62,21 +64,21 @@ export default function AdminPhotosPage() {
       {/* Page Title */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Photos</h1>
-          <p className="text-sm text-gray-500 mt-1">Review and manage user-uploaded meal photos for the gallery.</p>
+          <h1 className="text-2xl font-bold text-gray-800">{t('photos.title')}</h1>
+          <p className="text-sm text-gray-500 mt-1">{t('photos.subtitle')}</p>
         </div>
         <button className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-          <Download className="w-4 h-4" /> Export All
+          <Download className="w-4 h-4" /> {t('photos.exportAll')}
         </button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { label: 'Total Photos', value: stats.total, icon: ImageIcon, color: 'from-purple-500 to-purple-600' },
-          { label: 'Pending Review', value: stats.pending, icon: Clock, color: 'from-yellow-500 to-yellow-600' },
-          { label: 'Featured', value: stats.featured, icon: Star, color: 'from-[#FFD700] to-[#FFA500]' },
-          { label: 'Total Likes', value: stats.totalLikes, icon: Heart, color: 'from-red-400 to-red-500' },
+          { label: t('photos.totalPhotos'), value: stats.total, icon: ImageIcon, color: 'from-purple-500 to-purple-600' },
+          { label: t('photos.pendingReview'), value: stats.pending, icon: Clock, color: 'from-yellow-500 to-yellow-600' },
+          { label: t('photos.featured'), value: stats.featured, icon: Star, color: 'from-[#FFD700] to-[#FFA500]' },
+          { label: t('photos.totalLikes'), value: stats.totalLikes, icon: Heart, color: 'from-red-400 to-red-500' },
         ].map(s => {
           const Icon = s.icon;
           return (
@@ -101,7 +103,7 @@ export default function AdminPhotosPage() {
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search by uploader, meal, or caption..."
+            placeholder={t('photos.searchPlaceholder')}
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] transition-all"
           />
         </div>
@@ -138,7 +140,7 @@ export default function AdminPhotosPage() {
               <div className={cn('absolute inset-0 bg-gradient-to-br', getPlaceholderGradient(photo.id))} />
               <div className="relative flex flex-col items-center gap-2">
                 <ImageIcon className="w-10 h-10 text-white/60" />
-                <span className="text-white/60 text-xs">Demo Image</span>
+                <span className="text-white/60 text-xs">{t('photos.demoImage')}</span>
               </div>
               {/* Status overlay */}
               <div className="absolute top-3 left-3">
@@ -217,7 +219,7 @@ export default function AdminPhotosPage() {
               <div className={cn('absolute inset-0 bg-gradient-to-br', getPlaceholderGradient(selectedPhoto.id))} />
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
                 <ImageIcon className="w-12 h-12 text-white/60" />
-                <span className="text-white/60 text-sm">Demo Image</span>
+                <span className="text-white/60 text-sm">{t('photos.demoImage')}</span>
               </div>
               <button onClick={() => setSelectedPhoto(null)} className="absolute top-3 right-3 p-1.5 rounded-full bg-white/80 hover:bg-white transition-colors">
                 <X className="w-4 h-4 text-gray-600" />
@@ -233,7 +235,7 @@ export default function AdminPhotosPage() {
             <div className="p-5 space-y-4">
               <div>
                 <h3 className="text-lg font-bold text-gray-800">{selectedPhoto.meal_title}</h3>
-                <p className="text-sm text-gray-500 mt-0.5">Uploaded by {selectedPhoto.uploader_name}</p>
+                <p className="text-sm text-gray-500 mt-0.5">{t('photos.uploadedBy')} {selectedPhoto.uploader_name}</p>
               </div>
 
               {selectedPhoto.caption && (
@@ -246,14 +248,14 @@ export default function AdminPhotosPage() {
                 <div className="bg-gray-50 rounded-xl p-3 text-center">
                   <Heart className="w-4 h-4 text-red-400 mx-auto mb-1" />
                   <p className="text-lg font-bold text-gray-800">{selectedPhoto.likes_count}</p>
-                  <p className="text-[10px] text-gray-500">Likes</p>
+                  <p className="text-[10px] text-gray-500">{t('photos.likes')}</p>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-3 text-center">
-                  <p className="text-[10px] text-gray-500 mb-1">Meal ID</p>
+                  <p className="text-[10px] text-gray-500 mb-1">{t('photos.mealId')}</p>
                   <p className="text-sm font-medium text-gray-700">{selectedPhoto.meal_id}</p>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-3 text-center">
-                  <p className="text-[10px] text-gray-500 mb-1">Uploaded</p>
+                  <p className="text-[10px] text-gray-500 mb-1">{t('photos.uploaded')}</p>
                   <p className="text-sm font-medium text-gray-700">
                     {new Date(selectedPhoto.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </p>
@@ -262,7 +264,7 @@ export default function AdminPhotosPage() {
 
               {selectedPhoto.reviewed_at && (
                 <p className="text-xs text-gray-400">
-                  Reviewed by {selectedPhoto.reviewed_by} on {new Date(selectedPhoto.reviewed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  {t('photos.reviewedBy')} {selectedPhoto.reviewed_by} on {new Date(selectedPhoto.reviewed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </p>
               )}
 
@@ -274,13 +276,13 @@ export default function AdminPhotosPage() {
                       onClick={() => { handleAction(selectedPhoto, 'approved'); setSelectedPhoto(null); }}
                       className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#2EC4B6] text-white rounded-xl text-sm font-medium hover:bg-[#2EC4B6]/90"
                     >
-                      <CheckCircle2 className="w-4 h-4" /> Approve
+                      <CheckCircle2 className="w-4 h-4" /> {t('photos.approve')}
                     </button>
                     <button
                       onClick={() => { handleAction(selectedPhoto, 'rejected'); setSelectedPhoto(null); }}
                       className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 text-red-600 rounded-xl text-sm font-medium hover:bg-red-100"
                     >
-                      <XCircle className="w-4 h-4" /> Reject
+                      <XCircle className="w-4 h-4" /> {t('photos.reject')}
                     </button>
                   </>
                 )}
@@ -289,7 +291,7 @@ export default function AdminPhotosPage() {
                     onClick={() => { handleAction(selectedPhoto, 'featured'); setSelectedPhoto(null); }}
                     className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#FFD700]/20 text-[#B8860B] rounded-xl text-sm font-medium hover:bg-[#FFD700]/30"
                   >
-                    <Star className="w-4 h-4" /> Set as Featured
+                    <Star className="w-4 h-4" /> {t('photos.setAsFeatured')}
                   </button>
                 )}
                 <button

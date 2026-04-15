@@ -9,11 +9,13 @@ import {
 } from 'lucide-react';
 import { cn, getCreditLevel } from '@/lib/utils';
 import { DEMO_USERS, ADMIN_STATUS_COLORS, type AdminUser } from '../data';
+import { useAdminT } from '../AdminI18nProvider';
 
 type SortField = 'credit_score' | 'created_at' | 'total_meals_hosted' | 'total_meals_joined' | 'no_show_count';
 type SortDir = 'asc' | 'desc';
 
 export default function AdminUsersPage() {
+  const t = useAdminT();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<SortField>('credit_score');
@@ -67,22 +69,22 @@ export default function AdminUsersPage() {
       {/* Page Title */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Users</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage platform users, credit scores, and account status.</p>
+          <h1 className="text-2xl font-bold text-gray-800">{t('users.title')}</h1>
+          <p className="text-sm text-gray-500 mt-1">{t('users.subtitle')}</p>
         </div>
         <button className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-          <Download className="w-4 h-4" /> Export CSV
+          <Download className="w-4 h-4" /> {t('users.exportCsv')}
         </button>
       </div>
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {[
-          { label: 'Total Users', value: stats.total, icon: UserPlus, color: 'from-blue-500 to-blue-600' },
-          { label: 'Active', value: stats.active, icon: UserCheck, color: 'from-[#2EC4B6] to-[#5DD9CE]' },
-          { label: 'Banned', value: stats.banned, icon: UserX, color: 'from-red-500 to-red-600' },
-          { label: 'Suspended', value: stats.suspended, icon: ShieldAlert, color: 'from-yellow-500 to-yellow-600' },
-          { label: 'Avg Credit', value: stats.avgCredit, icon: TrendingUp, color: 'from-purple-500 to-purple-600' },
+          { label: t('users.totalUsers'), value: stats.total, icon: UserPlus, color: 'from-blue-500 to-blue-600' },
+          { label: t('users.active'), value: stats.active, icon: UserCheck, color: 'from-[#2EC4B6] to-[#5DD9CE]' },
+          { label: t('users.banned'), value: stats.banned, icon: UserX, color: 'from-red-500 to-red-600' },
+          { label: t('users.suspended'), value: stats.suspended, icon: ShieldAlert, color: 'from-yellow-500 to-yellow-600' },
+          { label: t('users.avgCredit'), value: stats.avgCredit, icon: TrendingUp, color: 'from-purple-500 to-purple-600' },
         ].map(s => {
           const Icon = s.icon;
           return (
@@ -107,7 +109,7 @@ export default function AdminUsersPage() {
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search by name or email..."
+            placeholder={t('users.searchPlaceholder')}
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] transition-all"
           />
           {search && (
@@ -118,18 +120,23 @@ export default function AdminUsersPage() {
         </div>
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-gray-400" />
-          {['all', 'active', 'banned', 'suspended'].map(s => (
+          {[
+            { key: 'all', label: t('users.all') },
+            { key: 'active', label: t('users.active') },
+            { key: 'banned', label: t('users.banned') },
+            { key: 'suspended', label: t('users.suspended') },
+          ].map(s => (
             <button
-              key={s}
-              onClick={() => setStatusFilter(s)}
+              key={s.key}
+              onClick={() => setStatusFilter(s.key)}
               className={cn(
                 'px-3 py-2 rounded-lg text-xs font-medium transition-colors capitalize',
-                statusFilter === s
+                statusFilter === s.key
                   ? 'bg-[#FF6B35] text-white'
                   : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
               )}
             >
-              {s}
+              {s.label}
             </button>
           ))}
         </div>
@@ -141,21 +148,21 @@ export default function AdminUsersPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-100">
-                <th className="text-left text-xs font-semibold text-gray-500 px-5 py-3">User</th>
-                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3">Status</th>
+                <th className="text-left text-xs font-semibold text-gray-500 px-5 py-3">{t('users.user')}</th>
+                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3">{t('users.status')}</th>
                 <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3 cursor-pointer hover:text-gray-700" onClick={() => handleSort('credit_score')}>
-                  <div className="flex items-center gap-1">Credit <SortIcon field="credit_score" /></div>
+                  <div className="flex items-center gap-1">{t('users.credit')} <SortIcon field="credit_score" /></div>
                 </th>
                 <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3 cursor-pointer hover:text-gray-700" onClick={() => handleSort('total_meals_hosted')}>
-                  <div className="flex items-center gap-1">Hosted <SortIcon field="total_meals_hosted" /></div>
+                  <div className="flex items-center gap-1">{t('users.hosted')} <SortIcon field="total_meals_hosted" /></div>
                 </th>
                 <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3 cursor-pointer hover:text-gray-700" onClick={() => handleSort('total_meals_joined')}>
-                  <div className="flex items-center gap-1">Joined <SortIcon field="total_meals_joined" /></div>
+                  <div className="flex items-center gap-1">{t('users.joined')} <SortIcon field="total_meals_joined" /></div>
                 </th>
                 <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3 cursor-pointer hover:text-gray-700" onClick={() => handleSort('no_show_count')}>
-                  <div className="flex items-center gap-1">No-Show <SortIcon field="no_show_count" /></div>
+                  <div className="flex items-center gap-1">{t('users.noShow')} <SortIcon field="no_show_count" /></div>
                 </th>
-                <th className="text-right text-xs font-semibold text-gray-500 px-5 py-3">Actions</th>
+                <th className="text-right text-xs font-semibold text-gray-500 px-5 py-3">{t('users.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -169,7 +176,7 @@ export default function AdminUsersPage() {
                           <span className="text-xs font-bold text-[#FF6B35]">{user.nickname?.charAt(0) || user.email.charAt(0)}</span>
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-medium text-gray-800 truncate">{user.nickname || 'Unnamed'}</p>
+                          <p className="text-sm font-medium text-gray-800 truncate">{user.nickname || t('users.unnamed')}</p>
                           <p className="text-[11px] text-gray-400 truncate">{user.email}</p>
                         </div>
                       </div>
@@ -213,27 +220,27 @@ export default function AdminUsersPage() {
                               onClick={() => { setSelectedUser(user); setActionMenu(null); }}
                               className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                             >
-                              <Eye className="w-3.5 h-3.5" /> View Details
+                              <Eye className="w-3.5 h-3.5" /> {t('users.viewDetails')}
                             </button>
                             <button
                               onClick={() => { setCreditModal({ user, amount: 0, reason: '' }); setActionMenu(null); }}
                               className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                             >
-                              <Star className="w-3.5 h-3.5" /> Adjust Credit
+                              <Star className="w-3.5 h-3.5" /> {t('users.adjustCredit')}
                             </button>
                             {user.status === 'active' ? (
                               <button
                                 onClick={() => setActionMenu(null)}
                                 className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                               >
-                                <Ban className="w-3.5 h-3.5" /> Ban User
+                                <Ban className="w-3.5 h-3.5" /> {t('users.banUser')}
                               </button>
                             ) : (
                               <button
                                 onClick={() => setActionMenu(null)}
                                 className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-[#2EC4B6] hover:bg-[#2EC4B6]/5"
                               >
-                                <ShieldCheck className="w-3.5 h-3.5" /> Reactivate
+                                <ShieldCheck className="w-3.5 h-3.5" /> {t('users.reactivate')}
                               </button>
                             )}
                           </div>
@@ -248,7 +255,7 @@ export default function AdminUsersPage() {
         </div>
         {/* Footer */}
         <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 bg-gray-50/50">
-          <p className="text-xs text-gray-500">Showing {filtered.length} of {DEMO_USERS.length} users</p>
+          <p className="text-xs text-gray-500">{t('users.showingOf', { count: filtered.length, total: DEMO_USERS.length })}</p>
           <div className="flex gap-1">
             {[1, 2, 3].map(p => (
               <button key={p} className={cn(
@@ -268,7 +275,7 @@ export default function AdminUsersPage() {
           <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setSelectedUser(null)} />
           <div className="relative w-full max-w-md bg-white h-full overflow-y-auto shadow-xl">
             <div className="sticky top-0 bg-white z-10 px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-gray-800">User Details</h2>
+              <h2 className="text-lg font-bold text-gray-800">{t('users.userDetails')}</h2>
               <button onClick={() => setSelectedUser(null)} className="p-1.5 rounded-lg hover:bg-gray-100">
                 <X className="w-5 h-5 text-gray-500" />
               </button>
@@ -279,7 +286,7 @@ export default function AdminUsersPage() {
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#FF6B35]/20 to-[#FF6B6B]/20 flex items-center justify-center mx-auto mb-3">
                   <span className="text-2xl font-bold text-[#FF6B35]">{selectedUser.nickname?.charAt(0) || '?'}</span>
                 </div>
-                <h3 className="text-lg font-bold text-gray-800">{selectedUser.nickname || 'Unnamed'}</h3>
+                <h3 className="text-lg font-bold text-gray-800">{selectedUser.nickname || t('users.unnamed')}</h3>
                 <p className="text-sm text-gray-500">{selectedUser.email}</p>
                 <span className={cn('inline-block mt-2 text-[11px] font-medium px-2.5 py-1 rounded-full capitalize', ADMIN_STATUS_COLORS[selectedUser.status])}>
                   {selectedUser.status}
@@ -289,10 +296,10 @@ export default function AdminUsersPage() {
               {/* Info Grid */}
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { label: 'Credit Score', value: `${selectedUser.credit_score}`, icon: Star, color: 'text-[#FFD700]' },
-                  { label: 'Meals Hosted', value: selectedUser.total_meals_hosted, icon: Calendar, color: 'text-[#FF6B35]' },
-                  { label: 'Meals Joined', value: selectedUser.total_meals_joined, icon: UserPlus, color: 'text-blue-500' },
-                  { label: 'No Shows', value: selectedUser.no_show_count, icon: AlertTriangle, color: selectedUser.no_show_count > 0 ? 'text-red-500' : 'text-gray-400' },
+                  { label: t('users.creditScore'), value: `${selectedUser.credit_score}`, icon: Star, color: 'text-[#FFD700]' },
+                  { label: t('users.mealsHosted'), value: selectedUser.total_meals_hosted, icon: Calendar, color: 'text-[#FF6B35]' },
+                  { label: t('users.mealsJoined'), value: selectedUser.total_meals_joined, icon: UserPlus, color: 'text-blue-500' },
+                  { label: t('users.noShows'), value: selectedUser.no_show_count, icon: AlertTriangle, color: selectedUser.no_show_count > 0 ? 'text-red-500' : 'text-gray-400' },
                 ].map(item => {
                   const Icon = item.icon;
                   return (
@@ -309,15 +316,15 @@ export default function AdminUsersPage() {
 
               {/* Personal Info */}
               <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-gray-700">Personal Info</h4>
+                <h4 className="text-sm font-semibold text-gray-700">{t('users.personalInfo')}</h4>
                 {[
-                  { label: 'Age Range', value: selectedUser.age_range || '-' },
-                  { label: 'Occupation', value: selectedUser.occupation || '-' },
-                  { label: 'Languages', value: selectedUser.languages_spoken.join(', ') || '-' },
-                  { label: 'Bio', value: selectedUser.bio || '-' },
-                  { label: 'Joined', value: new Date(selectedUser.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) },
-                  { label: 'Last Active', value: new Date(selectedUser.last_active).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) },
-                  { label: 'Email Verified', value: selectedUser.email_verified ? 'Yes' : 'No' },
+                  { label: t('users.ageRange'), value: selectedUser.age_range || '-' },
+                  { label: t('users.occupation'), value: selectedUser.occupation || '-' },
+                  { label: t('users.languages'), value: selectedUser.languages_spoken.join(', ') || '-' },
+                  { label: t('users.bio'), value: selectedUser.bio || '-' },
+                  { label: t('users.joined'), value: new Date(selectedUser.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) },
+                  { label: t('users.lastActive'), value: new Date(selectedUser.last_active).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) },
+                  { label: t('users.emailVerified'), value: selectedUser.email_verified ? t('users.yes') : t('users.no') },
                 ].map(item => (
                   <div key={item.label} className="flex justify-between items-start py-2 border-b border-gray-50">
                     <span className="text-xs text-gray-500">{item.label}</span>
@@ -332,21 +339,21 @@ export default function AdminUsersPage() {
                   onClick={() => { setCreditModal({ user: selectedUser, amount: 0, reason: '' }); }}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#FF6B35] text-white rounded-xl text-sm font-medium hover:bg-[#FF6B35]/90 transition-colors"
                 >
-                  <Star className="w-4 h-4" /> Adjust Credit
+                  <Star className="w-4 h-4" /> {t('users.adjustCredit')}
                 </button>
                 {selectedUser.status === 'active' ? (
                   <button
                     onClick={() => setSelectedUser(null)}
                     className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 text-red-600 rounded-xl text-sm font-medium hover:bg-red-100 transition-colors"
                   >
-                    <Ban className="w-4 h-4" /> Ban
+                    <Ban className="w-4 h-4" /> {t('users.ban')}
                   </button>
                 ) : (
                   <button
                     onClick={() => setSelectedUser(null)}
                     className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#2EC4B6]/10 text-[#2EC4B6] rounded-xl text-sm font-medium hover:bg-[#2EC4B6]/20 transition-colors"
                   >
-                    <ShieldCheck className="w-4 h-4" /> Reactivate
+                    <ShieldCheck className="w-4 h-4" /> {t('users.reactivate')}
                   </button>
                 )}
               </div>
@@ -361,47 +368,47 @@ export default function AdminUsersPage() {
           <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setCreditModal(null)} />
           <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-800">Adjust Credit Score</h3>
+              <h3 className="text-lg font-bold text-gray-800">{t('users.adjustCreditTitle')}</h3>
               <button onClick={() => setCreditModal(null)} className="p-1 rounded-lg hover:bg-gray-100">
                 <X className="w-4 h-4 text-gray-500" />
               </button>
             </div>
             <div className="mb-4">
-              <p className="text-sm text-gray-500 mb-1">User</p>
+              <p className="text-sm text-gray-500 mb-1">{t('users.userLabel')}</p>
               <p className="text-sm font-medium text-gray-800">{creditModal.user.nickname} ({creditModal.user.credit_score})</p>
             </div>
             <div className="mb-4">
-              <label className="block text-sm text-gray-600 mb-1.5">Points Adjustment (+/-)</label>
+              <label className="block text-sm text-gray-600 mb-1.5">{t('users.pointsAdjustment')}</label>
               <input
                 type="number"
                 value={creditModal.amount}
                 onChange={e => setCreditModal({ ...creditModal, amount: parseInt(e.target.value) || 0 })}
                 className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]"
-                placeholder="e.g. -20 or +10"
+                placeholder={t('users.pointsPlaceholder')}
               />
               <p className="text-xs text-gray-400 mt-1">
-                New score: <span className="font-semibold text-gray-700">{creditModal.user.credit_score + creditModal.amount}</span>
+                {t('users.newScore')} <span className="font-semibold text-gray-700">{creditModal.user.credit_score + creditModal.amount}</span>
               </p>
             </div>
             <div className="mb-5">
-              <label className="block text-sm text-gray-600 mb-1.5">Reason</label>
+              <label className="block text-sm text-gray-600 mb-1.5">{t('users.reason')}</label>
               <textarea
                 value={creditModal.reason}
                 onChange={e => setCreditModal({ ...creditModal, reason: e.target.value })}
                 rows={3}
                 className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] resize-none"
-                placeholder="e.g. No-show penalty, good host bonus..."
+                placeholder={t('users.reasonPlaceholder')}
               />
             </div>
             <div className="flex gap-3">
               <button onClick={() => setCreditModal(null)} className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors">
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 onClick={() => { alert(`Credit adjusted: ${creditModal.amount} points for ${creditModal.user.nickname}`); setCreditModal(null); }}
                 className="flex-1 px-4 py-2.5 bg-[#FF6B35] text-white rounded-xl text-sm font-medium hover:bg-[#FF6B35]/90 transition-colors"
               >
-                Confirm
+                {t('common.confirm')}
               </button>
             </div>
           </div>

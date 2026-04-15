@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import AdminLayoutClient from "./AdminLayoutClient";
+import { AdminI18nProvider } from "./AdminI18nProvider";
 
 export const metadata: Metadata = {
   title: "EatTogether Admin",
@@ -12,7 +13,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="zh-CN" className="h-full antialiased">
       <head>
         <link
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&family=Prompt:wght@400;500;600;700&display=swap"
@@ -22,7 +23,9 @@ export default function AdminLayout({
       </head>
       <body className="min-h-screen bg-[#F8F9FA]">
         <div className="flex">
-          <AdminLayoutClient>{children}</AdminLayoutClient>
+          <AdminI18nProvider>
+            <AdminLayoutClient>{children}</AdminLayoutClient>
+          </AdminI18nProvider>
         </div>
       </body>
     </html>

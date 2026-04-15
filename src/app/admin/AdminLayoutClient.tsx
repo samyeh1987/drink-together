@@ -11,39 +11,36 @@ import {
   AlertTriangle,
   Image as ImageIcon,
   Settings,
-  LogOut,
   Menu,
   X,
   ChevronRight,
   Bell,
-  Globe,
-  Check,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const ADMIN_LOCALES = [
-  { code: 'en', label: 'English', flag: '🇺🇸' },
-  { code: 'zh-CN', label: '中文', flag: '🇨🇳' },
-  { code: 'th', label: 'ไทย', flag: '🇹🇭' },
-] as const;
-
-const navItems = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-  { href: '/admin/users', label: 'Users', icon: Users },
-  { href: '/admin/meals', label: 'Meals', icon: UtensilsCrossed },
-  { href: '/admin/restaurants', label: 'Restaurants', icon: Store },
-  { href: '/admin/reports', label: 'Reports', icon: AlertTriangle, badge: 3 },
-  { href: '/admin/photos', label: 'Photos', icon: ImageIcon },
-  { href: '/admin/settings', label: 'Settings', icon: Settings },
-];
+import { useAdminT } from './AdminI18nProvider';
 
 export default function AdminLayoutClient({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [langOpen, setLangOpen] = useState(false);
-  const [adminLang, setAdminLang] = useState('en');
+  const t = useAdminT();
   const pathname = usePathname();
 
-  const currentLocale = ADMIN_LOCALES.find((l) => l.code === adminLang) ?? ADMIN_LOCALES[0];
+  const navItems = [
+    { href: '/admin', label: t('nav.dashboard'), icon: LayoutDashboard, exact: true },
+    { href: '/admin/users', label: t('nav.users'), icon: Users },
+    { href: '/admin/meals', label: t('nav.meals'), icon: UtensilsCrossed },
+    { href: '/admin/restaurants', label: t('nav.restaurants'), icon: Store },
+    { href: '/admin/reports', label: t('nav.reports'), icon: AlertTriangle, badge: 3 },
+    { href: '/admin/photos', label: t('nav.photos'), icon: ImageIcon },
+    { href: '/admin/settings', label: t('nav.settings'), icon: Settings },
+  ];
+
+  // Get page name from pathname for breadcrumb
+  const getPageLabel = () => {
+    if (pathname === '/admin') return t('nav.dashboard');
+    const path = pathname.replace('/admin/', '');
+    const navItem = navItems.find(item => !item.exact && pathname.startsWith(item.href));
+    return navItem?.label || path;
+  };
 
   return (
     <>
@@ -73,7 +70,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
                 <span className="text-base font-bold text-[#1A1A2E]">
                   Eat<span className="text-[#FF6B35]">Together</span>
                 </span>
-                <span className="block text-[10px] text-gray-400 font-medium tracking-wider uppercase">Admin Panel</span>
+                <span className="block text-[10px] text-gray-400 font-medium tracking-wider uppercase">{t('layout.adminPanel')}</span>
               </div>
             </Link>
             <button
@@ -131,43 +128,6 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
 
           {/* Bottom section */}
           <div className="px-3 py-4 border-t border-gray-100">
-            {/* Language switcher */}
-            <div className="relative mb-2">
-              <button
-                onClick={() => setLangOpen(!langOpen)}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all w-full"
-              >
-                <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
-                  <Globe className="w-4 h-4 text-gray-400" />
-                </div>
-                <span className="flex-1 text-left">{currentLocale.flag} {currentLocale.label}</span>
-                <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
-              </button>
-              {langOpen && (
-                <div className="absolute bottom-full left-0 mb-1 w-full bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-50">
-                  {ADMIN_LOCALES.map((loc) => (
-                    <button
-                      key={loc.code}
-                      onClick={() => {
-                        setAdminLang(loc.code);
-                        setLangOpen(false);
-                        document.documentElement.lang = loc.code;
-                      }}
-                      className={cn(
-                        'flex items-center gap-2.5 px-3 py-2 text-sm w-full transition-colors',
-                        adminLang === loc.code
-                          ? 'text-[#FF6B35] bg-[#FF6B35]/5'
-                          : 'text-gray-600 hover:bg-gray-50'
-                      )}
-                    >
-                      <span>{loc.flag}</span>
-                      <span className="flex-1 text-left">{loc.label}</span>
-                      {adminLang === loc.code && <Check className="w-4 h-4" />}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
             {/* View frontend link */}
             <Link
               href="/en"
@@ -180,7 +140,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
                   <line x1="10" y1="14" x2="21" y2="3" />
                 </svg>
               </div>
-              <span className="flex-1">View Frontend</span>
+              <span className="flex-1">{t('layout.viewFrontend')}</span>
             </Link>
           </div>
         </div>
@@ -201,12 +161,12 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
               </button>
               {/* Breadcrumb */}
               <div className="hidden sm:flex items-center gap-1.5 text-sm">
-                <Link href="/admin" className="text-gray-400 hover:text-gray-600 transition-colors">Admin</Link>
+                <Link href="/admin" className="text-gray-400 hover:text-gray-600 transition-colors">{t('layout.admin')}</Link>
                 {pathname !== '/admin' && (
                   <>
                     <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
-                    <span className="text-gray-700 font-medium capitalize">
-                      {pathname.replace('/admin', '') || 'Dashboard'}
+                    <span className="text-gray-700 font-medium">
+                      {getPageLabel()}
                     </span>
                   </>
                 )}
@@ -225,7 +185,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
                 </div>
                 <div className="hidden sm:block">
                   <p className="text-sm font-semibold text-gray-700">Admin</p>
-                  <p className="text-[11px] text-gray-400">Super Admin</p>
+                  <p className="text-[11px] text-gray-400">{t('layout.superAdmin')}</p>
                 </div>
               </div>
             </div>

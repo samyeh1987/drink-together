@@ -1,5 +1,6 @@
 'use client';
 
+import { useAdminT } from './AdminI18nProvider';
 import {
   Users,
   UtensilsCrossed,
@@ -57,12 +58,21 @@ const statusColors: Record<string, string> = {
 };
 
 export default function AdminDashboard() {
+  const t = useAdminT();
+
+  const statsLabelKeys: Record<string, string> = {
+    'Total Users': 'dashboard.totalUsers',
+    'Active Meals': 'dashboard.activeMeals',
+    'Meals This Week': 'dashboard.mealsThisWeek',
+    'New Users Today': 'dashboard.newUsersToday',
+  };
+
   return (
     <div className="space-y-6">
       {/* Page Title */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-1">Welcome back! Here&apos;s what&apos;s happening on EatTogether.</p>
+        <h1 className="text-2xl font-bold text-gray-800">{t('dashboard.title')}</h1>
+        <p className="text-sm text-gray-500 mt-1">{t('dashboard.subtitle')}</p>
       </div>
 
       {/* Stats Cards */}
@@ -73,7 +83,7 @@ export default function AdminDashboard() {
             <div key={stat.label} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm text-gray-500 font-medium">{stat.label}</p>
+                  <p className="text-sm text-gray-500 font-medium">{t(statsLabelKeys[stat.label] || stat.label)}</p>
                   <p className="text-2xl font-bold text-gray-800 mt-1">{stat.value}</p>
                 </div>
                 <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-sm`}>
@@ -89,7 +99,7 @@ export default function AdminDashboard() {
                 <span className={`text-xs font-semibold ${stat.up ? 'text-[#2EC4B6]' : 'text-[#FF6B6B]'}`}>
                   {stat.change}
                 </span>
-                <span className="text-xs text-gray-400">vs last week</span>
+                <span className="text-xs text-gray-400">{t('dashboard.vsLastWeek')}</span>
               </div>
             </div>
           );
@@ -101,7 +111,7 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-xl p-4 border border-gray-100">
           <div className="flex items-center gap-2 mb-2">
             <CheckCircle2 className="w-4 h-4 text-[#2EC4B6]" />
-            <span className="text-xs text-gray-500 font-medium">Confirmation Rate</span>
+            <span className="text-xs text-gray-500 font-medium">{t('dashboard.confirmationRate')}</span>
           </div>
           <p className="text-xl font-bold text-gray-800">78.5%</p>
           <div className="w-full h-1.5 bg-gray-100 rounded-full mt-2">
@@ -111,7 +121,7 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-xl p-4 border border-gray-100">
           <div className="flex items-center gap-2 mb-2">
             <XCircle className="w-4 h-4 text-[#FF6B6B]" />
-            <span className="text-xs text-gray-500 font-medium">Cancellation Rate</span>
+            <span className="text-xs text-gray-500 font-medium">{t('dashboard.cancellationRate')}</span>
           </div>
           <p className="text-xl font-bold text-gray-800">8.2%</p>
           <div className="w-full h-1.5 bg-gray-100 rounded-full mt-2">
@@ -121,18 +131,18 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-xl p-4 border border-gray-100">
           <div className="flex items-center gap-2 mb-2">
             <Store className="w-4 h-4 text-[#FFD700]" />
-            <span className="text-xs text-gray-500 font-medium">Partner Restaurants</span>
+            <span className="text-xs text-gray-500 font-medium">{t('dashboard.partnerRestaurants')}</span>
           </div>
           <p className="text-xl font-bold text-gray-800">4</p>
-          <p className="text-xs text-gray-400 mt-1">6 active deal meals</p>
+          <p className="text-xs text-gray-400 mt-1">6 {t('dashboard.activeDealMeals')}</p>
         </div>
         <div className="bg-white rounded-xl p-4 border border-gray-100">
           <div className="flex items-center gap-2 mb-2">
             <ImageIcon className="w-4 h-4 text-purple-500" />
-            <span className="text-xs text-gray-500 font-medium">Gallery Photos</span>
+            <span className="text-xs text-gray-500 font-medium">{t('dashboard.galleryPhotos')}</span>
           </div>
           <p className="text-xl font-bold text-gray-800">247</p>
-          <p className="text-xs text-gray-400 mt-1">1,892 total likes</p>
+          <p className="text-xs text-gray-400 mt-1">1,892 {t('dashboard.totalLikes')}</p>
         </div>
       </div>
 
@@ -141,8 +151,8 @@ export default function AdminDashboard() {
         {/* Recent Meals */}
         <div className="xl:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm">
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
-            <h2 className="font-semibold text-gray-800">Recent Meals</h2>
-            <span className="text-xs text-[#FF6B35] font-medium cursor-pointer hover:underline">View all</span>
+            <h2 className="font-semibold text-gray-800">{t('dashboard.recentMeals')}</h2>
+            <span className="text-xs text-[#FF6B35] font-medium cursor-pointer hover:underline">{t('dashboard.viewAll')}</span>
           </div>
           <div className="divide-y divide-gray-50">
             {recentMeals.map((meal) => (
@@ -152,7 +162,7 @@ export default function AdminDashboard() {
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-gray-800 truncate">{meal.title}</p>
                     <p className="text-xs text-gray-400 mt-0.5">
-                      {meal.restaurant} · Host: {meal.host} · {meal.participants}/{meal.max} people
+                      {meal.restaurant} · {t('dashboard.host')}: {meal.host} · {meal.participants}/{meal.max} {t('dashboard.people')}
                     </p>
                   </div>
                 </div>
@@ -167,8 +177,8 @@ export default function AdminDashboard() {
         {/* Recent Users */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
-            <h2 className="font-semibold text-gray-800">New Users</h2>
-            <span className="text-xs text-[#FF6B35] font-medium cursor-pointer hover:underline">View all</span>
+            <h2 className="font-semibold text-gray-800">{t('dashboard.newUsers')}</h2>
+            <span className="text-xs text-[#FF6B35] font-medium cursor-pointer hover:underline">{t('dashboard.viewAll')}</span>
           </div>
           <div className="divide-y divide-gray-50">
             {recentUsers.map((user) => (
@@ -182,7 +192,7 @@ export default function AdminDashboard() {
                 </div>
                 <div className="text-right flex-shrink-0">
                   <p className="text-xs font-semibold text-gray-600">{user.credit}</p>
-                  <p className="text-[10px] text-gray-400">credits</p>
+                  <p className="text-[10px] text-gray-400">{t('dashboard.credits')}</p>
                 </div>
               </div>
             ))}
@@ -193,8 +203,8 @@ export default function AdminDashboard() {
       {/* Activity Log */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
-          <h2 className="font-semibold text-gray-800">Activity Log</h2>
-          <span className="text-xs text-[#FF6B35] font-medium cursor-pointer hover:underline">View all</span>
+          <h2 className="font-semibold text-gray-800">{t('dashboard.activityLog')}</h2>
+          <span className="text-xs text-[#FF6B35] font-medium cursor-pointer hover:underline">{t('dashboard.viewAll')}</span>
         </div>
         <div className="divide-y divide-gray-50">
           {activityLog.map((log, i) => {

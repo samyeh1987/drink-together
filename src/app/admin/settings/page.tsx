@@ -7,6 +7,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAdminT } from '../AdminI18nProvider';
 
 type TabKey = 'general' | 'credit' | 'notifications' | 'content' | 'locale';
 
@@ -90,6 +91,7 @@ const SETTINGS: Record<TabKey, { icon: typeof Settings; label: string; descripti
 };
 
 export default function AdminSettingsPage() {
+  const t = useAdminT();
   const [activeTab, setActiveTab] = useState<TabKey>('general');
   const [values, setValues] = useState<Record<string, string | number | boolean>>(() => {
     const initial: Record<string, string | number | boolean> = {};
@@ -130,15 +132,15 @@ export default function AdminSettingsPage() {
       {/* Page Title */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Settings</h1>
-          <p className="text-sm text-gray-500 mt-1">Configure platform parameters and preferences.</p>
+          <h1 className="text-2xl font-bold text-gray-800">{t('settings.title')}</h1>
+          <p className="text-sm text-gray-500 mt-1">{t('settings.subtitle')}</p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={handleReset}
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
           >
-            <RotateCcw className="w-4 h-4" /> Reset
+            <RotateCcw className="w-4 h-4" /> {t('settings.reset')}
           </button>
           <button
             onClick={handleSave}
@@ -149,7 +151,7 @@ export default function AdminSettingsPage() {
                 : 'bg-[#FF6B35] text-white hover:bg-[#FF6B35]/90'
             )}
           >
-            <Save className="w-4 h-4" /> {saved ? 'Saved!' : 'Save Changes'}
+            <Save className="w-4 h-4" /> {saved ? t('settings.saved') : t('settings.saveChanges')}
           </button>
         </div>
       </div>

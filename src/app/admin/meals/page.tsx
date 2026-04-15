@@ -9,11 +9,13 @@ import {
 } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
 import { DEMO_MEALS, ADMIN_STATUS_COLORS, CUISINE_EMOJI, type AdminMeal } from '../data';
+import { useAdminT } from '../AdminI18nProvider';
 
 type SortField = 'datetime' | 'current_participants' | 'created_at' | 'reports_count';
 type SortDir = 'asc' | 'desc';
 
 export default function AdminMealsPage() {
+  const t = useAdminT();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [cuisineFilter, setCuisineFilter] = useState<string>('all');
@@ -73,18 +75,18 @@ export default function AdminMealsPage() {
     <div className="space-y-6">
       {/* Page Title */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">Meals</h1>
-        <p className="text-sm text-gray-500 mt-1">View and manage all dining events on the platform.</p>
+        <h1 className="text-2xl font-bold text-gray-800">{t('meals.title')}</h1>
+        <p className="text-sm text-gray-500 mt-1">{t('meals.subtitle')}</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {[
-          { label: 'Total Meals', value: stats.total, icon: UtensilsCrossed, color: 'from-[#FF6B35] to-[#FF6B6B]' },
-          { label: 'Open', value: stats.open, icon: Clock, color: 'from-blue-500 to-blue-600' },
-          { label: 'Completed', value: stats.completed, icon: CheckCircle2, color: 'from-[#2EC4B6] to-[#5DD9CE]' },
-          { label: 'Cancelled', value: stats.cancelled, icon: XCircle, color: 'from-red-500 to-red-600' },
-          { label: 'Reported', value: stats.reported, icon: AlertTriangle, color: 'from-yellow-500 to-yellow-600' },
+          { label: t('meals.totalMeals'), value: stats.total, icon: UtensilsCrossed, color: 'from-[#FF6B35] to-[#FF6B6B]' },
+          { label: t('meals.open'), value: stats.open, icon: Clock, color: 'from-blue-500 to-blue-600' },
+          { label: t('meals.completed'), value: stats.completed, icon: CheckCircle2, color: 'from-[#2EC4B6] to-[#5DD9CE]' },
+          { label: t('meals.cancelled'), value: stats.cancelled, icon: XCircle, color: 'from-red-500 to-red-600' },
+          { label: t('meals.reported'), value: stats.reported, icon: AlertTriangle, color: 'from-yellow-500 to-yellow-600' },
         ].map(s => {
           const Icon = s.icon;
           return (
@@ -109,7 +111,7 @@ export default function AdminMealsPage() {
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search meals, restaurants, hosts..."
+            placeholder={t('meals.searchPlaceholder')}
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] transition-all"
           />
           {search && (
@@ -159,17 +161,17 @@ export default function AdminMealsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-100">
-                <th className="text-left text-xs font-semibold text-gray-500 px-5 py-3">Meal</th>
-                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3">Host</th>
-                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3">Status</th>
+                <th className="text-left text-xs font-semibold text-gray-500 px-5 py-3">{t('meals.meal')}</th>
+                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3">{t('meals.host')}</th>
+                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3">{t('meals.status')}</th>
                 <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3 cursor-pointer hover:text-gray-700" onClick={() => { if (sortBy === 'datetime') setSortDir(d => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('datetime'); setSortDir('desc'); } }}>
-                  <div className="flex items-center gap-1">Date <SortIcon field="datetime" /></div>
+                  <div className="flex items-center gap-1">{t('meals.date')} <SortIcon field="datetime" /></div>
                 </th>
-                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3">Pax</th>
+                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3">{t('meals.pax')}</th>
                 <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3 cursor-pointer hover:text-gray-700" onClick={() => { if (sortBy === 'reports_count') setSortDir(d => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('reports_count'); setSortDir('desc'); } }}>
-                  <div className="flex items-center gap-1">Reports <SortIcon field="reports_count" /></div>
+                  <div className="flex items-center gap-1">{t('meals.reports')} <SortIcon field="reports_count" /></div>
                 </th>
-                <th className="text-right text-xs font-semibold text-gray-500 px-5 py-3">Actions</th>
+                <th className="text-right text-xs font-semibold text-gray-500 px-5 py-3">{t('meals.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -184,7 +186,7 @@ export default function AdminMealsPage() {
                       </div>
                       {meal.is_restaurant_hosted && (
                         <span className="flex-shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#FFD700]/20 text-[#B8860B] uppercase tracking-wider">
-                          Partner
+                          {t('meals.partner')}
                         </span>
                       )}
                     </div>
@@ -232,14 +234,14 @@ export default function AdminMealsPage() {
                             onClick={() => { setSelectedMeal(meal); setActionMenu(null); }}
                             className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                           >
-                            <Eye className="w-3.5 h-3.5" /> View Details
+                            <Eye className="w-3.5 h-3.5" /> {t('meals.viewDetails')}
                           </button>
                           {meal.status !== 'cancelled' && meal.status !== 'completed' && (
                             <button
                               onClick={() => { alert(`Meal "${meal.title}" cancelled`); setActionMenu(null); }}
                               className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                             >
-                              <Ban className="w-3.5 h-3.5" /> Cancel Meal
+                              <Ban className="w-3.5 h-3.5" /> {t('meals.cancelMeal')}
                             </button>
                           )}
                         </div>
@@ -252,7 +254,7 @@ export default function AdminMealsPage() {
           </table>
         </div>
         <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 bg-gray-50/50">
-          <p className="text-xs text-gray-500">Showing {filtered.length} of {DEMO_MEALS.length} meals</p>
+          <p className="text-xs text-gray-500">{t('meals.showingOf', { count: filtered.length, total: DEMO_MEALS.length })}</p>
         </div>
       </div>
 
@@ -262,7 +264,7 @@ export default function AdminMealsPage() {
           <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setSelectedMeal(null)} />
           <div className="relative w-full max-w-lg bg-white h-full overflow-y-auto shadow-xl">
             <div className="sticky top-0 bg-white z-10 px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-gray-800">Meal Details</h2>
+              <h2 className="text-lg font-bold text-gray-800">{t('meals.mealDetails')}</h2>
               <button onClick={() => setSelectedMeal(null)} className="p-1.5 rounded-lg hover:bg-gray-100">
                 <X className="w-5 h-5 text-gray-500" />
               </button>
@@ -280,7 +282,7 @@ export default function AdminMealsPage() {
                     </span>
                     {selectedMeal.is_restaurant_hosted && (
                       <span className="inline-block ml-2 text-[9px] font-bold px-2 py-0.5 rounded bg-[#FFD700]/20 text-[#B8860B] uppercase tracking-wider">
-                        Restaurant Hosted
+                        {t('meals.restaurantHosted')}
                       </span>
                     )}
                   </div>
@@ -290,12 +292,12 @@ export default function AdminMealsPage() {
               {/* Details */}
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { icon: Calendar, label: 'Date & Time', value: formatDatetime(selectedMeal.datetime), color: 'text-blue-500' },
-                  { icon: Clock, label: 'Deadline', value: formatDatetime(selectedMeal.deadline), color: 'text-yellow-500' },
-                  { icon: Users, label: 'Participants', value: `${selectedMeal.current_participants} / ${selectedMeal.max_participants}`, color: 'text-[#2EC4B6]' },
-                  { icon: MapPin, label: 'Location', value: selectedMeal.restaurant_address, color: 'text-red-400' },
-                  { icon: CreditCard, label: 'Payment', value: selectedMeal.payment_method.replace(/([A-Z])/g, ' $1').trim(), color: 'text-purple-500' },
-                  { icon: Globe, label: 'Languages', value: selectedMeal.meal_languages.join(', ').toUpperCase(), color: 'text-[#FF6B35]' },
+                  { icon: Calendar, label: t('meals.dateTime'), value: formatDatetime(selectedMeal.datetime), color: 'text-blue-500' },
+                  { icon: Clock, label: t('meals.deadline'), value: formatDatetime(selectedMeal.deadline), color: 'text-yellow-500' },
+                  { icon: Users, label: t('meals.participants'), value: `${selectedMeal.current_participants} / ${selectedMeal.max_participants}`, color: 'text-[#2EC4B6]' },
+                  { icon: MapPin, label: t('meals.location'), value: selectedMeal.restaurant_address, color: 'text-red-400' },
+                  { icon: CreditCard, label: t('meals.payment'), value: selectedMeal.payment_method.replace(/([A-Z])/g, ' $1').trim(), color: 'text-purple-500' },
+                  { icon: Globe, label: t('meals.languages'), value: selectedMeal.meal_languages.join(', ').toUpperCase(), color: 'text-[#FF6B35]' },
                 ].map(item => {
                   const Icon = item.icon;
                   return (
@@ -313,7 +315,7 @@ export default function AdminMealsPage() {
               {/* Budget */}
               {selectedMeal.budget_min && (
                 <div className="bg-[#FFF8F0] rounded-xl p-4">
-                  <p className="text-xs text-gray-500 mb-1">Budget per person</p>
+                  <p className="text-xs text-gray-500 mb-1">{t('meals.budgetPerPerson')}</p>
                   <p className="text-lg font-bold text-[#FF6B35]">
                     {formatCurrency(selectedMeal.budget_min ?? 0)} - {formatCurrency(selectedMeal.budget_max ?? 0)}
                   </p>
@@ -322,20 +324,20 @@ export default function AdminMealsPage() {
 
               {/* Description */}
               <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">Description</h4>
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">{t('meals.description')}</h4>
                 <p className="text-sm text-gray-600 leading-relaxed">{selectedMeal.description}</p>
               </div>
 
               {/* Host Info */}
               <div className="border-t border-gray-100 pt-4">
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">Host</h4>
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">{t('meals.host')}</h4>
                 <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-3">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#FF6B35]/20 to-[#FF6B6B]/20 flex items-center justify-center">
                     <span className="text-sm font-bold text-[#FF6B35]">{selectedMeal.creator_name.charAt(0)}</span>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-800">{selectedMeal.creator_name}</p>
-                    <p className="text-xs text-gray-400">Created {new Date(selectedMeal.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                    <p className="text-xs text-gray-400">{t('meals.created')} {new Date(selectedMeal.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
                   </div>
                 </div>
               </div>
@@ -348,7 +350,7 @@ export default function AdminMealsPage() {
                     <h4 className="text-sm font-semibold text-red-600">Reports ({selectedMeal.reports_count})</h4>
                   </div>
                   <div className="bg-red-50 rounded-xl p-3 text-sm text-red-600">
-                    This meal has {selectedMeal.reports_count} unresolved report(s). Check Reports page for details.
+                    {t('meals.unresolvedReports', { count: selectedMeal.reports_count })}
                   </div>
                 </div>
               )}
