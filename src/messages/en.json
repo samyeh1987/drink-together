@@ -29,6 +29,19 @@
     "createMeal": "Create Meal",
     "deals": "Deals"
   },
+  "myMeals": {
+    "all": "All",
+    "hosting": "Hosting",
+    "joined": "Joined",
+    "completed": "Completed",
+    "noMeals": "No meals yet",
+    "noMealsDesc": "Start by hosting or joining a meal!",
+    "noMealsDescFiltered": "No meals in this category",
+    "cancelJoin": "Cancel RSVP",
+    "cancelJoinConfirm": "Are you sure you want to cancel?",
+    "viewMeal": "View Details",
+    "mealsFound": "{count} meals found"
+  },
   "home": {
     "heroTitle": "Don't Eat Alone",
     "heroSubtitle": "Find new friends over great food in Bangkok",

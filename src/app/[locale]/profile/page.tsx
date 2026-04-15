@@ -1,6 +1,7 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
   Edit3,
@@ -9,6 +10,7 @@ import {
   Users,
   Award,
   ChevronRight,
+  ClipboardList,
 } from 'lucide-react';
 
 // Demo profile data
@@ -52,6 +54,7 @@ function getCreditLevel(score: number): { level: string; stars: number; color: s
 
 export default function ProfilePage() {
   const t = useTranslations();
+  const locale = useLocale();
   const creditInfo = getCreditLevel(profile.creditScore);
 
   return (
@@ -111,22 +114,26 @@ export default function ProfilePage() {
           className="grid grid-cols-3 gap-3 mb-4"
         >
           {/* Meals Hosted */}
-          <div className="card p-3 text-center">
-            <div className="w-10 h-10 mx-auto rounded-xl bg-primary/10 flex items-center justify-center mb-2">
-              <UtensilsCrossed className="w-5 h-5 text-primary" />
+          <Link href={`/${locale}/meals/my?tab=hosting`}>
+            <div className="card p-3 text-center cursor-pointer group">
+              <div className="w-10 h-10 mx-auto rounded-xl bg-primary/10 flex items-center justify-center mb-2">
+                <UtensilsCrossed className="w-5 h-5 text-primary" />
+              </div>
+              <div className="text-xl font-bold text-dark">{profile.mealsHosted}</div>
+              <div className="text-xs text-gray">{t('profile.mealsHosted')}</div>
             </div>
-            <div className="text-xl font-bold text-dark">{profile.mealsHosted}</div>
-            <div className="text-xs text-gray">{t('profile.mealsHosted')}</div>
-          </div>
+          </Link>
 
           {/* Meals Joined */}
-          <div className="card p-3 text-center">
-            <div className="w-10 h-10 mx-auto rounded-xl bg-mint/10 flex items-center justify-center mb-2">
-              <Users className="w-5 h-5 text-mint" />
+          <Link href={`/${locale}/meals/my?tab=joined`}>
+            <div className="card p-3 text-center cursor-pointer group">
+              <div className="w-10 h-10 mx-auto rounded-xl bg-mint/10 flex items-center justify-center mb-2">
+                <Users className="w-5 h-5 text-mint" />
+              </div>
+              <div className="text-xl font-bold text-dark">{profile.mealsJoined}</div>
+              <div className="text-xs text-gray">{t('profile.mealsJoined')}</div>
             </div>
-            <div className="text-xl font-bold text-dark">{profile.mealsJoined}</div>
-            <div className="text-xs text-gray">{t('profile.mealsJoined')}</div>
-          </div>
+          </Link>
 
           {/* Credit Score */}
           <div className="card p-3 text-center">
@@ -136,6 +143,31 @@ export default function ProfilePage() {
             <div className="text-xl font-bold text-dark">{profile.creditScore}</div>
             <div className="text-xs text-gray">{t('profile.creditScore')}</div>
           </div>
+        </motion.div>
+
+        {/* Quick Access - My Meals */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.25 }}
+          className="mb-4"
+        >
+          <Link href={`/${locale}/meals/my`}>
+            <div className="card p-4 flex items-center justify-between cursor-pointer group">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <ClipboardList className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-dark text-sm">{t('nav.myMeals')}</h3>
+                  <p className="text-xs text-gray-light">
+                    {profile.mealsHosted + profile.mealsJoined} {t('myMeals.mealsFound', { count: profile.mealsHosted + profile.mealsJoined })}
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-light group-hover:text-primary transition-colors" />
+            </div>
+          </Link>
         </motion.div>
 
         {/* Credit Level Card */}

@@ -29,6 +29,19 @@
     "createMeal": "发起饭局",
     "deals": "优惠"
   },
+  "myMeals": {
+    "all": "全部",
+    "hosting": "我发起的",
+    "joined": "我参加的",
+    "completed": "已结束",
+    "noMeals": "暂无饭局",
+    "noMealsDesc": "开始发起或参加一个饭局吧！",
+    "noMealsDescFiltered": "这个分类下暂无饭局",
+    "cancelJoin": "取消报名",
+    "cancelJoinConfirm": "确定要取消报名吗？",
+    "viewMeal": "查看详情",
+    "mealsFound": "{count} 个饭局"
+  },
   "home": {
     "heroTitle": "不要一个人吃饭",
     "heroSubtitle": "在曼谷通过美食结识新朋友",
