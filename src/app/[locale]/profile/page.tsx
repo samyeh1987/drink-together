@@ -11,6 +11,10 @@ import {
   Award,
   ChevronRight,
   ClipboardList,
+  Camera,
+  Plus,
+  Image as ImageIcon,
+  X,
 } from 'lucide-react';
 
 // Demo profile data
@@ -18,6 +22,7 @@ const profile = {
   nickname: 'Sarah K.',
   email: 'sarah@example.com',
   avatar: null,
+  gender: 'female' as const,
   bio: 'Digital nomad from Taiwan, currently based in Bangkok. Love exploring new restaurants and meeting people from all over the world! 🌏',
   ageRange: '25-30',
   occupation: 'Designer',
@@ -26,6 +31,11 @@ const profile = {
   creditScore: 128,
   mealsHosted: 12,
   mealsJoined: 8,
+  photos: [
+    'https://picsum.photos/seed/food1/400/400',
+    'https://picsum.photos/seed/travel2/400/400',
+    'https://picsum.photos/seed/bangkok3/400/400',
+  ],
   creditHistory: [
     { event: '+10', reason: 'Hosted a meal', date: '2026-04-10' },
     { event: '+5', reason: 'Completed a meal', date: '2026-04-08' },
@@ -43,6 +53,13 @@ const languageFlags: Record<string, string> = {
   ko: '🇰🇷',
 };
 
+// Gender emoji
+const genderEmoji: Record<string, string> = {
+  male: '👨',
+  female: '👩',
+  preferNotToSay: '✨',
+};
+
 // Credit level calculation
 function getCreditLevel(score: number): { level: string; stars: number; color: string } {
   if (score >= 100) return { level: 'excellent', stars: 5, color: 'text-gold' };
@@ -56,6 +73,7 @@ export default function ProfilePage() {
   const t = useTranslations();
   const locale = useLocale();
   const creditInfo = getCreditLevel(profile.creditScore);
+  const photoSlots = 6;
 
   return (
     <div className="min-h-screen pb-20 bg-cream">
@@ -84,7 +102,12 @@ export default function ProfilePage() {
 
             {/* Name & Bio */}
             <h1 className="mt-4 text-2xl font-bold text-white">{profile.nickname}</h1>
-            <p className="mt-1 text-sm text-white/80">{profile.occupation}</p>
+            <p className="mt-1 text-sm text-white/80 flex items-center gap-1.5">
+              <span>{genderEmoji[profile.gender] || ''}</span>
+              <span>{t(`profile.gender`)}</span>
+              <span>•</span>
+              <span>{profile.occupation}</span>
+            </p>
           </div>
         </motion.div>
       </div>
@@ -104,6 +127,50 @@ export default function ProfilePage() {
             <span>•</span>
             <span>{profile.email}</span>
           </div>
+        </motion.div>
+
+        {/* Photo Gallery */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
+          className="card p-4 mb-4"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-bold text-dark">{t('profile.photos')}</h3>
+            <span className="text-xs text-gray">{profile.photos.length}/{photoSlots}</span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {profile.photos.map((photo, index) => (
+              <div
+                key={index}
+                className="aspect-square rounded-xl overflow-hidden bg-light relative group"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={photo}
+                  alt={`Photo ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                  <button className="p-1.5 rounded-full bg-white/90 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                    <X className="w-3.5 h-3.5 text-coral" />
+                  </button>
+                </div>
+              </div>
+            ))}
+            {/* Add photo slots */}
+            {Array.from({ length: photoSlots - profile.photos.length }).map((_, index) => (
+              <button
+                key={`add-${index}`}
+                className="aspect-square rounded-xl border-2 border-dashed border-gray-lighter flex flex-col items-center justify-center gap-1 hover:border-primary/50 hover:bg-primary/5 transition-colors"
+              >
+                <Plus className="w-5 h-5 text-gray-light" />
+                <span className="text-[10px] text-gray-light">{t('profile.addPhoto')}</span>
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-gray-light text-center mt-2">{t('profile.photoLimit')}</p>
         </motion.div>
 
         {/* Stats Cards */}
@@ -179,10 +246,10 @@ export default function ProfilePage() {
         >
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-bold text-dark">{t('credit.title')}</h3>
-            <button className="text-xs text-primary flex items-center gap-1">
+            <Link href={`/${locale}/rules`} className="text-xs text-primary flex items-center gap-1">
               {t('credit.rules')}
               <ChevronRight className="w-3 h-3" />
-            </button>
+            </Link>
           </div>
 
           {/* Credit Level Display */}

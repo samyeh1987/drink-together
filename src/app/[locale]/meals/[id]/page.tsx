@@ -3,7 +3,8 @@
 import { useTranslations, useLocale } from 'next-intl';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 import {
   ArrowLeft,
   Share2,
@@ -14,6 +15,9 @@ import {
   CreditCard,
   Globe,
   ChevronRight,
+  X,
+  AlertTriangle,
+  ShieldCheck,
 } from 'lucide-react';
 
 // Demo meal data
@@ -48,6 +52,11 @@ const meal = {
   ],
 };
 
+// Demo: current user is the creator
+const isCreator = true;
+// Demo: current user has joined
+const hasJoined = true;
+
 const statusColors: Record<string, string> = {
   open: 'bg-blue-100 text-blue-700',
   confirmed: 'bg-mint/10 text-mint',
@@ -65,14 +74,46 @@ const creditStars: Record<string, number> = {
   newbie: 1,
 };
 
+// Calculate hours until meal
+function getHoursUntilMeal(): number {
+  const now = new Date();
+  const mealTime = new Date(meal.datetime);
+  return (mealTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+}
+
+// Calculate penalty for host
+function getHostPenalty(hours: number): { penalty: number; canCancel: boolean } {
+  if (hours < 0) return { penalty: 0, canCancel: false };
+  if (hours < 2) return { penalty: -25, canCancel: false };
+  if (hours < 24) return { penalty: -15, canCancel: true };
+  if (hours < 48) return { penalty: -8, canCancel: true };
+  return { penalty: -3, canCancel: true };
+}
+
+// Calculate penalty for joiner
+function getJoinerPenalty(hours: number): { penalty: number; canLeave: boolean } {
+  if (hours < 0) return { penalty: 0, canLeave: false };
+  if (hours < 2) return { penalty: -20, canLeave: false };
+  if (hours < 24) return { penalty: -10, canLeave: true };
+  if (hours < 48) return { penalty: -5, canLeave: true };
+  return { penalty: -2, canLeave: true };
+}
+
 export default function MealDetailPage() {
   const t = useTranslations();
   const locale = useLocale();
   const params = useParams();
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
 
   const dateLocale = locale === 'th' ? 'th-TH' : locale === 'zh-CN' ? 'zh-CN' : 'en-US';
   const isFull = meal.current >= meal.max;
   const progressPercent = Math.min((meal.current / meal.max) * 100, 100);
+  const hoursUntil = getHoursUntilMeal();
+  const notReachedMin = meal.current < meal.min;
+
+  const hostPenalty = getHostPenalty(hoursUntil);
+  const joinerPenalty = getJoinerPenalty(hoursUntil);
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -340,30 +381,206 @@ export default function MealDetailPage() {
         </motion.div>
       </div>
 
-      {/* Fixed Bottom Button */}
+      {/* Fixed Bottom Buttons */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-lg border-t border-gray-lighter/50 safe-bottom">
-        <div className="max-w-lg mx-auto">
-          <button
-            className={`btn-primary w-full py-3.5 flex items-center justify-center gap-2 ${
-              isFull || meal.status === 'closed' || meal.status === 'cancelled'
-                ? 'opacity-50 cursor-not-allowed'
-                : ''
-            }`}
-            disabled={isFull || meal.status === 'closed' || meal.status === 'cancelled'}
-          >
-            {isFull ? (
-              <span>{t('meal.participants')} Full</span>
-            ) : meal.status === 'closed' || meal.status === 'cancelled' ? (
-              <span>{t('meal.status.' + meal.status)}</span>
-            ) : (
-              <>
-                <Users className="w-5 h-5" />
-                <span>{t('meal.join')}</span>
-              </>
-            )}
-          </button>
+        <div className="max-w-lg mx-auto space-y-2">
+          {/* Creator: Cancel Meal button */}
+          {isCreator && meal.status === 'open' && (
+            <button
+              onClick={() => setShowCancelModal(true)}
+              className="btn-outline w-full py-3 flex items-center justify-center gap-2 text-coral border-coral/30 hover:bg-coral/5"
+            >
+              <X className="w-5 h-5" />
+              <span>{t('meal.cancel')}</span>
+            </button>
+          )}
+
+          {/* Joiner: Leave button */}
+          {!isCreator && hasJoined && (
+            <button
+              onClick={() => setShowLeaveModal(true)}
+              className="btn-outline w-full py-3 flex items-center justify-center gap-2 text-coral border-coral/30 hover:bg-coral/5"
+            >
+              <ShieldCheck className="w-5 h-5" />
+              <span>{t('meal.leave')}</span>
+            </button>
+          )}
+
+          {/* Join button (non-participant) */}
+          {!isCreator && !hasJoined && (
+            <button
+              className={`btn-primary w-full py-3.5 flex items-center justify-center gap-2 ${
+                isFull || meal.status === 'closed' || meal.status === 'cancelled'
+                  ? 'opacity-50 cursor-not-allowed'
+                  : ''
+              }`}
+              disabled={isFull || meal.status === 'closed' || meal.status === 'cancelled'}
+            >
+              {isFull ? (
+                <span>{t('meal.participants')} Full</span>
+              ) : meal.status === 'closed' || meal.status === 'cancelled' ? (
+                <span>{t('meal.status.' + meal.status)}</span>
+              ) : (
+                <>
+                  <Users className="w-5 h-5" />
+                  <span>{t('meal.join')}</span>
+                </>
+              )}
+            </button>
+          )}
+
+          {/* View Cancel Rules link */}
+          {(isCreator || hasJoined) && (
+            <Link href={`/${locale}/rules`} className="block">
+              <div className="text-center text-xs text-gray py-1">
+                {t('credit.rules')} →
+              </div>
+            </Link>
+          )}
         </div>
       </div>
+
+      {/* Cancel Meal Modal */}
+      <AnimatePresence>
+        {showCancelModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-end justify-center"
+          >
+            <div className="absolute inset-0 bg-black/50" onClick={() => setShowCancelModal(false)} />
+            <motion.div
+              initial={{ y: 300 }}
+              animate={{ y: 0 }}
+              exit={{ y: 300 }}
+              className="relative w-full max-w-lg bg-white rounded-t-2xl p-6 pb-8 safe-bottom"
+            >
+              <div className="w-12 h-12 mx-auto rounded-full bg-red-100 flex items-center justify-center mb-4">
+                <X className="w-6 h-6 text-coral" />
+              </div>
+              <h3 className="text-lg font-bold text-dark text-center mb-2">
+                {t('cancelConfirm.title')}
+              </h3>
+              <p className="text-sm text-gray text-center mb-4">
+                {t('cancelConfirm.message')}
+              </p>
+
+              {/* Penalty Warning */}
+              <div className="bg-amber-50 rounded-xl p-4 mb-4 border border-amber-200/50">
+                {notReachedMin ? (
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-5 h-5 text-mint" />
+                    <p className="text-sm text-mint font-medium">{t('cancelConfirm.noPenalty')}</p>
+                  </div>
+                ) : !hostPenalty.canCancel ? (
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-coral" />
+                    <p className="text-sm text-coral font-medium">{t('cancelConfirm.cannotCancel')}</p>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-amber-500" />
+                    <p className="text-sm text-amber-700">
+                      {t('cancelConfirm.penalty')}：{' '}
+                      <span className="font-bold">{hostPenalty.penalty} {t('credit.title')}</span>
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowCancelModal(false)}
+                  className="btn-outline flex-1 py-3"
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  onClick={() => setShowCancelModal(false)}
+                  disabled={!hostPenalty.canCancel}
+                  className={`btn-primary flex-1 py-3 ${
+                    !hostPenalty.canCancel ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                >
+                  {t('cancelConfirm.confirm')}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Leave Meal Modal */}
+      <AnimatePresence>
+        {showLeaveModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-end justify-center"
+          >
+            <div className="absolute inset-0 bg-black/50" onClick={() => setShowLeaveModal(false)} />
+            <motion.div
+              initial={{ y: 300 }}
+              animate={{ y: 0 }}
+              exit={{ y: 300 }}
+              className="relative w-full max-w-lg bg-white rounded-t-2xl p-6 pb-8 safe-bottom"
+            >
+              <div className="w-12 h-12 mx-auto rounded-full bg-amber-100 flex items-center justify-center mb-4">
+                <AlertTriangle className="w-6 h-6 text-amber-500" />
+              </div>
+              <h3 className="text-lg font-bold text-dark text-center mb-2">
+                {t('cancelConfirm.titleLeave')}
+              </h3>
+              <p className="text-sm text-gray text-center mb-4">
+                {t('cancelConfirm.messageLeave')}
+              </p>
+
+              {/* Penalty Warning */}
+              <div className="bg-amber-50 rounded-xl p-4 mb-4 border border-amber-200/50">
+                {notReachedMin ? (
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-5 h-5 text-mint" />
+                    <p className="text-sm text-mint font-medium">{t('cancelConfirm.noPenalty')}</p>
+                  </div>
+                ) : !joinerPenalty.canLeave ? (
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-coral" />
+                    <p className="text-sm text-coral font-medium">{t('cancelConfirm.cannotLeave')}</p>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-amber-500" />
+                    <p className="text-sm text-amber-700">
+                      {t('cancelConfirm.penalty')}：{' '}
+                      <span className="font-bold">{joinerPenalty.penalty} {t('credit.title')}</span>
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowLeaveModal(false)}
+                  className="btn-outline flex-1 py-3"
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  onClick={() => setShowLeaveModal(false)}
+                  disabled={!joinerPenalty.canLeave}
+                  className={`btn-primary flex-1 py-3 ${
+                    !joinerPenalty.canLeave ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                >
+                  {t('cancelConfirm.confirmLeave')}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
