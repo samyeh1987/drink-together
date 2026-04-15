@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-primary: #FF6B35;
+  --color-primary-light: #FF8C5A;
+  --color-primary-dark: #E55A2B;
+  --color-cream: #FFF8F0;
+  --color-cream-dark: #FFF0E0;
+  --color-mint: #2EC4B6;
+  --color-mint-light: #5DD9CE;
+  --color-coral: #FF6B6B;
+  --color-gold: #FFD700;
+  --color-dark: #1A1A2E;
+  --color-dark-light: #2D2D44;
+  --color-gray: #6B7280;
+  --color-gray-light: #9CA3AF;
+  --color-gray-lighter: #E5E7EB;
+  --color-light: #F3F4F6;
+  --color-background: #FFFFFF;
+  --color-foreground: #1A1A2E;
+  --font-sans: 'Inter', 'Noto Sans SC', 'Prompt', system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--color-cream);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-gray-light) transparent;
+  }
+
+  /* Hide horizontal scrollbar for snap scroll */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Safe area for bottom tab bar */
+  .safe-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+}
+
+@layer components {
+  /* Card styles */
+  .card {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-lighter/50 overflow-hidden transition-all duration-300;
+  }
+
+  .card:hover {
+    @apply shadow-md -translate-y-0.5;
+  }
+
+  /* Button styles */
+  .btn-primary {
+    @apply bg-primary text-white font-semibold rounded-xl px-6 py-3 
+           hover:bg-primary-dark active:scale-[0.98] 
+           transition-all duration-200 shadow-sm hover:shadow-md;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-dark font-semibold rounded-xl px-6 py-3 
+           border-2 border-primary text-primary
+           hover:bg-cream active:scale-[0.98] 
+           transition-all duration-200;
+  }
+
+  .btn-ghost {
+    @apply text-gray font-medium rounded-xl px-4 py-2 
+           hover:bg-light active:scale-[0.98] 
+           transition-all duration-200;
+  }
+
+  /* Tag / Badge */
+  .tag {
+    @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium
+           bg-light text-gray transition-colors duration-200;
+  }
+
+  .tag-active {
+    @apply bg-primary/10 text-primary;
+  }
+
+  /* Input styles */
+  .input {
+    @apply w-full px-4 py-3 rounded-xl border border-gray-lighter bg-white
+           text-dark placeholder:text-gray-light
+           focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
+           transition-all duration-200;
+  }
+
+  .textarea {
+    @apply w-full px-4 py-3 rounded-xl border border-gray-lighter bg-white
+           text-dark placeholder:text-gray-light
+           focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
+           transition-all duration-200 resize-none;
+  }
+
+  /* Container - mobile-first, max 480px like an app */
+  .container-app {
+    @apply max-w-lg mx-auto px-4;
+  }
+
+  /* Glass effect */
+  .glass {
+    @apply bg-white/80 backdrop-blur-lg border border-white/20;
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary to-coral bg-clip-text text-transparent;
+  }
+
+  /* Fade in animation */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Pulse glow */
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes glow {
+    from { box-shadow: 0 0 5px rgba(255, 107, 53, 0.2); }
+    to { box-shadow: 0 0 20px rgba(255, 107, 53, 0.4); }
+  }
+}

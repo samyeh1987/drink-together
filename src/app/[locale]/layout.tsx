@@ -1,0 +1,46 @@
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
+import { notFound } from 'next/navigation';
+import { routing } from '@/i18n/routing';
+import TabBar from '@/components/layout/TabBar';
+
+type Props = {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+};
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
+export default async function LocaleLayout({ children, params }: Props) {
+  const { locale } = await params;
+
+  // Validate locale
+  if (!routing.locales.includes(locale as typeof routing.locales[number])) {
+    notFound();
+  }
+
+  const messages = await getMessages();
+
+  return (
+    <html lang={locale} className="h-full antialiased">
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&family=Prompt:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="theme-color" content="#FFF8F0" />
+      </head>
+      <body className="min-h-screen flex flex-col bg-cream">
+        <NextIntlClientProvider messages={messages}>
+          <main className="flex-1 pb-20">{children}</main>
+          <TabBar />
+        </NextIntlClientProvider>
+      </body>
+    </html>
+  );
+}

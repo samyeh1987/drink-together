@@ -1,0 +1,578 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  ArrowLeft,
+  Check,
+  UtensilsCrossed,
+  MapPin,
+  Calendar,
+  Clock,
+  Users,
+  CreditCard,
+  Globe,
+  MessageCircle,
+  Sparkles,
+} from 'lucide-react';
+import {
+  CUISINE_TYPES,
+  MEAL_LANGUAGES,
+  PAYMENT_METHODS,
+  MEAL_TAGS,
+} from '@/lib/constants';
+
+type PaymentKey = 'hostTreats' | 'splitBill' | 'payOwn';
+
+interface MealForm {
+  title: string;
+  restaurant: string;
+  address: string;
+  cuisine: string;
+  dateTime: string;
+  deadline: string;
+  minParticipants: number;
+  maxParticipants: number;
+  payment: PaymentKey;
+  budget: string;
+  languages: string[];
+  note: string;
+  tags: string[];
+}
+
+const initialForm: MealForm = {
+  title: '',
+  restaurant: '',
+  address: '',
+  cuisine: '',
+  dateTime: '',
+  deadline: '',
+  minParticipants: 2,
+  maxParticipants: 8,
+  payment: 'splitBill',
+  budget: '',
+  languages: ['en'],
+  note: '',
+  tags: [],
+};
+
+const stepVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 300 : -300,
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction > 0 ? -300 : 300,
+    opacity: 0,
+  }),
+};
+
+export default function CreateMealPage() {
+  const t = useTranslations();
+  const router = useRouter();
+  const [step, setStep] = useState(1);
+  const [direction, setDirection] = useState(1);
+  const [form, setForm] = useState<MealForm>(initialForm);
+
+  const updateField = <K extends keyof MealForm>(key: K, value: MealForm[K]) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const toggleArrayItem = (key: 'languages' | 'tags', item: string) => {
+    setForm((prev) => ({
+      ...prev,
+      [key]: prev[key].includes(item)
+        ? prev[key].filter((v) => v !== item)
+        : [...prev[key], item],
+    }));
+  };
+
+  const goNext = () => {
+    setDirection(1);
+    setStep((s) => Math.min(s + 1, 3));
+  };
+
+  const goBack = () => {
+    if (step === 1) {
+      router.back();
+      return;
+    }
+    setDirection(-1);
+    setStep((s) => Math.max(s - 1, 1));
+  };
+
+  const handleSubmit = () => {
+    // TODO: Submit meal data to API
+    router.back();
+  };
+
+  const getMinDateTime = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+  };
+
+  // ─── Progress Bar ────────────────────────────────────
+  const ProgressBar = () => (
+    <div className="flex items-center gap-2 px-4 pt-4 pb-2">
+      {[1, 2, 3].map((s) => (
+        <div key={s} className="flex-1">
+          <div className="flex items-center gap-2">
+            <div
+              className={`h-2 flex-1 rounded-full transition-colors duration-300 ${
+                s <= step ? 'bg-primary' : 'bg-gray-lighter'
+              }`}
+            />
+          </div>
+          <p
+            className={`text-xs mt-1 text-center transition-colors duration-300 ${
+              s <= step ? 'text-primary font-medium' : 'text-gray-light'
+            }`}
+          >
+            {s === 1 && t('meal.title')}
+            {s === 2 && t('meal.dateTime')}
+            {s === 3 && t('common.submit')}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+
+  // ─── Step 1: Basic Info ──────────────────────────────
+  const Step1 = () => (
+    <div className="space-y-5">
+      {/* Title */}
+      <div>
+        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+          <UtensilsCrossed size={16} className="text-primary" />
+          {t('meal.title')}
+        </label>
+        <input
+          type="text"
+          className="input"
+          placeholder="e.g. Hotpot night at Yaowarat!"
+          value={form.title}
+          onChange={(e) => updateField('title', e.target.value)}
+        />
+      </div>
+
+      {/* Restaurant Name */}
+      <div>
+        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+          <MapPin size={16} className="text-primary" />
+          {t('meal.restaurant')}
+        </label>
+        <input
+          type="text"
+          className="input"
+          placeholder="e.g. Somboon Seafood"
+          value={form.restaurant}
+          onChange={(e) => updateField('restaurant', e.target.value)}
+        />
+      </div>
+
+      {/* Restaurant Address */}
+      <div>
+        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+          <MapPin size={16} className="text-mint" />
+          {t('meal.restaurantAddress')}
+        </label>
+        <input
+          type="text"
+          className="input"
+          placeholder="e.g. 169/7-11 Sam Yan Rd, Bangkok"
+          value={form.address}
+          onChange={(e) => updateField('address', e.target.value)}
+        />
+      </div>
+
+      {/* Cuisine Type - Horizontal scroll */}
+      <div>
+        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+          <Sparkles size={16} className="text-primary" />
+          {t('meal.cuisineType')}
+        </label>
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
+          {CUISINE_TYPES.map((cuisine) => (
+            <button
+              key={cuisine.key}
+              type="button"
+              onClick={() => updateField('cuisine', cuisine.key)}
+              className={`flex-shrink-0 flex flex-col items-center gap-1 px-3 py-2 rounded-xl border-2 transition-all duration-200 ${
+                form.cuisine === cuisine.key
+                  ? 'border-primary bg-primary/10 shadow-sm'
+                  : 'border-gray-lighter bg-white hover:border-primary/40'
+              }`}
+            >
+              <span className="text-xl">{cuisine.emoji}</span>
+              <span className="text-xs font-medium text-dark whitespace-nowrap">
+                {t(`cuisine.${cuisine.key}`)}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  // ─── Step 2: Detailed Settings ───────────────────────
+  const Step2 = () => (
+    <div className="space-y-5">
+      {/* Date & Time */}
+      <div>
+        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+          <Calendar size={16} className="text-primary" />
+          {t('meal.dateTime')}
+        </label>
+        <input
+          type="datetime-local"
+          className="input"
+          min={getMinDateTime()}
+          value={form.dateTime}
+          onChange={(e) => updateField('dateTime', e.target.value)}
+        />
+      </div>
+
+      {/* Deadline */}
+      <div>
+        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+          <Clock size={16} className="text-coral" />
+          {t('meal.deadline')}
+        </label>
+        <input
+          type="datetime-local"
+          className="input"
+          min={getMinDateTime()}
+          max={form.dateTime || undefined}
+          value={form.deadline}
+          onChange={(e) => updateField('deadline', e.target.value)}
+        />
+        <p className="text-xs text-gray-light mt-1">{t('meal.deadlineDefault')}</p>
+      </div>
+
+      {/* Min / Max Participants */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+            <Users size={16} className="text-mint" />
+            {t('meal.minParticipants')}
+          </label>
+          <input
+            type="number"
+            className="input text-center"
+            min={2}
+            max={form.maxParticipants}
+            value={form.minParticipants}
+            onChange={(e) => {
+              const val = Math.max(2, parseInt(e.target.value) || 2);
+              updateField('minParticipants', Math.min(val, form.maxParticipants));
+            }}
+          />
+        </div>
+        <div>
+          <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+            <Users size={16} className="text-primary" />
+            {t('meal.maxParticipants')}
+          </label>
+          <input
+            type="number"
+            className="input text-center"
+            min={form.minParticipants}
+            max={12}
+            value={form.maxParticipants}
+            onChange={(e) => {
+              const val = Math.min(12, parseInt(e.target.value) || 2);
+              updateField('maxParticipants', Math.max(val, form.minParticipants));
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Payment Method - Card style */}
+      <div>
+        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+          <CreditCard size={16} className="text-primary" />
+          {t('meal.paymentMethod')}
+        </label>
+        <div className="grid grid-cols-3 gap-2">
+          {PAYMENT_METHODS.map((pm) => (
+            <button
+              key={pm.key}
+              type="button"
+              onClick={() => updateField('payment', pm.key as PaymentKey)}
+              className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all duration-200 ${
+                form.payment === pm.key
+                  ? 'border-primary bg-primary/10 shadow-sm'
+                  : 'border-gray-lighter bg-white hover:border-primary/40'
+              }`}
+            >
+              <span className="text-2xl">{pm.emoji}</span>
+              <span className="text-xs font-semibold text-dark text-center leading-tight">
+                {t(`payment.${pm.key}`)}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Budget */}
+      <div>
+        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+          <span className="text-lg">฿</span>
+          {t('meal.budget')}
+        </label>
+        <input
+          type="text"
+          className="input"
+          placeholder="e.g. 300-500"
+          value={form.budget}
+          onChange={(e) => updateField('budget', e.target.value)}
+        />
+      </div>
+
+      {/* Language Selection - Multi-select tags */}
+      <div>
+        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+          <Globe size={16} className="text-primary" />
+          {t('meal.mealLanguage')}
+        </label>
+        <p className="text-xs text-gray-light mb-2">{t('meal.mealLanguageDesc')}</p>
+        <div className="flex flex-wrap gap-2">
+          {MEAL_LANGUAGES.map((lang) => (
+            <button
+              key={lang.key}
+              type="button"
+              onClick={() => toggleArrayItem('languages', lang.key)}
+              className={`tag cursor-pointer ${form.languages.includes(lang.key) ? 'tag-active' : ''}`}
+            >
+              <span>{lang.flag}</span>
+              <span>{t(`language.${lang.key}`)}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Tags */}
+      <div>
+        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+          <Sparkles size={16} className="text-gold" />
+          {t('meal.tags')}
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {MEAL_TAGS.map((tag) => (
+            <button
+              key={tag.key}
+              type="button"
+              onClick={() => toggleArrayItem('tags', tag.key)}
+              className={`tag cursor-pointer ${form.tags.includes(tag.key) ? 'tag-active' : ''}`}
+            >
+              <span>{tag.emoji}</span>
+              <span>{t(`tag.${tag.key}`)}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Note / Description */}
+      <div>
+        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+          <MessageCircle size={16} className="text-primary" />
+          {t('meal.note')}
+        </label>
+        <textarea
+          className="textarea"
+          rows={3}
+          placeholder={t('meal.notePlaceholder')}
+          value={form.note}
+          onChange={(e) => updateField('note', e.target.value)}
+        />
+      </div>
+    </div>
+  );
+
+  // ─── Step 3: Confirm & Submit ────────────────────────
+  const Step3 = () => {
+    const selectedCuisine = CUISINE_TYPES.find((c) => c.key === form.cuisine);
+    const selectedPayment = PAYMENT_METHODS.find((p) => p.key === form.payment);
+
+    const SummaryRow = ({
+      icon,
+      label,
+      value,
+    }: {
+      icon: React.ReactNode;
+      label: string;
+      value: string;
+    }) => (
+      <div className="flex items-start gap-3 py-3 border-b border-gray-lighter/50 last:border-0">
+        <div className="mt-0.5 text-gray-light">{icon}</div>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs text-gray-light">{label}</p>
+          <p className="text-sm font-medium text-dark break-words">{value || '—'}</p>
+        </div>
+      </div>
+    );
+
+    return (
+      <div className="space-y-4">
+        <div className="card p-4">
+          <h3 className="text-base font-bold text-dark mb-3 flex items-center gap-2">
+            <Sparkles size={18} className="text-primary" />
+            {t('meal.create')}
+          </h3>
+
+          <SummaryRow
+            icon={<UtensilsCrossed size={16} />}
+            label={t('meal.title')}
+            value={form.title}
+          />
+          <SummaryRow
+            icon={<MapPin size={16} />}
+            label={t('meal.restaurant')}
+            value={`${form.restaurant}${form.address ? ` · ${form.address}` : ''}`}
+          />
+          {selectedCuisine && (
+            <SummaryRow
+              icon={<span>{selectedCuisine.emoji}</span>}
+              label={t('meal.cuisineType')}
+              value={`${selectedCuisine.emoji} ${t(`cuisine.${selectedCuisine.key}`)}`}
+            />
+          )}
+          <SummaryRow
+            icon={<Calendar size={16} />}
+            label={t('meal.dateTime')}
+            value={form.dateTime ? new Date(form.dateTime).toLocaleString() : '—'}
+          />
+          {form.deadline && (
+            <SummaryRow
+              icon={<Clock size={16} />}
+              label={t('meal.deadline')}
+              value={new Date(form.deadline).toLocaleString()}
+            />
+          )}
+          <SummaryRow
+            icon={<Users size={16} />}
+            label={`${t('meal.minParticipants')} / ${t('meal.maxParticipants')}`}
+            value={`${form.minParticipants} – ${form.maxParticipants} ${t('common.next') === 'Next' ? 'people' : '人'}`}
+          />
+          {selectedPayment && (
+            <SummaryRow
+              icon={<span>{selectedPayment.emoji}</span>}
+              label={t('meal.paymentMethod')}
+              value={`${selectedPayment.emoji} ${t(`payment.${selectedPayment.key}`)}`}
+            />
+          )}
+          {form.budget && (
+            <SummaryRow
+              icon={<span className="text-sm font-bold">฿</span>}
+              label={t('meal.budget')}
+              value={`฿${form.budget}`}
+            />
+          )}
+          <SummaryRow
+            icon={<Globe size={16} />}
+            label={t('meal.mealLanguage')}
+            value={form.languages
+              .map((l) => {
+                const lang = MEAL_LANGUAGES.find((ml) => ml.key === l);
+                return lang ? `${lang.flag} ${t(`language.${l}`)}` : l;
+              })
+              .join(', ')}
+          />
+          {form.tags.length > 0 && (
+            <SummaryRow
+              icon={<Sparkles size={16} />}
+              label={t('meal.tags')}
+              value={form.tags
+                .map((tag) => {
+                  const found = MEAL_TAGS.find((mt) => mt.key === tag);
+                  return found ? `${found.emoji} ${t(`tag.${tag}`)}` : tag;
+                })
+                .join(' · ')}
+            />
+          )}
+          {form.note && (
+            <SummaryRow
+              icon={<MessageCircle size={16} />}
+              label={t('meal.note')}
+              value={form.note}
+            />
+          )}
+        </div>
+
+        {/* Submit Button */}
+        <button
+          type="button"
+          onClick={handleSubmit}
+          className="btn-primary w-full flex items-center justify-center gap-2 text-base py-4"
+        >
+          <Check size={20} />
+          {t('common.submit')}
+        </button>
+      </div>
+    );
+  };
+
+  // ─── Page Render ─────────────────────────────────────
+  return (
+    <div className="min-h-screen bg-cream pb-20">
+      {/* Header */}
+      <div className="sticky top-0 z-10 glass">
+        <div className="flex items-center gap-3 px-4 py-3">
+          <button
+            type="button"
+            onClick={goBack}
+            className="btn-ghost p-2 -ml-2"
+          >
+            <ArrowLeft size={20} />
+          </button>
+          <h1 className="text-lg font-bold text-dark">{t('meal.create')}</h1>
+        </div>
+        <ProgressBar />
+      </div>
+
+      {/* Step Content */}
+      <div className="px-4 pt-4">
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={step}
+            custom={direction}
+            variants={stepVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          >
+            {step === 1 && <Step1 />}
+            {step === 2 && <Step2 />}
+            {step === 3 && <Step3 />}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Bottom Actions (Step 1 & 2) */}
+      {step < 3 && (
+        <div className="fixed bottom-0 left-0 right-0 safe-bottom bg-cream border-t border-gray-lighter/50 px-4 py-3 flex gap-3">
+          {step > 1 && (
+            <button type="button" onClick={goBack} className="btn-secondary flex-1">
+              {t('common.back')}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={goNext}
+            className="btn-primary flex-1 flex items-center justify-center gap-2"
+          >
+            {t('common.next')}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
