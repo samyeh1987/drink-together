@@ -37,7 +37,9 @@ export default function AdminUsersPage() {
     list.sort((a, b) => {
       const aVal = a[sortBy];
       const bVal = b[sortBy];
-      return sortDir === 'asc' ? (aVal as number > bVal as number ? 1 : -1) : (aVal as number < bVal as number ? 1 : -1);
+      const aNum = typeof aVal === 'number' ? aVal : Number(aVal);
+      const bNum = typeof bVal === 'number' ? bVal : Number(bVal);
+      return sortDir === 'asc' ? (aNum > bNum ? 1 : -1) : (aNum < bNum ? 1 : -1);
     });
     return list;
   }, [search, statusFilter, sortBy, sortDir]);
