@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -73,79 +73,13 @@ const stepVariants = {
   }),
 };
 
-export default function CreateMealPage() {
-  const t = useTranslations();
-  const router = useRouter();
-  const [step, setStep] = useState(1);
-  const [direction, setDirection] = useState(1);
-  const [form, setForm] = useState<MealForm>(initialForm);
-
-  const updateField = <K extends keyof MealForm>(key: K, value: MealForm[K]) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const toggleArrayItem = (key: 'languages' | 'tags', item: string) => {
-    setForm((prev) => ({
-      ...prev,
-      [key]: prev[key].includes(item)
-        ? prev[key].filter((v) => v !== item)
-        : [...prev[key], item],
-    }));
-  };
-
-  const goNext = () => {
-    setDirection(1);
-    setStep((s) => Math.min(s + 1, 3));
-  };
-
-  const goBack = () => {
-    if (step === 1) {
-      router.back();
-      return;
-    }
-    setDirection(-1);
-    setStep((s) => Math.max(s - 1, 1));
-  };
-
-  const handleSubmit = () => {
-    // TODO: Submit meal data to API
-    router.back();
-  };
-
-  const getMinDateTime = () => {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    return now.toISOString().slice(0, 16);
-  };
-
-  // ─── Progress Bar ────────────────────────────────────
-  const ProgressBar = () => (
-    <div className="flex items-center gap-2 px-4 pt-4 pb-2">
-      {[1, 2, 3].map((s) => (
-        <div key={s} className="flex-1">
-          <div className="flex items-center gap-2">
-            <div
-              className={`h-2 flex-1 rounded-full transition-colors duration-300 ${
-                s <= step ? 'bg-primary' : 'bg-gray-lighter'
-              }`}
-            />
-          </div>
-          <p
-            className={`text-xs mt-1 text-center transition-colors duration-300 ${
-              s <= step ? 'text-primary font-medium' : 'text-gray-light'
-            }`}
-          >
-            {s === 1 && t('meal.title')}
-            {s === 2 && t('meal.dateTime')}
-            {s === 3 && t('common.submit')}
-          </p>
-        </div>
-      ))}
-    </div>
-  );
-
-  // ─── Step 1: Basic Info ──────────────────────────────
-  const Step1 = () => (
+// ─── Step 1: Basic Info (stable component) ─────────
+function Step1({ form, updateField, t }: {
+  form: MealForm;
+  updateField: <K extends keyof MealForm>(key: K, value: MealForm[K]) => void;
+  t: (key: string) => string;
+}) {
+  return (
     <div className="space-y-5">
       {/* Title */}
       <div>
@@ -220,9 +154,22 @@ export default function CreateMealPage() {
       </div>
     </div>
   );
+}
 
-  // ─── Step 2: Detailed Settings ───────────────────────
-  const Step2 = () => (
+// ─── Step 2: Detailed Settings (stable component) ───
+function Step2({ form, updateField, toggleArrayItem, t }: {
+  form: MealForm;
+  updateField: <K extends keyof MealForm>(key: K, value: MealForm[K]) => void;
+  toggleArrayItem: (key: 'languages' | 'tags', item: string) => void;
+  t: (key: string) => string;
+}) {
+  const getMinDateTime = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+  };
+
+  return (
     <div className="space-y-5">
       {/* Date & Time */}
       <div>
@@ -395,129 +342,200 @@ export default function CreateMealPage() {
       </div>
     </div>
   );
+}
 
-  // ─── Step 3: Confirm & Submit ────────────────────────
-  const Step3 = () => {
-    const selectedCuisine = CUISINE_TYPES.find((c) => c.key === form.cuisine);
-    const selectedPayment = PAYMENT_METHODS.find((p) => p.key === form.payment);
+// ─── Step 3: Confirm & Submit (stable component) ────
+function Step3({ form, onSubmit, t }: {
+  form: MealForm;
+  onSubmit: () => void;
+  t: (key: string) => string;
+}) {
+  const selectedCuisine = CUISINE_TYPES.find((c) => c.key === form.cuisine);
+  const selectedPayment = PAYMENT_METHODS.find((p) => p.key === form.payment);
 
-    const SummaryRow = ({
-      icon,
-      label,
-      value,
-    }: {
-      icon: React.ReactNode;
-      label: string;
-      value: string;
-    }) => (
-      <div className="flex items-start gap-3 py-3 border-b border-gray-lighter/50 last:border-0">
-        <div className="mt-0.5 text-gray-light">{icon}</div>
-        <div className="flex-1 min-w-0">
-          <p className="text-xs text-gray-light">{label}</p>
-          <p className="text-sm font-medium text-dark break-words">{value || '—'}</p>
-        </div>
+  const SummaryRow = ({
+    icon,
+    label,
+    value,
+  }: {
+    icon: React.ReactNode;
+    label: string;
+    value: string;
+  }) => (
+    <div className="flex items-start gap-3 py-3 border-b border-gray-lighter/50 last:border-0">
+      <div className="mt-0.5 text-gray-light">{icon}</div>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs text-gray-light">{label}</p>
+        <p className="text-sm font-medium text-dark break-words">{value || '—'}</p>
       </div>
-    );
+    </div>
+  );
 
-    return (
-      <div className="space-y-4">
-        <div className="card p-4">
-          <h3 className="text-base font-bold text-dark mb-3 flex items-center gap-2">
-            <Sparkles size={18} className="text-primary" />
-            {t('meal.create')}
-          </h3>
+  return (
+    <div className="space-y-4">
+      <div className="card p-4">
+        <h3 className="text-base font-bold text-dark mb-3 flex items-center gap-2">
+          <Sparkles size={18} className="text-primary" />
+          {t('meal.create')}
+        </h3>
 
+        <SummaryRow
+          icon={<UtensilsCrossed size={16} />}
+          label={t('meal.title')}
+          value={form.title}
+        />
+        <SummaryRow
+          icon={<MapPin size={16} />}
+          label={t('meal.restaurant')}
+          value={`${form.restaurant}${form.address ? ` · ${form.address}` : ''}`}
+        />
+        {selectedCuisine && (
           <SummaryRow
-            icon={<UtensilsCrossed size={16} />}
-            label={t('meal.title')}
-            value={form.title}
+            icon={<span>{selectedCuisine.emoji}</span>}
+            label={t('meal.cuisineType')}
+            value={`${selectedCuisine.emoji} ${t(`cuisine.${selectedCuisine.key}`)}`}
           />
+        )}
+        <SummaryRow
+          icon={<Calendar size={16} />}
+          label={t('meal.dateTime')}
+          value={form.dateTime ? new Date(form.dateTime).toLocaleString() : '—'}
+        />
+        {form.deadline && (
           <SummaryRow
-            icon={<MapPin size={16} />}
-            label={t('meal.restaurant')}
-            value={`${form.restaurant}${form.address ? ` · ${form.address}` : ''}`}
+            icon={<Clock size={16} />}
+            label={t('meal.deadline')}
+            value={new Date(form.deadline).toLocaleString()}
           />
-          {selectedCuisine && (
-            <SummaryRow
-              icon={<span>{selectedCuisine.emoji}</span>}
-              label={t('meal.cuisineType')}
-              value={`${selectedCuisine.emoji} ${t(`cuisine.${selectedCuisine.key}`)}`}
-            />
-          )}
+        )}
+        <SummaryRow
+          icon={<Users size={16} />}
+          label={`${t('meal.minParticipants')} / ${t('meal.maxParticipants')}`}
+          value={`${form.minParticipants} – ${form.maxParticipants} ${t('common.next') === 'Next' ? 'people' : '人'}`}
+        />
+        {selectedPayment && (
           <SummaryRow
-            icon={<Calendar size={16} />}
-            label={t('meal.dateTime')}
-            value={form.dateTime ? new Date(form.dateTime).toLocaleString() : '—'}
+            icon={<span>{selectedPayment.emoji}</span>}
+            label={t('meal.paymentMethod')}
+            value={`${selectedPayment.emoji} ${t(`payment.${selectedPayment.key}`)}`}
           />
-          {form.deadline && (
-            <SummaryRow
-              icon={<Clock size={16} />}
-              label={t('meal.deadline')}
-              value={new Date(form.deadline).toLocaleString()}
-            />
-          )}
+        )}
+        {form.budget && (
           <SummaryRow
-            icon={<Users size={16} />}
-            label={`${t('meal.minParticipants')} / ${t('meal.maxParticipants')}`}
-            value={`${form.minParticipants} – ${form.maxParticipants} ${t('common.next') === 'Next' ? 'people' : '人'}`}
+            icon={<span className="text-sm font-bold">฿</span>}
+            label={t('meal.budget')}
+            value={`฿${form.budget}`}
           />
-          {selectedPayment && (
-            <SummaryRow
-              icon={<span>{selectedPayment.emoji}</span>}
-              label={t('meal.paymentMethod')}
-              value={`${selectedPayment.emoji} ${t(`payment.${selectedPayment.key}`)}`}
-            />
-          )}
-          {form.budget && (
-            <SummaryRow
-              icon={<span className="text-sm font-bold">฿</span>}
-              label={t('meal.budget')}
-              value={`฿${form.budget}`}
-            />
-          )}
+        )}
+        <SummaryRow
+          icon={<Globe size={16} />}
+          label={t('meal.mealLanguage')}
+          value={form.languages
+            .map((l) => {
+              const lang = MEAL_LANGUAGES.find((ml) => ml.key === l);
+              return lang ? `${lang.flag} ${t(`language.${l}`)}` : l;
+            })
+            .join(', ')}
+        />
+        {form.tags.length > 0 && (
           <SummaryRow
-            icon={<Globe size={16} />}
-            label={t('meal.mealLanguage')}
-            value={form.languages
-              .map((l) => {
-                const lang = MEAL_LANGUAGES.find((ml) => ml.key === l);
-                return lang ? `${lang.flag} ${t(`language.${l}`)}` : l;
+            icon={<Sparkles size={16} />}
+            label={t('meal.tags')}
+            value={form.tags
+              .map((tag) => {
+                const found = MEAL_TAGS.find((mt) => mt.key === tag);
+                return found ? `${found.emoji} ${t(`tag.${tag}`)}` : tag;
               })
-              .join(', ')}
+              .join(' · ')}
           />
-          {form.tags.length > 0 && (
-            <SummaryRow
-              icon={<Sparkles size={16} />}
-              label={t('meal.tags')}
-              value={form.tags
-                .map((tag) => {
-                  const found = MEAL_TAGS.find((mt) => mt.key === tag);
-                  return found ? `${found.emoji} ${t(`tag.${tag}`)}` : tag;
-                })
-                .join(' · ')}
-            />
-          )}
-          {form.note && (
-            <SummaryRow
-              icon={<MessageCircle size={16} />}
-              label={t('meal.note')}
-              value={form.note}
-            />
-          )}
-        </div>
-
-        {/* Submit Button */}
-        <button
-          type="button"
-          onClick={handleSubmit}
-          className="btn-primary w-full flex items-center justify-center gap-2 text-base py-4"
-        >
-          <Check size={20} />
-          {t('common.submit')}
-        </button>
+        )}
+        {form.note && (
+          <SummaryRow
+            icon={<MessageCircle size={16} />}
+            label={t('meal.note')}
+            value={form.note}
+          />
+        )}
       </div>
-    );
+
+      {/* Submit Button */}
+      <button
+        type="button"
+        onClick={onSubmit}
+        className="btn-primary w-full flex items-center justify-center gap-2 text-base py-4"
+      >
+        <Check size={20} />
+        {t('common.submit')}
+      </button>
+    </div>
+  );
+}
+
+// ─── Main Page ──────────────────────────────────────
+export default function CreateMealPage() {
+  const t = useTranslations();
+  const router = useRouter();
+  const [step, setStep] = useState(1);
+  const [direction, setDirection] = useState(1);
+  const [form, setForm] = useState<MealForm>(initialForm);
+
+  const updateField = useCallback(<K extends keyof MealForm>(key: K, value: MealForm[K]) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  }, []);
+
+  const toggleArrayItem = useCallback((key: 'languages' | 'tags', item: string) => {
+    setForm((prev) => ({
+      ...prev,
+      [key]: prev[key].includes(item)
+        ? prev[key].filter((v) => v !== item)
+        : [...prev[key], item],
+    }));
+  }, []);
+
+  const goNext = () => {
+    setDirection(1);
+    setStep((s) => Math.min(s + 1, 3));
   };
+
+  const goBack = () => {
+    if (step === 1) {
+      router.back();
+      return;
+    }
+    setDirection(-1);
+    setStep((s) => Math.max(s - 1, 1));
+  };
+
+  const handleSubmit = () => {
+    // TODO: Submit meal data to API
+    router.back();
+  };
+
+  // ─── Progress Bar ────────────────────────────────────
+  const ProgressBar = () => (
+    <div className="flex items-center gap-2 px-4 pt-4 pb-2">
+      {[1, 2, 3].map((s) => (
+        <div key={s} className="flex-1">
+          <div className="flex items-center gap-2">
+            <div
+              className={`h-2 flex-1 rounded-full transition-colors duration-300 ${
+                s <= step ? 'bg-primary' : 'bg-gray-lighter'
+              }`}
+            />
+          </div>
+          <p
+            className={`text-xs mt-1 text-center transition-colors duration-300 ${
+              s <= step ? 'text-primary font-medium' : 'text-gray-light'
+            }`}
+          >
+            {s === 1 && t('meal.title')}
+            {s === 2 && t('meal.dateTime')}
+            {s === 3 && t('common.submit')}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
 
   // ─── Page Render ─────────────────────────────────────
   return (
@@ -539,21 +557,15 @@ export default function CreateMealPage() {
 
       {/* Step Content */}
       <div className="px-4 pt-4">
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={step}
-            custom={direction}
-            variants={stepVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          >
-            {step === 1 && <Step1 />}
-            {step === 2 && <Step2 />}
-            {step === 3 && <Step3 />}
-          </motion.div>
-        </AnimatePresence>
+        {step === 1 && (
+          <Step1 form={form} updateField={updateField} t={t} />
+        )}
+        {step === 2 && (
+          <Step2 form={form} updateField={updateField} toggleArrayItem={toggleArrayItem} t={t} />
+        )}
+        {step === 3 && (
+          <Step3 form={form} onSubmit={handleSubmit} t={t} />
+        )}
       </div>
 
       {/* Bottom Actions (Step 1 & 2) */}
