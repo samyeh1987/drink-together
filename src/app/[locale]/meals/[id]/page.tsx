@@ -4,7 +4,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   ArrowLeft,
   Share2,
@@ -18,54 +18,13 @@ import {
   X,
   AlertTriangle,
   ShieldCheck,
-  Camera,
   CheckCircle2,
   UserX,
-  Image as ImageIcon,
-  Eye,
+  Loader2,
 } from 'lucide-react';
-
-// Demo meal data
-const meal = {
-  id: '1',
-  title: 'Friday Night Izakaya 🍶',
-  restaurant: 'Ninja Izakaya, Thonglor',
-  address: '123 Sukhumvit 55, Bangkok',
-  cuisine: 'japanese',
-  cuisineEmoji: '🍣',
-  languages: [{ key: 'en', flag: '🇬🇧' }, { key: 'th', flag: '🇹🇭' }],
-  datetime: '2026-04-18T19:00:00',
-  deadline: '2026-04-18T13:00:00',
-  current: 4,
-  min: 3,
-  max: 8,
-  payment: 'splitBill',
-  paymentEmoji: '💰',
-  budgetMin: 500,
-  budgetMax: 1000,
-  note: 'Language Exchange - let\'s practice English and Thai over great food!',
-  description: 'Looking forward to a fun evening of Japanese food and language exchange. Everyone is welcome!',
-  status: 'completed',
-  creatorName: 'Sarah K.',
-  creatorCredit: 'good',
-  creatorMeals: 12,
-  participants: [
-    { name: 'Sarah K.', avatar: null, attended: true, confirmed: true },
-    { name: 'Alex W.', avatar: null, attended: true, confirmed: true },
-    { name: 'Mike L.', avatar: null, attended: false, confirmed: true },
-    { name: 'Yuki T.', avatar: null, attended: true, confirmed: true },
-  ],
-  photos: [
-    'https://picsum.photos/seed/meal1/600/600',
-    'https://picsum.photos/seed/meal2/600/600',
-    'https://picsum.photos/seed/meal3/600/600',
-  ],
-};
-
-// Demo: current user is the creator
-const isCreator = true;
-// Demo: current user has joined
-const hasJoined = true;
+import { useMealStore } from '@/store/meal-store';
+import { useAuthStore } from '@/store/auth-store';
+import { joinMeal, leaveMeal, cancelMeal } from '@/lib/api';
 
 const statusColors: Record<string, string> = {
   open: 'bg-blue-100 text-blue-700',
@@ -77,6 +36,13 @@ const statusColors: Record<string, string> = {
   completed: 'bg-gray-100 text-gray',
 };
 
+function getCreditLabel(score: number): string {
+  if (score >= 120) return 'excellent';
+  if (score >= 90) return 'good';
+  if (score >= 60) return 'average';
+  return 'newbie';
+}
+
 const creditStars: Record<string, number> = {
   excellent: 5,
   good: 4,
@@ -85,16 +51,16 @@ const creditStars: Record<string, number> = {
 };
 
 // Calculate hours until meal
-function getHoursUntilMeal(): number {
+function getHoursUntilMeal(datetime: string): number {
   const now = new Date();
-  const mealTime = new Date(meal.datetime);
+  const mealTime = new Date(datetime);
   return (mealTime.getTime() - now.getTime()) / (1000 * 60 * 60);
 }
 
 // Calculate hours since meal ended
-function getHoursSinceEnded(): number {
+function getHoursSinceEnded(datetime: string): number {
   const now = new Date();
-  const mealTime = new Date(meal.datetime);
+  const mealTime = new Date(datetime);
   return (now.getTime() - mealTime.getTime()) / (1000 * 60 * 60);
 }
 
@@ -121,33 +87,52 @@ export default function MealDetailPage() {
   const locale = useLocale();
   const params = useParams();
   const router = useRouter();
+  const { user } = useAuthStore();
+  const { fetchMealById, currentMeal, isLoading } = useMealStore();
+
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
-  const [showPhotoViewer, setShowPhotoViewer] = useState(false);
-  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
-  const [participantStatus, setParticipantStatus] = useState<Record<string, 'attended' | 'no_show' | null>>(
-    Object.fromEntries(meal.participants.map((p, i) => [i, p.attended ? 'attended' : 'no_show']))
-  );
+  const [participantStatus, setParticipantStatus] = useState<Record<string, 'attended' | 'no_show' | null>>({});
   const [confirmationSaved, setConfirmationSaved] = useState(false);
   const [showAllParticipants, setShowAllParticipants] = useState(false);
+  const [joining, setJoining] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  const mealId = params.id as string;
+
+  useEffect(() => {
+    if (mealId) {
+      fetchMealById(mealId);
+    }
+  }, [mealId, fetchMealById]);
+
+  // Derived state
+  const meal = currentMeal as any;
+  const isCreator = user?.id === meal?.creator_id;
+  const hasJoined = meal?.participants?.some(
+    (p: any) => p.user_id === user?.id && (p.status === 'approved' || p.status === 'pending')
+  );
 
   const dateLocale = locale === 'th' ? 'th-TH' : locale === 'zh-CN' ? 'zh-CN' : 'en-US';
-  const isFull = meal.current >= meal.max;
-  const progressPercent = Math.min((meal.current / meal.max) * 100, 100);
-  const hoursUntil = getHoursUntilMeal();
-  const hoursSinceEnded = getHoursSinceEnded();
-  const notReachedMin = meal.current < meal.min;
-  const canConfirmAttendance = isCreator && meal.status === 'completed' && hoursSinceEnded > 0 && hoursSinceEnded <= 24;
+  const currentParticipants = (meal?.participants?.filter(
+    (p: any) => p.status === 'approved'
+  ).length || 0) + 1; // +1 for creator
+  const isFull = currentParticipants >= (meal?.max_participants || 0);
+  const progressPercent = meal ? Math.min((currentParticipants / (meal.max_participants || 1)) * 100, 100) : 0;
+  const hoursUntil = meal ? getHoursUntilMeal(meal.datetime) : 0;
+  const hoursSinceEnded = meal ? getHoursSinceEnded(meal.datetime) : 0;
+  const notReachedMin = meal ? currentParticipants < (meal.min_participants || 0) : false;
+  const canConfirmAttendance = isCreator && meal?.status === 'completed' && hoursSinceEnded > 0 && hoursSinceEnded <= 24;
 
   const hostPenalty = getHostPenalty(hoursUntil);
   const joinerPenalty = getJoinerPenalty(hoursUntil);
 
   const handleShare = async () => {
-    if (navigator.share) {
+    if (navigator.share && meal) {
       try {
         await navigator.share({
           title: meal.title,
-          text: `${meal.title} at ${meal.restaurant}`,
+          text: `${meal.title} at ${meal.restaurant_name}`,
           url: window.location.href,
         });
       } catch (err) {
@@ -156,19 +141,54 @@ export default function MealDetailPage() {
     }
   };
 
-  const handleCancelMeal = () => {
+  const handleJoinMeal = async () => {
+    if (!meal || isFull) return;
+    setJoining(true);
+    setActionError(null);
+    const result = await joinMeal(meal.id);
+    setJoining(false);
+    if (!result.success) {
+      setActionError(result.error || 'Failed to join');
+    } else {
+      // Refresh meal data
+      await fetchMealById(meal.id);
+    }
+  };
+
+  const handleLeaveMeal = async () => {
+    if (!meal) return;
+    const result = await leaveMeal(meal.id);
+    setShowLeaveModal(false);
+    if (result.success) {
+      await fetchMealById(meal.id);
+    }
+  };
+
+  const handleCancelMeal = async () => {
+    if (!meal) return;
+    const result = await cancelMeal(meal.id);
     setShowCancelModal(false);
-    router.push(`/${locale}`);
+    if (result.success) {
+      router.push(`/${locale}/meals`);
+    }
   };
 
   const handleConfirmAttendance = () => {
     setConfirmationSaved(true);
   };
 
-  const openPhotoViewer = (index: number) => {
-    setSelectedPhotoIndex(index);
-    setShowPhotoViewer(true);
-  };
+  if (isLoading || !meal) {
+    return (
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <Loader2 className="w-8 h-8 text-primary animate-spin mb-3" />
+          <p className="text-sm text-gray">{t('common.loading') || 'Loading...'}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const creatorCredit = getCreditLabel(meal.creator?.credit_score || 100);
 
   return (
     <div className="min-h-screen pb-24 bg-cream">
@@ -217,15 +237,15 @@ export default function MealDetailPage() {
           <div className="flex items-start gap-2 mb-3">
             <MapPin className="w-4 h-4 text-coral flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-dark">{meal.restaurant}</p>
-              <p className="text-xs text-gray truncate">{meal.address}</p>
+              <p className="text-sm font-medium text-dark">{meal.restaurant_name}</p>
+              <p className="text-xs text-gray truncate">{meal.restaurant_address}</p>
             </div>
           </div>
 
           {/* Languages */}
           <div className="flex items-center gap-2 mb-3 flex-wrap">
             <Globe className="w-4 h-4 text-gray flex-shrink-0" />
-            {meal.languages.map((lang) => (
+            {(meal._languages || []).map((lang: { key: string; flag: string }) => (
               <span key={lang.key} className="tag text-xs tag-active">
                 {lang.flag} {t(`language.${lang.key}`)}
               </span>
@@ -284,7 +304,7 @@ export default function MealDetailPage() {
               <div className="flex items-center justify-between mb-1.5">
                 <p className="text-xs text-gray">{t('meal.participants')}</p>
                 <p className={`text-xs font-semibold ${isFull ? 'text-coral' : 'text-mint'}`}>
-                  {meal.current}/{meal.max}
+                  {currentParticipants}/{meal.max_participants}
                 </p>
               </div>
               <div className="h-2 bg-light rounded-full overflow-hidden">
@@ -296,8 +316,8 @@ export default function MealDetailPage() {
                 />
               </div>
               <p className="text-xs text-gray mt-1">
-                {meal.min - meal.current > 0
-                  ? `${meal.min - meal.current} more to confirm`
+                {notReachedMin
+                  ? `${(meal.min_participants || 0) - currentParticipants} more to confirm`
                   : 'Minimum reached'}
               </p>
             </div>
@@ -311,15 +331,17 @@ export default function MealDetailPage() {
             <div className="flex-1">
               <p className="text-xs text-gray mb-0.5">{t('meal.paymentMethod')}</p>
               <p className="text-sm font-medium text-dark">
-                {meal.paymentEmoji} {t(`payment.${meal.payment}`)}
+                {meal._paymentEmoji || ''} {t(`payment.${meal.payment_method}`)}
               </p>
             </div>
-            <div className="text-right">
-              <p className="text-xs text-gray mb-0.5">{t('meal.budget')}</p>
-              <p className="text-sm font-semibold text-dark">
-                {t('meal.currency')}{meal.budgetMin} - {t('meal.currency')}{meal.budgetMax}
-              </p>
-            </div>
+            {meal.budget_min && meal.budget_max && (
+              <div className="text-right">
+                <p className="text-xs text-gray mb-0.5">{t('meal.budget')}</p>
+                <p className="text-sm font-semibold text-dark">
+                  {t('meal.currency')}{meal.budget_min} - {t('meal.currency')}{meal.budget_max}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Deadline */}
@@ -366,29 +388,54 @@ export default function MealDetailPage() {
 
             {/* Participant List with toggle */}
             <div className="space-y-2">
-              {meal.participants.map((participant, index) => (
+              {/* Creator row (always present) */}
+              <div className="flex items-center justify-between p-3 bg-light rounded-xl">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-coral/20 flex items-center justify-center overflow-hidden">
+                    {meal.creator?.avatar_url ? (
+                      <img src={meal.creator.avatar_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-xs font-bold text-dark">
+                        {(meal.creator?.nickname || '?').charAt(0)}
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-dark">{meal.creator?.nickname || 'Host'}</p>
+                    <p className="text-[10px] text-primary">{t('attendance.host')}</p>
+                  </div>
+                </div>
+                <span className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-mint/15 text-mint border border-mint/30">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  {t('attendance.attended')}
+                </span>
+              </div>
+
+              {/* Other participants */}
+              {(meal.participants || []).filter((p: any) => p.status === 'approved').map((participant: any, index: number) => (
                 <div
-                  key={index}
+                  key={participant.id}
                   className="flex items-center justify-between p-3 bg-light rounded-xl"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-coral/20 flex items-center justify-center">
-                      <span className="text-xs font-bold text-dark">
-                        {participant.name.charAt(0)}
-                      </span>
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-coral/20 flex items-center justify-center overflow-hidden">
+                      {participant.user?.avatar_url ? (
+                        <img src={participant.user.avatar_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-xs font-bold text-dark">
+                          {(participant.user?.nickname || '?').charAt(0)}
+                        </span>
+                      )}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-dark">{participant.name}</p>
-                      {index === 0 && (
-                        <p className="text-[10px] text-primary">{t('attendance.host')}</p>
-                      )}
+                      <p className="text-sm font-medium text-dark">{participant.user?.nickname || 'User'}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => setParticipantStatus(prev => ({ ...prev, [index]: 'attended' }))}
+                      onClick={() => setParticipantStatus(prev => ({ ...prev, [participant.id]: 'attended' }))}
                       className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                        participantStatus[index] === 'attended'
+                        participantStatus[participant.id] === 'attended'
                           ? 'bg-mint/15 text-mint border border-mint/30'
                           : 'bg-white text-gray border border-gray-lighter hover:border-mint/30'
                       }`}
@@ -396,19 +443,17 @@ export default function MealDetailPage() {
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       {t('attendance.attended')}
                     </button>
-                    {index !== 0 && (
-                      <button
-                        onClick={() => setParticipantStatus(prev => ({ ...prev, [index]: 'no_show' }))}
-                        className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                          participantStatus[index] === 'no_show'
-                            ? 'bg-coral/15 text-coral border border-coral/30'
-                            : 'bg-white text-gray border border-gray-lighter hover:border-coral/30'
-                        }`}
-                      >
-                        <UserX className="w-3.5 h-3.5" />
-                        {t('attendance.noShow')}
-                      </button>
-                    )}
+                    <button
+                      onClick={() => setParticipantStatus(prev => ({ ...prev, [participant.id]: 'no_show' }))}
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        participantStatus[participant.id] === 'no_show'
+                          ? 'bg-coral/15 text-coral border border-coral/30'
+                          : 'bg-white text-gray border border-gray-lighter hover:border-coral/30'
+                      }`}
+                    >
+                      <UserX className="w-3.5 h-3.5" />
+                      {t('attendance.noShow')}
+                    </button>
                   </div>
                 </div>
               ))}
@@ -442,28 +487,28 @@ export default function MealDetailPage() {
             {t('meal.creator')}
           </p>
           <div className="flex items-center gap-3">
-            {/* Avatar with initials */}
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-coral flex items-center justify-center flex-shrink-0">
-              <span className="text-base font-bold text-white">
-                {meal.creatorName.charAt(0)}
-              </span>
+            {/* Avatar */}
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-coral flex items-center justify-center flex-shrink-0 overflow-hidden">
+              {meal.creator?.avatar_url ? (
+                <img src={meal.creator.avatar_url} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-base font-bold text-white">
+                  {(meal.creator?.nickname || '?').charAt(0)}
+                </span>
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-base font-semibold text-dark truncate">
-                {meal.creatorName}
+                {meal.creator?.nickname || 'Anonymous'}
               </p>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className={`text-xs ${
-                  meal.creatorCredit === 'excellent' ? 'text-gold' :
-                  meal.creatorCredit === 'good' ? 'text-mint' : 'text-blue-500'
+                  creatorCredit === 'excellent' ? 'text-gold' :
+                  creatorCredit === 'good' ? 'text-mint' : 'text-blue-500'
                 }`}>
-                  {'⭐'.repeat(creditStars[meal.creatorCredit] || 3)}
+                  {'⭐'.repeat(creditStars[creatorCredit] || 3)}
                 </span>
               </div>
-            </div>
-            <div className="text-right">
-              <p className="text-2xl font-bold text-primary">{meal.creatorMeals}</p>
-              <p className="text-xs text-gray">{t('meal.participants')}</p>
             </div>
             <ChevronRight className="w-5 h-5 text-gray-light flex-shrink-0" />
           </div>
@@ -481,76 +526,72 @@ export default function MealDetailPage() {
               {t('meal.participants')}
             </p>
             <span className="text-xs text-mint font-medium">
-              {meal.current}/{meal.max}
+              {currentParticipants}/{meal.max_participants}
             </span>
           </div>
-          <div className="flex items-center -space-x-2">
-            {meal.participants.slice(0, showAllParticipants ? meal.participants.length : 5).map((participant, index) => (
+          {(meal.participants || []).length > 0 ? (
+            <div className="flex items-center -space-x-2">
+              {/* Creator avatar */}
               <motion.div
-                key={index}
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4 + index * 0.05 }}
-                className="w-10 h-10 rounded-full bg-gradient-to-br from-mint/20 to-primary/20 border-2 border-white flex items-center justify-center"
-                title={participant.name}
+                transition={{ delay: 0.4 }}
+                className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-coral/30 border-2 border-white flex items-center justify-center overflow-hidden"
+                title={meal.creator?.nickname || 'Host'}
               >
-                <span className="text-xs font-bold text-dark">
-                  {participant.name.charAt(0)}
-                </span>
+                {meal.creator?.avatar_url ? (
+                  <img src={meal.creator.avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-xs font-bold text-dark">
+                    {(meal.creator?.nickname || '?').charAt(0)}
+                  </span>
+                )}
               </motion.div>
-            ))}
-            {meal.participants.length > 5 && !showAllParticipants && (
-              <button
-                onClick={() => setShowAllParticipants(true)}
-                className="w-10 h-10 rounded-full bg-light border-2 border-white flex items-center justify-center"
-              >
-                <span className="text-xs font-semibold text-gray">
-                  +{meal.participants.length - 5}
-                </span>
-              </button>
-            )}
-          </div>
+              {/* Participant avatars */}
+              {meal.participants
+                .filter((p: any) => p.status === 'approved')
+                .slice(0, showAllParticipants ? 20 : 4)
+                .map((participant: any, index: number) => (
+                  <motion.div
+                    key={participant.id}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4 + index * 0.05 }}
+                    className="w-10 h-10 rounded-full bg-gradient-to-br from-mint/20 to-primary/20 border-2 border-white flex items-center justify-center overflow-hidden"
+                    title={participant.user?.nickname || 'User'}
+                  >
+                    {participant.user?.avatar_url ? (
+                      <img src={participant.user.avatar_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-xs font-bold text-dark">
+                        {(participant.user?.nickname || '?').charAt(0)}
+                      </span>
+                    )}
+                  </motion.div>
+                ))
+              }
+            </div>
+          ) : (
+            <p className="text-sm text-gray text-center py-2">
+              {t('meal.noParticipantsYet') || 'No participants yet. Be the first to join!'}
+            </p>
+          )}
         </motion.div>
 
-        {/* Meal Photos (for completed meals) */}
-        {meal.status === 'completed' && meal.photos && meal.photos.length > 0 && (
+        {/* Description */}
+        {meal.description && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.35 }}
             className="card p-4"
           >
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-bold text-dark text-sm flex items-center gap-2">
-                <ImageIcon className="w-4 h-4 text-primary" />
-                {t('mealPhotos.title')}
-              </h3>
-              <span className="text-xs text-gray">{meal.photos.length} {t('mealPhotos.photos')}</span>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {meal.photos.map((photo, index) => (
-                <button
-                  key={index}
-                  onClick={() => openPhotoViewer(index)}
-                  className="aspect-square rounded-xl overflow-hidden bg-light relative group"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={photo}
-                    alt={`Meal photo ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                    <Eye className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                </button>
-              ))}
-              {/* Upload button (demo) */}
-              <button className="aspect-square rounded-xl border-2 border-dashed border-gray-lighter flex flex-col items-center justify-center gap-1 hover:border-primary/50 hover:bg-primary/5 transition-colors">
-                <Camera className="w-5 h-5 text-gray-light" />
-                <span className="text-[10px] text-gray-light">{t('mealPhotos.addPhoto')}</span>
-              </button>
-            </div>
+            <p className="text-xs text-gray mb-2 uppercase tracking-wide">
+              {t('meal.description') || 'Description'}
+            </p>
+            <p className="text-sm text-gray-dark leading-relaxed">
+              {meal.description}
+            </p>
           </motion.div>
         )}
       </div>
@@ -558,14 +599,9 @@ export default function MealDetailPage() {
       {/* Fixed Bottom Buttons */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-lg border-t border-gray-lighter/50 safe-bottom">
         <div className="max-w-lg mx-auto space-y-2">
-          {/* Completed meal: Upload photos / View gallery */}
-          {meal.status === 'completed' && (
-            <Link href={`/${locale}/gallery`}>
-              <button className="btn-primary w-full py-3 flex items-center justify-center gap-2">
-                <ImageIcon className="w-5 h-5" />
-                <span>{t('mealPhotos.viewGallery')}</span>
-              </button>
-            </Link>
+          {/* Action error */}
+          {actionError && (
+            <p className="text-xs text-coral text-center">{actionError}</p>
           )}
 
           {/* Creator: Cancel Meal button */}
@@ -593,13 +629,18 @@ export default function MealDetailPage() {
           {/* Join button (non-participant) */}
           {!isCreator && !hasJoined && meal.status === 'open' && (
             <button
+              onClick={handleJoinMeal}
+              disabled={isFull || joining || !user}
               className={`btn-primary w-full py-3.5 flex items-center justify-center gap-2 ${
-                isFull ? 'opacity-50 cursor-not-allowed' : ''
+                isFull || !user ? 'opacity-50 cursor-not-allowed' : ''
               }`}
-              disabled={isFull}
             >
-              {isFull ? (
+              {joining ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : isFull ? (
                 <span>{t('meal.participants')} Full</span>
+              ) : !user ? (
+                <span>{t('auth.signInRequired') || 'Sign in to join'}</span>
               ) : (
                 <>
                   <Users className="w-5 h-5" />
@@ -748,7 +789,7 @@ export default function MealDetailPage() {
                   {t('common.cancel')}
                 </button>
                 <button
-                  onClick={() => setShowLeaveModal(false)}
+                  onClick={handleLeaveMeal}
                   disabled={!joinerPenalty.canLeave}
                   className={`btn-primary flex-1 py-3 ${
                     !joinerPenalty.canLeave ? 'opacity-50 cursor-not-allowed' : ''
@@ -758,59 +799,6 @@ export default function MealDetailPage() {
                 </button>
               </div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Photo Viewer Modal */}
-      <AnimatePresence>
-        {showPhotoViewer && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black flex items-center justify-center"
-          >
-            <button
-              onClick={() => setShowPhotoViewer(false)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-white/20 text-white z-10"
-            >
-              <X className="w-6 h-6" />
-            </button>
-            {/* Navigation arrows */}
-            {selectedPhotoIndex > 0 && (
-              <button
-                onClick={() => setSelectedPhotoIndex(prev => prev - 1)}
-                className="absolute left-4 p-2 rounded-full bg-white/20 text-white z-10"
-              >
-                <ChevronRight className="w-6 h-6 rotate-180" />
-              </button>
-            )}
-            {selectedPhotoIndex < meal.photos.length - 1 && (
-              <button
-                onClick={() => setSelectedPhotoIndex(prev => prev + 1)}
-                className="absolute right-4 p-2 rounded-full bg-white/20 text-white z-10"
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
-            )}
-            <motion.div
-              key={selectedPhotoIndex}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="w-full h-full flex items-center justify-center p-8"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={meal.photos[selectedPhotoIndex]}
-                alt={`Photo ${selectedPhotoIndex + 1}`}
-                className="max-w-full max-h-full object-contain rounded-xl"
-              />
-            </motion.div>
-            {/* Photo counter */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-white/20 text-white text-xs">
-              {selectedPhotoIndex + 1} / {meal.photos.length}
-            </div>
           </motion.div>
         )}
       </AnimatePresence>

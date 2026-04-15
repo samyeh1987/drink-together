@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,159 +9,12 @@ import {
   MapPin,
   Calendar,
   Users,
-  Filter,
-  MessageCircle,
   X,
   SlidersHorizontal,
+  Loader2,
+  MessageCircle,
 } from 'lucide-react';
-
-// Demo meal data for UI preview
-const DEMO_MEALS = [
-  {
-    id: '1',
-    title: 'Friday Night Izakaya 🍶',
-    restaurant: 'Ninja Izakaya, Thonglor',
-    cuisine: 'japanese',
-    cuisineEmoji: '🍣',
-    languages: [{ key: 'en', flag: '🇬🇧' }, { key: 'th', flag: '🇹🇭' }],
-    datetime: '2026-04-18T19:00:00',
-    current: 4,
-    min: 3,
-    max: 8,
-    payment: 'splitBill',
-    paymentEmoji: '💰',
-    note: 'Language Exchange',
-    status: 'open',
-    creatorName: 'Sarah K.',
-    creatorCredit: 'good',
-  },
-  {
-    id: '2',
-    title: 'Weekend Hotpot Feast 🫕',
-    restaurant: 'Haidilao, Siam Paragon',
-    cuisine: 'hotpot',
-    cuisineEmoji: '🫕',
-    languages: [{ key: 'zh', flag: '🇨🇳' }, { key: 'en', flag: '🇬🇧' }],
-    datetime: '2026-04-19T18:30:00',
-    current: 2,
-    min: 4,
-    max: 10,
-    payment: 'splitBill',
-    paymentEmoji: '💰',
-    note: 'Startup Sharing',
-    status: 'open',
-    creatorName: 'Alex W.',
-    creatorCredit: 'excellent',
-  },
-  {
-    id: '3',
-    title: 'Best Pad Thai in Town 🍜',
-    restaurant: 'Thipsamai, Old Town',
-    cuisine: 'thai',
-    cuisineEmoji: '🍜',
-    languages: [{ key: 'en', flag: '🇬🇧' }],
-    datetime: '2026-04-17T12:00:00',
-    current: 5,
-    min: 2,
-    max: 6,
-    payment: 'splitBill',
-    paymentEmoji: '💰',
-    note: null,
-    status: 'confirmed',
-    creatorName: 'Somchai P.',
-    creatorCredit: 'good',
-  },
-  {
-    id: '4',
-    title: 'Korean BBQ Night 🔥',
-    restaurant: 'Maple House, Ari',
-    cuisine: 'korean',
-    cuisineEmoji: '🍖',
-    languages: [{ key: 'zh', flag: '🇨🇳' }, { key: 'ko', flag: '🇰🇷' }],
-    datetime: '2026-04-20T19:30:00',
-    current: 3,
-    min: 4,
-    max: 8,
-    payment: 'hostTreats',
-    paymentEmoji: '🎉',
-    note: 'Expat Meetup',
-    status: 'open',
-    creatorName: 'Mike L.',
-    creatorCredit: 'average',
-  },
-  {
-    id: '5',
-    title: 'Sunday Brunch & Coffee ☕',
-    restaurant: 'Roast, Thonglor',
-    cuisine: 'italian',
-    cuisineEmoji: '🍝',
-    languages: [{ key: 'en', flag: '🇬🇧' }, { key: 'th', flag: '🇹🇭' }, { key: 'ja', flag: '🇯🇵' }],
-    datetime: '2026-04-19T10:30:00',
-    current: 6,
-    min: 2,
-    max: 8,
-    payment: 'splitBill',
-    paymentEmoji: '💰',
-    note: null,
-    status: 'ongoing',
-    creatorName: 'Emma T.',
-    creatorCredit: 'excellent',
-  },
-  {
-    id: '6',
-    title: 'Dim Sum Morning 🥟',
-    restaurant: 'Tim Ho Wan, CentralWorld',
-    cuisine: 'chinese',
-    cuisineEmoji: '🥟',
-    languages: [{ key: 'zh', flag: '🇨🇳' }, { key: 'en', flag: '🇬🇧' }],
-    datetime: '2026-04-21T09:00:00',
-    current: 1,
-    min: 2,
-    max: 6,
-    payment: 'splitBill',
-    paymentEmoji: '💰',
-    note: null,
-    status: 'pending',
-    creatorName: 'David C.',
-    creatorCredit: 'good',
-  },
-  {
-    id: '7',
-    title: 'Tacos & Margaritas Night 🌮',
-    restaurant: 'La Monita, Sukhumvit',
-    cuisine: 'mexican',
-    cuisineEmoji: '🌮',
-    languages: [{ key: 'en', flag: '🇬🇧' }, { key: 'th', flag: '🇹🇭' }],
-    datetime: '2026-04-22T20:00:00',
-    current: 5,
-    min: 3,
-    max: 10,
-    payment: 'splitBill',
-    paymentEmoji: '💰',
-    note: 'Latin Night',
-    status: 'open',
-    creatorName: 'Carlos R.',
-    creatorCredit: 'good',
-  },
-  {
-    id: '8',
-    title: 'Thai Home Cooking Class 🍛',
-    restaurant: 'Silom Cooking Studio',
-    cuisine: 'thai',
-    cuisineEmoji: '🍛',
-    languages: [{ key: 'en', flag: '🇬🇧' }, { key: 'th', flag: '🇹🇭' }, { key: 'zh', flag: '🇨🇳' }],
-    datetime: '2026-04-23T11:00:00',
-    current: 3,
-    min: 4,
-    max: 8,
-    payment: 'hostTreats',
-    paymentEmoji: '🎉',
-    note: 'Cooking Together',
-    status: 'open',
-    creatorName: 'Noy S.',
-    creatorCredit: 'excellent',
-  },
-];
+import { useMealStore } from '@/store/meal-store';
 
 const statusColors: Record<string, string> = {
   open: 'bg-blue-100 text-blue-700',
@@ -187,14 +40,24 @@ const creditStars: Record<string, string> = {
   newbie: '⭐⭐',
 };
 
-// Filter options
-const CUISINE_OPTIONS = ['japanese', 'thai', 'chinese', 'korean', 'italian', 'hotpot', 'mexican'] as const;
+const CUISINE_OPTIONS = ['japanese', 'thai', 'chinese', 'korean', 'italian', 'hotpot', 'bbq'] as const;
 const LANGUAGE_OPTIONS = ['en', 'zh', 'th', 'ja', 'ko'] as const;
 const PAYMENT_OPTIONS = ['hostTreats', 'splitBill'] as const;
+
+const CUISINE_EMOJI: Record<string, string> = {
+  japanese: '🍣', thai: '🍜', chinese: '🥡', korean: '🍖', italian: '🍕',
+  western: '🥩', hotpot: '🫕', bbq: '🔥', buffet: '🍽️', seafood: '🦐',
+  dimsum: '🥟', vegetarian: '🥗', other: '🍴',
+};
+
+const PAYMENT_EMOJI: Record<string, string> = {
+  hostTreats: '🎉', splitBill: '💰', payOwn: '💳',
+};
 
 export default function MealsPage() {
   const t = useTranslations();
   const locale = useLocale();
+  const { meals, isLoading, fetchMeals } = useMealStore();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
@@ -202,36 +65,31 @@ export default function MealsPage() {
   const [selectedPayments, setSelectedPayments] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Filter logic
-  const filteredMeals = DEMO_MEALS.filter((meal) => {
-    // Search query
+  useEffect(() => {
+    fetchMeals();
+  }, [fetchMeals]);
+
+  // Client-side filtering
+  const filteredMeals = meals.filter((meal: any) => {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const matchesSearch =
         meal.title.toLowerCase().includes(q) ||
-        meal.restaurant.toLowerCase().includes(q) ||
-        meal.cuisine.toLowerCase().includes(q) ||
+        meal.restaurant_name.toLowerCase().includes(q) ||
+        meal.cuisine_type.toLowerCase().includes(q) ||
         meal.note?.toLowerCase().includes(q);
       if (!matchesSearch) return false;
     }
-    // Cuisine filter
-    if (selectedCuisines.length > 0 && !selectedCuisines.includes(meal.cuisine)) {
-      return false;
-    }
-    // Language filter
+    if (selectedCuisines.length > 0 && !selectedCuisines.includes(meal.cuisine_type)) return false;
     if (selectedLanguages.length > 0) {
-      const mealLangs = meal.languages.map((l) => l.key);
+      const mealLangs = meal.meal_languages || [];
       if (!selectedLanguages.some((lang) => mealLangs.includes(lang))) return false;
     }
-    // Payment filter
-    if (selectedPayments.length > 0 && !selectedPayments.includes(meal.payment)) {
-      return false;
-    }
+    if (selectedPayments.length > 0 && !selectedPayments.includes(meal.payment_method)) return false;
     return true;
   });
 
-  const activeFilterCount =
-    selectedCuisines.length + selectedLanguages.length + selectedPayments.length;
+  const activeFilterCount = selectedCuisines.length + selectedLanguages.length + selectedPayments.length;
 
   const clearAllFilters = () => {
     setSelectedCuisines([]);
@@ -240,19 +98,21 @@ export default function MealsPage() {
     setSearchQuery('');
   };
 
-  const toggleFilter = (
-    category: 'cuisine' | 'language' | 'payment',
-    value: string,
-  ) => {
+  const toggleFilter = (category: 'cuisine' | 'language' | 'payment', value: string) => {
     const setter =
-      category === 'cuisine'
-        ? setSelectedCuisines
-        : category === 'language'
-          ? setSelectedLanguages
-          : setSelectedPayments;
+      category === 'cuisine' ? setSelectedCuisines
+        : category === 'language' ? setSelectedLanguages
+        : setSelectedPayments;
     setter((prev) =>
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
     );
+  };
+
+  const getCreatorCredit = (score: number) => {
+    if (score >= 120) return 'excellent';
+    if (score >= 90) return 'good';
+    if (score >= 60) return 'average';
+    return 'newbie';
   };
 
   return (
@@ -448,7 +308,12 @@ export default function MealsPage() {
 
       {/* Meal list */}
       <div className="px-4 pt-4">
-        {filteredMeals.length === 0 ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 text-primary animate-spin mb-3" />
+            <p className="text-sm text-gray">{t('common.loading') || 'Loading...'}</p>
+          </div>
+        ) : filteredMeals.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -496,12 +361,12 @@ export default function MealsPage() {
                     {/* Restaurant */}
                     <div className="flex items-center gap-1 text-sm text-gray mb-2.5">
                       <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span className="truncate">{meal.restaurant}</span>
+                      <span className="truncate">{(meal as any).restaurant_name}</span>
                     </div>
 
                     {/* Languages + Note row */}
                     <div className="flex items-center gap-2 mb-3 flex-wrap">
-                      {meal.languages.map((lang) => (
+                      {((meal as any)._languages || []).map((lang: { key: string; flag: string }) => (
                         <span key={lang.key} className="tag text-[11px]">
                           {lang.flag} {t(`language.${lang.key}`)}
                         </span>
@@ -535,33 +400,39 @@ export default function MealsPage() {
                           <Users className="w-3.5 h-3.5" />
                           <span
                             className={`text-xs ${
-                              meal.current >= meal.min
+                              (meal as any)._currentParticipants >= meal.min_participants
                                 ? 'text-mint font-semibold'
                                 : ''
                             }`}
                           >
-                            {meal.current}/{meal.max}
+                            {(meal as any)._currentParticipants}/{meal.max_participants}
                           </span>
                         </div>
-                        <span className="text-sm">{meal.paymentEmoji}</span>
+                        <span className="text-sm">{(meal as any)._paymentEmoji || ''}</span>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/20 to-coral/20 flex items-center justify-center">
-                          <span className="text-[10px] font-bold text-primary">
-                            {meal.creatorName.charAt(0)}
+                      {meal.creator && (
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/20 to-coral/20 flex items-center justify-center overflow-hidden">
+                            {meal.creator.avatar_url ? (
+                              <img src={meal.creator.avatar_url} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="text-[10px] font-bold text-primary">
+                                {(meal.creator.nickname || '?').charAt(0)}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-xs text-gray">
+                            {meal.creator.nickname || 'Anonymous'}
+                          </span>
+                          <span
+                            className={`text-[10px] ${
+                              creditColors[getCreatorCredit(meal.creator.credit_score || 100)] || 'text-gray'
+                            }`}
+                          >
+                            {creditStars[getCreatorCredit(meal.creator.credit_score || 100)] || '⭐⭐⭐'}
                           </span>
                         </div>
-                        <span className="text-xs text-gray">
-                          {meal.creatorName}
-                        </span>
-                        <span
-                          className={`text-[10px] ${
-                            creditColors[meal.creatorCredit] || 'text-gray'
-                          }`}
-                        >
-                          {creditStars[meal.creatorCredit] || '⭐⭐⭐'}
-                        </span>
-                      </div>
+                      )}
                     </div>
                   </div>
                 </Link>

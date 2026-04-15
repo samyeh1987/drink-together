@@ -16,6 +16,7 @@ import {
   Globe,
   MessageCircle,
   Sparkles,
+  Loader2,
 } from 'lucide-react';
 import {
   CUISINE_TYPES,
@@ -23,6 +24,8 @@ import {
   PAYMENT_METHODS,
   MEAL_TAGS,
 } from '@/lib/constants';
+import { useLocale } from 'next-intl';
+import { createMeal } from '@/lib/api';
 
 type PaymentKey = 'hostTreats' | 'splitBill';
 
@@ -345,9 +348,11 @@ function Step2({ form, updateField, toggleArrayItem, t }: {
 }
 
 // ─── Step 3: Confirm & Submit (stable component) ────
-function Step3({ form, onSubmit, t }: {
+function Step3({ form, onSubmit, isSubmitting, submitError, t }: {
   form: MealForm;
   onSubmit: () => void;
+  isSubmitting: boolean;
+  submitError: string | null;
   t: (key: string) => string;
 }) {
   const selectedCuisine = CUISINE_TYPES.find((c) => c.key === form.cuisine);
@@ -462,11 +467,19 @@ function Step3({ form, onSubmit, t }: {
       <button
         type="button"
         onClick={onSubmit}
+        disabled={isSubmitting}
         className="btn-primary w-full flex items-center justify-center gap-2 text-base py-4"
       >
-        <Check size={20} />
-        {t('common.submit')}
+        {isSubmitting ? (
+          <Loader2 size={20} className="animate-spin" />
+        ) : (
+          <Check size={20} />
+        )}
+        {isSubmitting ? (t('common.submitting') || 'Creating...') : t('common.submit')}
       </button>
+      {submitError && (
+        <p className="text-sm text-coral text-center mt-2">{submitError}</p>
+      )}
     </div>
   );
 }
@@ -474,10 +487,13 @@ function Step3({ form, onSubmit, t }: {
 // ─── Main Page ──────────────────────────────────────
 export default function CreateMealPage() {
   const t = useTranslations();
+  const locale = useLocale();
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [form, setForm] = useState<MealForm>(initialForm);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const updateField = useCallback(<K extends keyof MealForm>(key: K, value: MealForm[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -506,9 +522,49 @@ export default function CreateMealPage() {
     setStep((s) => Math.max(s - 1, 1));
   };
 
-  const handleSubmit = () => {
-    // TODO: Submit meal data to API
-    router.back();
+  const handleSubmit = async () => {
+    setSubmitError(null);
+
+    // Parse budget range
+    let budgetMin: number | null = null;
+    let budgetMax: number | null = null;
+    if (form.budget) {
+      const parts = form.budget.split(/[-–~]/).map(s => parseInt(s.trim()));
+      if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+        budgetMin = parts[0];
+        budgetMax = parts[1];
+      } else if (parts.length === 1 && !isNaN(parts[0])) {
+        budgetMin = parts[0];
+        budgetMax = parts[0];
+      }
+    }
+
+    setIsSubmitting(true);
+    const result = await createMeal({
+      title: form.title,
+      restaurant_name: form.restaurant,
+      restaurant_address: form.address,
+      cuisine_type: form.cuisine,
+      meal_languages: form.languages,
+      datetime: new Date(form.dateTime).toISOString(),
+      deadline: form.deadline ? new Date(form.deadline).toISOString() : new Date(form.dateTime).toISOString(),
+      min_participants: form.minParticipants,
+      max_participants: form.maxParticipants,
+      payment_method: form.payment,
+      budget_min: budgetMin,
+      budget_max: budgetMax,
+      description: form.note,
+      note: form.note,
+      tags: form.tags,
+    });
+
+    setIsSubmitting(false);
+
+    if (result.success) {
+      router.push(`/${locale}/meals/${result.mealId}`);
+    } else {
+      setSubmitError(result.error || 'Failed to create meal');
+    }
   };
 
   // ─── Progress Bar ────────────────────────────────────
@@ -564,7 +620,7 @@ export default function CreateMealPage() {
           <Step2 form={form} updateField={updateField} toggleArrayItem={toggleArrayItem} t={t} />
         )}
         {step === 3 && (
-          <Step3 form={form} onSubmit={handleSubmit} t={t} />
+          <Step3 form={form} onSubmit={handleSubmit} isSubmitting={isSubmitting} submitError={submitError} t={t} />
         )}
       </div>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -9,79 +9,12 @@ import {
   Calendar,
   Users,
   UtensilsCrossed,
-  ChevronRight,
   X,
   Clock,
+  Loader2,
 } from 'lucide-react';
-
-// Demo data for My Meals page
-const myMeals = [
-  {
-    id: '1',
-    title: 'Friday Night Izakaya 🍶',
-    restaurant: 'Ninja Izakaya, Thonglor',
-    datetime: '2026-04-18T19:00:00',
-    status: 'open',
-    role: 'host',
-    current: 4,
-    max: 8,
-    cuisineEmoji: '🍣',
-    languages: [{ key: 'en', flag: '🇬🇧' }],
-    topic: 'Casual networking',
-  },
-  {
-    id: '2',
-    title: 'Dim Sum Brunch 🥟',
-    restaurant: 'Tim Ho Wan, Central Embassy',
-    datetime: '2026-04-15T10:00:00',
-    status: 'completed',
-    role: 'participant',
-    current: 6,
-    max: 6,
-    cuisineEmoji: '🥟',
-    languages: [{ key: 'zh', flag: '🇨🇳' }, { key: 'en', flag: '🇬🇧' }],
-    topic: 'Foodie gathering',
-  },
-  {
-    id: '3',
-    title: 'Italian Wine Night 🍷',
-    restaurant: 'Appia, Ekkamai',
-    datetime: '2026-04-22T19:00:00',
-    status: 'open',
-    role: 'participant',
-    current: 2,
-    max: 6,
-    cuisineEmoji: '🍕',
-    languages: [{ key: 'en', flag: '🇬🇧' }],
-    topic: 'Wine tasting',
-  },
-  {
-    id: '4',
-    title: 'Thai Street Food Tour 🛵',
-    restaurant: 'Yaowarat (Chinatown)',
-    datetime: '2026-04-12T18:00:00',
-    status: 'completed',
-    role: 'host',
-    current: 5,
-    max: 8,
-    cuisineEmoji: '🍜',
-    languages: [{ key: 'en', flag: '🇬🇧' }, { key: 'th', flag: '🇹🇭' }],
-    topic: 'Language exchange',
-  },
-  {
-    id: '5',
-    title: 'Korean BBQ Night 🥩',
-    restaurant: 'Maple House, Sukhumvit 26',
-    datetime: '2026-04-25T19:30:00',
-    status: 'pending',
-    role: 'host',
-    current: 2,
-    max: 6,
-    cuisineEmoji: '🥩',
-    languages: [{ key: 'en', flag: '🇬🇧' }, { key: 'ko', flag: '🇰🇷' }],
-    topic: 'Korean culture sharing',
-  },
-];
+import { useAuthStore } from '@/store/auth-store';
+import { getMyMeals, leaveMeal } from '@/lib/api';
 
 type TabKey = 'all' | 'hosting' | 'joined' | 'completed';
 
@@ -105,10 +38,12 @@ function MealCard({
   meal,
   locale,
   t,
+  onCancelJoin,
 }: {
-  meal: (typeof myMeals)[0];
+  meal: any;
   locale: string;
   t: ReturnType<typeof useTranslations>;
+  onCancelJoin?: (mealId: string) => void;
 }) {
   const [showCancel, setShowCancel] = useState(false);
 
@@ -147,9 +82,9 @@ function MealCard({
             <span className={`tag text-[11px] ${statusColors[meal.status] || 'bg-gray-100 text-gray'}`}>
               {t(`meal.status.${meal.status}`)}
             </span>
-            {meal.topic && (
+            {meal.note && (
               <span className="tag text-[11px] bg-light text-gray">
-                💬 {meal.topic}
+                💬 {meal.note.length > 20 ? meal.note.slice(0, 20) + '...' : meal.note}
               </span>
             )}
           </div>
@@ -157,7 +92,7 @@ function MealCard({
           {/* Restaurant */}
           <div className="flex items-center gap-1.5 text-sm text-gray mb-2">
             <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-gray-light" />
-            <span className="truncate">{meal.restaurant}</span>
+            <span className="truncate">{meal.restaurant_name}</span>
           </div>
 
           {/* Date + Time */}
@@ -169,7 +104,7 @@ function MealCard({
           {/* Languages + Participants row */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 flex-wrap">
-              {meal.languages.map((lang) => (
+              {(meal.languages || []).map((lang: { key: string; flag: string }) => (
                 <span key={lang.key} className="tag text-[11px]">
                   {lang.flag} {t(`language.${lang.key}`)}
                 </span>
@@ -178,7 +113,7 @@ function MealCard({
             <div className="flex items-center gap-1 text-sm">
               <Users className="w-3.5 h-3.5 text-gray-light" />
               <span className="text-xs text-mint font-semibold">
-                {meal.current}/{meal.max}
+                {meal.current}/{meal.max_participants || meal.max}
               </span>
             </div>
           </div>
@@ -213,7 +148,10 @@ function MealCard({
                 {t('common.cancel')}
               </button>
               <button
-                onClick={() => setShowCancel(false)}
+                onClick={() => {
+                  setShowCancel(false);
+                  onCancelJoin?.(meal.id);
+                }}
                 className="px-3 py-1.5 text-xs text-white font-medium bg-coral rounded-lg"
               >
                 {t('common.confirm')}
@@ -245,7 +183,22 @@ function MealCard({
 export default function MyMealsPage() {
   const t = useTranslations();
   const locale = useLocale();
+  const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState<TabKey>('all');
+  const [meals, setMeals] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (user?.id) {
+      setIsLoading(true);
+      getMyMeals(user.id)
+        .then(setMeals)
+        .catch(console.error)
+        .finally(() => setIsLoading(false));
+    } else {
+      setIsLoading(false);
+    }
+  }, [user?.id]);
 
   const tabs: { key: TabKey; label: string }[] = [
     { key: 'all', label: t('myMeals.all') },
@@ -254,7 +207,7 @@ export default function MyMealsPage() {
     { key: 'completed', label: t('myMeals.completed') },
   ];
 
-  const filteredMeals = myMeals.filter((meal) => {
+  const filteredMeals = meals.filter((meal) => {
     switch (activeTab) {
       case 'hosting':
         return meal.role === 'host';
@@ -266,6 +219,15 @@ export default function MyMealsPage() {
         return true;
     }
   });
+
+  const handleCancelJoin = async (mealId: string) => {
+    const result = await leaveMeal(mealId);
+    if (result.success && user?.id) {
+      // Refresh the list
+      const updated = await getMyMeals(user.id);
+      setMeals(updated);
+    }
+  };
 
   return (
     <div className="min-h-screen pb-20">
@@ -301,7 +263,23 @@ export default function MyMealsPage() {
 
       {/* Meal list */}
       <div className="px-4 pt-4">
-        {filteredMeals.length === 0 ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 text-primary animate-spin mb-3" />
+            <p className="text-sm text-gray">{t('common.loading') || 'Loading...'}</p>
+          </div>
+        ) : !user ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center justify-center py-20 text-center"
+          >
+            <div className="w-16 h-16 bg-light rounded-2xl flex items-center justify-center mb-4">
+              <UtensilsCrossed className="w-7 h-7 text-gray-light" />
+            </div>
+            <p className="text-sm text-gray mb-1">{t('auth.signInRequired') || 'Please sign in first'}</p>
+          </motion.div>
+        ) : filteredMeals.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -320,7 +298,7 @@ export default function MyMealsPage() {
         ) : (
           <div className="flex flex-col gap-3">
             {filteredMeals.map((meal) => (
-              <MealCard key={meal.id} meal={meal} locale={locale} t={t} />
+              <MealCard key={meal.id} meal={meal} locale={locale} t={t} onCancelJoin={handleCancelJoin} />
             ))}
           </div>
         )}
