@@ -25,7 +25,7 @@ export default function VerifyPage() {
       type: 'signup',
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/${locale}/meals`,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/auth/callback?next=/${locale}/meals`,
       },
     });
     if (error) {

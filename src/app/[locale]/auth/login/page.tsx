@@ -30,10 +30,11 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     setError('');
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/${locale}/meals`,
+        redirectTo: `${appUrl}/auth/callback?next=/${locale}/meals`,
       },
     });
     if (error) {
@@ -56,7 +57,7 @@ export default function LoginPage() {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/confirm?next=/${locale}/meals`,
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/auth/confirm?next=/${locale}/meals`,
         },
       });
       if (error) {
