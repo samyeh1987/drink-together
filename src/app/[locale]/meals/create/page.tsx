@@ -26,6 +26,9 @@ import {
 } from '@/lib/constants';
 import { useLocale } from 'next-intl';
 import { createMeal } from '@/lib/api';
+import dynamic from 'next/dynamic';
+
+const LocationPicker = dynamic(() => import('@/components/map/LocationPicker'), { ssr: false });
 
 type PaymentKey = 'hostTreats' | 'splitBill';
 
@@ -33,6 +36,8 @@ interface MealForm {
   title: string;
   restaurant: string;
   address: string;
+  latitude: number | null;
+  longitude: number | null;
   cuisine: string;
   dateTime: string;
   deadline: string;
@@ -49,6 +54,8 @@ const initialForm: MealForm = {
   title: '',
   restaurant: '',
   address: '',
+  latitude: null,
+  longitude: null,
   cuisine: '',
   dateTime: '',
   deadline: '',
@@ -82,6 +89,8 @@ function Step1({ form, updateField, t }: {
   updateField: <K extends keyof MealForm>(key: K, value: MealForm[K]) => void;
   t: (key: string) => string;
 }) {
+  const locale = useLocale();
+
   return (
     <div className="space-y-5">
       {/* Title */}
@@ -114,18 +123,23 @@ function Step1({ form, updateField, t }: {
         />
       </div>
 
-      {/* Restaurant Address */}
+      {/* Location Picker - Address Search + Map */}
       <div>
         <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
           <MapPin size={16} className="text-mint" />
           {t('meal.restaurantAddress')}
         </label>
-        <input
-          type="text"
-          className="input"
-          placeholder="e.g. 169/7-11 Sam Yan Rd, Bangkok"
-          value={form.address}
-          onChange={(e) => updateField('address', e.target.value)}
+        <LocationPicker
+          address={form.address}
+          onLocationSelect={(data) => {
+            updateField('latitude', data.lat);
+            updateField('longitude', data.lng);
+          }}
+          onAddressChange={(addr) => updateField('address', addr)}
+          initialLat={form.latitude}
+          initialLng={form.longitude}
+          locale={locale}
+          searchPlaceholder={locale === 'zh-CN' ? '搜尋餐廳或地址...' : locale === 'th' ? 'ค้นหาร้านอาหารหรือที่อยู่...' : 'Search restaurant or address...'}
         />
       </div>
 
@@ -556,6 +570,8 @@ export default function CreateMealPage() {
       description: form.note,
       note: form.note,
       tags: form.tags,
+      latitude: form.latitude,
+      longitude: form.longitude,
     });
 
     setIsSubmitting(false);
