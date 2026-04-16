@@ -2,10 +2,17 @@ import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
+/** Extract locale from a path like '/en/meals' or fallback to 'en' */
+function extractLocale(path: string): string {
+  const match = path.match(/^\/(en|zh-CN|th)(?:\/|$)/);
+  return match ? match[1] : 'en';
+}
+
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
   const next = requestUrl.searchParams.get('next') ?? '/en/meals';
+  const locale = extractLocale(next);
 
   if (code) {
     const cookieStore = await cookies();
@@ -39,8 +46,8 @@ export async function GET(request: Request) {
     }
   }
 
-  // Return to login with error
+  // Return to login with error, preserving locale
   return NextResponse.redirect(
-    new URL('/en/auth/login?error=auth_failed', requestUrl.origin)
+    new URL(`/${locale}/auth/login?error=auth_failed`, requestUrl.origin)
   );
 }
