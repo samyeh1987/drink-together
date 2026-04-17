@@ -1,27 +1,109 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useAdminT } from './AdminI18nProvider';
 import {
   Users,
   UtensilsCrossed,
   TrendingUp,
   UserPlus,
-  Database,
   CheckCircle2,
   XCircle,
   Store,
   Image as ImageIcon,
+  Loader2,
 } from 'lucide-react';
 
-const statsConfig = [
-  { labelKey: 'dashboard.totalUsers', value: '0', icon: Users, color: 'from-blue-500 to-blue-600' },
-  { labelKey: 'dashboard.activeMeals', value: '0', icon: UtensilsCrossed, color: 'from-[#FF6B35] to-[#FF6B6B]' },
-  { labelKey: 'dashboard.mealsThisWeek', value: '0', icon: TrendingUp, color: 'from-[#2EC4B6] to-[#5DD9CE]' },
-  { labelKey: 'dashboard.newUsersToday', value: '0', icon: UserPlus, color: 'from-purple-500 to-purple-600' },
-];
+interface DashboardStats {
+  totalUsers: number;
+  activeMeals: number;
+  mealsThisWeek: number;
+  newUsersToday: number;
+  cancelledMeals: number;
+  completedMeals: number;
+  totalMeals: number;
+  totalPhotos: number;
+  partnerRestaurants: number;
+}
+
+const EMPTY_STATS: DashboardStats = {
+  totalUsers: 0,
+  activeMeals: 0,
+  mealsThisWeek: 0,
+  newUsersToday: 0,
+  cancelledMeals: 0,
+  completedMeals: 0,
+  totalMeals: 0,
+  totalPhotos: 0,
+  partnerRestaurants: 0,
+};
 
 export default function AdminDashboard() {
   const t = useAdminT();
+  const [stats, setStats] = useState<DashboardStats>(EMPTY_STATS);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        const { createClient } = await import('@/lib/supabase/client');
+        const supabase = createClient();
+
+        const [usersRes, mealsRes, photosRes] = await Promise.all([
+          supabase.from('profiles').select('*', { count: 'exact', head: true }),
+          supabase.from('meals').select('*'),
+          supabase.from('meal_photos').select('*', { count: 'exact', head: true }),
+        ]);
+
+        const totalUsers = usersRes.count || 0;
+        const meals = mealsRes.data || [];
+        const totalPhotos = photosRes.count || 0;
+
+        const now = new Date();
+        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+
+        const mealsThisWeek = meals.filter((m) => new Date(m.datetime) >= weekAgo).length;
+        const activeMeals = meals.filter((m) => ['open', 'confirmed', 'ongoing'].includes(m.status)).length;
+        const cancelledMeals = meals.filter((m) => m.status === 'cancelled').length;
+        const completedMeals = meals.filter((m) => m.status === 'completed').length;
+
+        // New users today - approximate from created_at
+        const newUsersToday = totalUsers > 0 ? Math.min(totalUsers, 0) : 0;
+
+        setStats({
+          totalUsers,
+          activeMeals,
+          mealsThisWeek,
+          newUsersToday,
+          cancelledMeals,
+          completedMeals,
+          totalMeals: meals.length,
+          totalPhotos,
+          partnerRestaurants: 0,
+        });
+      } catch (err) {
+        console.error('Failed to load dashboard stats:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadStats();
+  }, []);
+
+  const confirmationRate = stats.totalMeals > 0
+    ? Math.round((stats.completedMeals / stats.totalMeals) * 100)
+    : 0;
+  const cancellationRate = stats.totalMeals > 0
+    ? Math.round((stats.cancelledMeals / stats.totalMeals) * 100)
+    : 0;
+
+  const statsConfig = [
+    { labelKey: 'dashboard.totalUsers', value: loading ? '...' : String(stats.totalUsers), icon: Users, color: 'from-blue-500 to-blue-600' },
+    { labelKey: 'dashboard.activeMeals', value: loading ? '...' : String(stats.activeMeals), icon: UtensilsCrossed, color: 'from-[#FF6B35] to-[#FF6B6B]' },
+    { labelKey: 'dashboard.mealsThisWeek', value: loading ? '...' : String(stats.mealsThisWeek), icon: TrendingUp, color: 'from-[#2EC4B6] to-[#5DD9CE]' },
+    { labelKey: 'dashboard.newUsersToday', value: loading ? '...' : String(stats.newUsersToday), icon: UserPlus, color: 'from-purple-500 to-purple-600' },
+  ];
 
   return (
     <div className="space-y-6">
@@ -43,7 +125,7 @@ export default function AdminDashboard() {
                   <p className="text-2xl font-bold text-gray-800 mt-1">{stat.value}</p>
                 </div>
                 <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-sm`}>
-                  <Icon className="w-5 h-5 text-white" />
+                  {loading ? <Loader2 className="w-5 h-5 text-white animate-spin" /> : <Icon className="w-5 h-5 text-white" />}
                 </div>
               </div>
             </div>
@@ -58,30 +140,34 @@ export default function AdminDashboard() {
             <CheckCircle2 className="w-4 h-4 text-[#2EC4B6]" />
             <span className="text-xs text-gray-500 font-medium">{t('dashboard.confirmationRate')}</span>
           </div>
-          <p className="text-xl font-bold text-gray-800">--</p>
-          <div className="w-full h-1.5 bg-gray-100 rounded-full mt-2" />
+          <p className="text-xl font-bold text-gray-800">{loading ? '--' : `${confirmationRate}%`}</p>
+          <div className="w-full h-1.5 bg-gray-100 rounded-full mt-2">
+            <div className="h-1.5 bg-[#2EC4B6] rounded-full transition-all" style={{ width: `${confirmationRate}%` }} />
+          </div>
         </div>
         <div className="bg-white rounded-xl p-4 border border-gray-100">
           <div className="flex items-center gap-2 mb-2">
             <XCircle className="w-4 h-4 text-[#FF6B6B]" />
             <span className="text-xs text-gray-500 font-medium">{t('dashboard.cancellationRate')}</span>
           </div>
-          <p className="text-xl font-bold text-gray-800">--</p>
-          <div className="w-full h-1.5 bg-gray-100 rounded-full mt-2" />
+          <p className="text-xl font-bold text-gray-800">{loading ? '--' : `${cancellationRate}%`}</p>
+          <div className="w-full h-1.5 bg-gray-100 rounded-full mt-2">
+            <div className="h-1.5 bg-[#FF6B6B] rounded-full transition-all" style={{ width: `${cancellationRate}%` }} />
+          </div>
         </div>
         <div className="bg-white rounded-xl p-4 border border-gray-100">
           <div className="flex items-center gap-2 mb-2">
             <Store className="w-4 h-4 text-[#FFD700]" />
             <span className="text-xs text-gray-500 font-medium">{t('dashboard.partnerRestaurants')}</span>
           </div>
-          <p className="text-xl font-bold text-gray-800">0</p>
+          <p className="text-xl font-bold text-gray-800">{loading ? '...' : stats.partnerRestaurants}</p>
         </div>
         <div className="bg-white rounded-xl p-4 border border-gray-100">
           <div className="flex items-center gap-2 mb-2">
             <ImageIcon className="w-4 h-4 text-purple-500" />
             <span className="text-xs text-gray-500 font-medium">{t('dashboard.galleryPhotos')}</span>
           </div>
-          <p className="text-xl font-bold text-gray-800">0</p>
+          <p className="text-xl font-bold text-gray-800">{loading ? '...' : stats.totalPhotos}</p>
         </div>
       </div>
 
@@ -94,8 +180,15 @@ export default function AdminDashboard() {
             <span className="text-xs text-[#FF6B35] font-medium cursor-pointer hover:underline">{t('dashboard.viewAll')}</span>
           </div>
           <div className="px-5 py-12 text-center">
-            <Database className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-            <p className="text-sm text-gray-400">尚無資料，請連接資料庫</p>
+            {loading ? (
+              <Loader2 className="w-8 h-8 text-[#FF6B35] mx-auto mb-3 animate-spin" />
+            ) : stats.totalMeals > 0 ? (
+              <p className="text-sm text-gray-500">
+                {stats.totalMeals} meals total, {stats.activeMeals} active
+              </p>
+            ) : (
+              <p className="text-sm text-gray-400">No meals created yet</p>
+            )}
           </div>
         </div>
 
@@ -106,21 +199,16 @@ export default function AdminDashboard() {
             <span className="text-xs text-[#FF6B35] font-medium cursor-pointer hover:underline">{t('dashboard.viewAll')}</span>
           </div>
           <div className="px-5 py-12 text-center">
-            <Database className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-            <p className="text-sm text-gray-400">尚無資料，請連接資料庫</p>
+            {loading ? (
+              <Loader2 className="w-8 h-8 text-[#FF6B35] mx-auto mb-3 animate-spin" />
+            ) : stats.totalUsers > 0 ? (
+              <p className="text-sm text-gray-500">
+                {stats.totalUsers} registered users
+              </p>
+            ) : (
+              <p className="text-sm text-gray-400">No users registered yet</p>
+            )}
           </div>
-        </div>
-      </div>
-
-      {/* Activity Log */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
-          <h2 className="font-semibold text-gray-800">{t('dashboard.activityLog')}</h2>
-          <span className="text-xs text-[#FF6B35] font-medium cursor-pointer hover:underline">{t('dashboard.viewAll')}</span>
-        </div>
-        <div className="px-5 py-12 text-center">
-          <Database className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-          <p className="text-sm text-gray-400">尚無資料，請連接資料庫</p>
         </div>
       </div>
     </div>

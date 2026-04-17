@@ -7,7 +7,6 @@ import { motion } from 'framer-motion';
 import {
   ArrowLeft,
   Heart,
-  MessageCircle,
   Image as ImageIcon,
   Loader2,
   Camera,

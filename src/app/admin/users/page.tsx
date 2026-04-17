@@ -1,31 +1,112 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Search, Filter, Eye, Ban, ShieldCheck, ShieldAlert,
   ChevronDown, ChevronUp, X, UserCheck, UserX, TrendingUp,
-  Mail, Calendar, Star, AlertTriangle, MessageSquare, MoreVertical,
+  Calendar, Star, AlertTriangle, MoreVertical,
   Download, UserPlus,
 } from 'lucide-react';
 import { cn, getCreditLevel } from '@/lib/utils';
-import { DEMO_USERS, ADMIN_STATUS_COLORS, type AdminUser } from '../data';
+import { ADMIN_STATUS_COLORS, type AdminUser } from '../data';
 import { useAdminT } from '../AdminI18nProvider';
 
 type SortField = 'credit_score' | 'created_at' | 'total_meals_hosted' | 'total_meals_joined' | 'no_show_count';
 type SortDir = 'asc' | 'desc';
 
+interface ProfileWithStats extends AdminUser {
+  total_meals_hosted: number;
+  total_meals_joined: number;
+  no_show_count: number;
+  last_active: string;
+}
+
 export default function AdminUsersPage() {
   const t = useAdminT();
+  const [users, setUsers] = useState<ProfileWithStats[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<SortField>('credit_score');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
-  const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
-  const [creditModal, setCreditModal] = useState<{ user: AdminUser; amount: number; reason: string } | null>(null);
+  const [selectedUser, setSelectedUser] = useState<ProfileWithStats | null>(null);
+  const [creditModal, setCreditModal] = useState<{ user: ProfileWithStats; amount: number; reason: string } | null>(null);
   const [actionMenu, setActionMenu] = useState<string | null>(null);
 
+  useEffect(() => {
+    async function loadUsers() {
+      try {
+        const { createClient } = await import('@/lib/supabase/client');
+        const supabase = createClient();
+
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!error && data) {
+          // Enrich with meal counts
+          const { data: mealCounts } = await supabase
+            .from('meals')
+            .select('creator_id, status');
+
+          const hostedMap: Record<string, number> = {};
+          const cancelledMap: Record<string, number> = {};
+          if (mealCounts) {
+            for (const m of mealCounts) {
+              hostedMap[m.creator_id] = (hostedMap[m.creator_id] || 0) + 1;
+            }
+          }
+
+          const { data: participations } = await supabase
+            .from('meal_participants')
+            .select('user_id, status');
+
+          const joinedMap: Record<string, number> = {};
+          const noShowMap: Record<string, number> = {};
+          if (participations) {
+            for (const p of participations) {
+              if (p.status === 'approved' || p.status === 'no_show') {
+                joinedMap[p.user_id] = (joinedMap[p.user_id] || 0) + 1;
+              }
+              if (p.status === 'no_show') {
+                noShowMap[p.user_id] = (noShowMap[p.user_id] || 0) + 1;
+              }
+            }
+          }
+
+          const enriched: ProfileWithStats[] = data.map((p) => ({
+            id: p.id,
+            email: p.email || '',
+            nickname: p.nickname,
+            avatar_url: p.avatar_url,
+            age_range: p.age_range,
+            occupation: p.occupation,
+            bio: p.bio,
+            languages_spoken: p.languages_spoken || [],
+            credit_score: p.credit_score || 100,
+            email_verified: p.email_verified ?? false,
+            created_at: p.created_at,
+            status: 'active' as const,
+            total_meals_hosted: hostedMap[p.id] || 0,
+            total_meals_joined: joinedMap[p.id] || 0,
+            no_show_count: noShowMap[p.id] || 0,
+            last_active: p.created_at,
+          }));
+
+          setUsers(enriched);
+        }
+      } catch (err) {
+        console.error('Failed to load users:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadUsers();
+  }, []);
+
   const filtered = useMemo(() => {
-    let list = [...DEMO_USERS];
+    let list = [...users];
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(u =>
@@ -44,15 +125,15 @@ export default function AdminUsersPage() {
       return sortDir === 'asc' ? (aNum > bNum ? 1 : -1) : (aNum < bNum ? 1 : -1);
     });
     return list;
-  }, [search, statusFilter, sortBy, sortDir]);
+  }, [users, search, statusFilter, sortBy, sortDir]);
 
   const stats = useMemo(() => ({
-    total: DEMO_USERS.length,
-    active: DEMO_USERS.filter(u => u.status === 'active').length,
-    banned: DEMO_USERS.filter(u => u.status === 'banned').length,
-    suspended: DEMO_USERS.filter(u => u.status === 'suspended').length,
-    avgCredit: Math.round(DEMO_USERS.reduce((s, u) => s + u.credit_score, 0) / DEMO_USERS.length),
-  }), []);
+    total: users.length,
+    active: users.filter(u => u.status === 'active').length,
+    banned: users.filter(u => u.status === 'banned').length,
+    suspended: users.filter(u => u.status === 'suspended').length,
+    avgCredit: users.length > 0 ? Math.round(users.reduce((s, u) => s + u.credit_score, 0) / users.length) : 0,
+  }), [users]);
 
   const handleSort = (field: SortField) => {
     if (sortBy === field) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
@@ -255,7 +336,7 @@ export default function AdminUsersPage() {
         </div>
         {/* Footer */}
         <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 bg-gray-50/50">
-          <p className="text-xs text-gray-500">{t('users.showingOf', { count: filtered.length, total: DEMO_USERS.length })}</p>
+          <p className="text-xs text-gray-500">{t('users.showingOf', { count: filtered.length, total: users.length })}</p>
           <div className="flex gap-1">
             {[1, 2, 3].map(p => (
               <button key={p} className={cn(

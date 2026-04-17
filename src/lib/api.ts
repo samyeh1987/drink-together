@@ -1,5 +1,81 @@
 import { createClient } from '@/lib/supabase/client';
-import type { Meal, MealParticipant, User, Tag, CreditHistory } from '@/types';
+import type { Meal, MealParticipant, User, Tag, CreditHistory, Notification } from '@/types';
+
+// =============================================
+// DB Row types (Supabase query results)
+// =============================================
+
+interface MealRow {
+  id: string;
+  creator_id: string;
+  title: string;
+  restaurant_name: string;
+  restaurant_address: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  cuisine_type: string;
+  meal_languages: string[] | null;
+  datetime: string;
+  deadline: string;
+  min_participants: number;
+  max_participants: number;
+  payment_method: string;
+  budget_min: number | null;
+  budget_max: number | null;
+  description: string | null;
+  note: string | null;
+  status: string;
+  created_at: string;
+  creator?: {
+    id: string;
+    nickname: string | null;
+    avatar_url: string | null;
+    credit_score: number | null;
+    languages_spoken: string[] | null;
+  };
+  participants?: Array<{
+    id: string;
+    meal_id: string;
+    user_id: string;
+    status: string;
+    joined_at: string;
+    user?: {
+      id: string;
+      nickname: string | null;
+      avatar_url: string | null;
+      credit_score: number | null;
+    };
+  }>;
+  meal_tags?: Array<{ tag: Tag | null }>;
+}
+
+interface ProfileRow {
+  id: string;
+  nickname: string | null;
+  avatar_url: string | null;
+  email: string | null;
+  age_range: string | null;
+  occupation: string | null;
+  bio: string | null;
+  languages_spoken: string[] | null;
+  credit_score: number;
+  email_verified: boolean;
+  created_at: string;
+  user_tags?: Array<{ tag: Tag }>;
+}
+
+interface MyMealRow {
+  id: string;
+  title: string;
+  restaurant_name: string;
+  datetime: string;
+  status: string;
+  cuisine_type: string;
+  min_participants: number;
+  max_participants: number;
+  meal_languages: string[] | null;
+  note: string | null;
+}
 
 // =============================================
 // Meals
@@ -21,7 +97,7 @@ export async function fetchOpenMeals(): Promise<Meal[]> {
     console.error('fetchOpenMeals error:', error);
     return [];
   }
-  return ((data as any[]) || []).map(raw => transformMeal(raw));
+  return ((data as MealRow[]) || []).map(raw => transformMeal(raw));
 }
 
 export async function fetchMealById(mealId: string): Promise<Meal | null> {
@@ -254,7 +330,7 @@ export async function cancelMeal(mealId: string): Promise<{ success: boolean; er
   return { success: true };
 }
 
-export async function fetchMyMeals(userId: string): Promise<any[]> {
+export async function fetchMyMeals(userId: string): Promise<Array<MyMealRow & { role: 'host' | 'participant'; current: number; cuisineEmoji: string; languages: Array<{ key: string; flag: string }> }>> {
   const supabase = createClient();
 
   // Meals where user is creator
@@ -359,8 +435,8 @@ export async function fetchProfile(userId: string): Promise<User | null> {
   }
 
   return {
-    ...data,
-    tags: (data.user_tags || []).map((ut: any) => ut.tag),
+    ...(data as ProfileRow),
+    tags: ((data as ProfileRow).user_tags || []).map(ut => ut.tag),
   } as User;
 }
 
@@ -420,7 +496,7 @@ export async function fetchMealStats(): Promise<{ totalMeals: number; totalUsers
 // Notifications
 // =============================================
 
-export async function fetchNotifications(userId: string): Promise<any[]> {
+export async function fetchNotifications(userId: string): Promise<Notification[]> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from('notifications')
@@ -433,7 +509,7 @@ export async function fetchNotifications(userId: string): Promise<any[]> {
     console.error('fetchNotifications error:', error);
     return [];
   }
-  return (data || []).map((n: any) => ({
+  return (data || []).map((n: Notification) => ({
     id: n.id,
     type: n.type,
     title: n.title,
@@ -441,7 +517,6 @@ export async function fetchNotifications(userId: string): Promise<any[]> {
     data: n.data || {},
     read: n.read,
     created_at: n.created_at,
-    // Relative time will be computed on client
   }));
 }
 
@@ -499,7 +574,7 @@ export async function createNotification(data: {
 // Transform helpers
 // =============================================
 
-function transformMeal(raw: any): Meal {
+function transformMeal(raw: MealRow): Meal {
   const CUISINE_EMOJI: Record<string, string> = {
     japanese: '🍣', thai: '🍜', chinese: '🥡', korean: '🍖', italian: '🍕',
     western: '🥩', hotpot: '🫕', bbq: '🔥', buffet: '🍽️', seafood: '🦐',
@@ -530,7 +605,7 @@ function transformMeal(raw: any): Meal {
     tags: [],
   } : undefined;
 
-  const participants = raw.participants?.map((p: any) => ({
+  const participants = raw.participants?.map((p) => ({
     id: p.id,
     meal_id: p.meal_id,
     user_id: p.user_id,
@@ -552,7 +627,7 @@ function transformMeal(raw: any): Meal {
     } : undefined,
   })) || [];
 
-  const tags = raw.meal_tags?.map((mt: any) => mt.tag).filter(Boolean) || [];
+  const tags = raw.meal_tags?.map((mt) => mt.tag).filter(Boolean) || [];
 
   return {
     id: raw.id,
@@ -583,5 +658,10 @@ function transformMeal(raw: any): Meal {
     _paymentEmoji: PAYMENT_EMOJI[raw.payment_method] || '💰',
     _currentParticipants: participants.length,
     _languages: (raw.meal_languages || []).map((l: string) => FLAG_MAP[l] || { key: l, flag: '🌍' }),
-  } as any;
+  } as Meal & {
+    _cuisineEmoji: string;
+    _paymentEmoji: string;
+    _currentParticipants: number;
+    _languages: Array<{ key: string; flag: string }>;
+  };
 }

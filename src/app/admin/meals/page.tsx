@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Search, Filter, Eye, X, UtensilsCrossed, Users, Clock,
   AlertTriangle, CheckCircle2, XCircle, ChevronDown, ChevronUp,
@@ -8,7 +8,7 @@ import {
   Ban,
 } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
-import { DEMO_MEALS, ADMIN_STATUS_COLORS, CUISINE_EMOJI, type AdminMeal } from '../data';
+import { ADMIN_STATUS_COLORS, CUISINE_EMOJI, type AdminMeal } from '../data';
 import { useAdminT } from '../AdminI18nProvider';
 
 type SortField = 'datetime' | 'current_participants' | 'created_at' | 'reports_count';
@@ -16,6 +16,8 @@ type SortDir = 'asc' | 'desc';
 
 export default function AdminMealsPage() {
   const t = useAdminT();
+  const [meals, setMeals] = useState<AdminMeal[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [cuisineFilter, setCuisineFilter] = useState<string>('all');
@@ -24,13 +26,78 @@ export default function AdminMealsPage() {
   const [selectedMeal, setSelectedMeal] = useState<AdminMeal | null>(null);
   const [actionMenu, setActionMenu] = useState<string | null>(null);
 
-  const cuisines = useMemo(() => {
-    const set = new Set(DEMO_MEALS.map(m => m.cuisine_type));
-    return Array.from(set);
+  useEffect(() => {
+    async function loadMeals() {
+      try {
+        const { createClient } = await import('@/lib/supabase/client');
+        const supabase = createClient();
+
+        const { data, error } = await supabase
+          .from('meals')
+          .select(`
+            *,
+            creator:profiles!meals_creator_id_fkey(nickname)
+          `)
+          .order('created_at', { ascending: false });
+
+        if (!error && data) {
+          // Get participant counts
+          const mealIds = data.map(m => m.id);
+          const { data: participants } = await supabase
+            .from('meal_participants')
+            .select('meal_id, status')
+            .in('meal_id', mealIds);
+
+          const countMap: Record<string, number> = {};
+          if (participants) {
+            for (const p of participants) {
+              if (p.status === 'approved') {
+                countMap[p.meal_id] = (countMap[p.meal_id] || 0) + 1;
+              }
+            }
+          }
+
+          const mapped: AdminMeal[] = data.map(m => ({
+            id: m.id,
+            title: m.title,
+            restaurant_name: m.restaurant_name,
+            restaurant_address: m.restaurant_address || '',
+            cuisine_type: m.cuisine_type,
+            meal_languages: m.meal_languages || [],
+            datetime: m.datetime,
+            deadline: m.deadline,
+            min_participants: m.min_participants,
+            max_participants: m.max_participants,
+            payment_method: m.payment_method,
+            budget_min: m.budget_min,
+            budget_max: m.budget_max,
+            description: m.description || '',
+            status: m.status,
+            created_at: m.created_at,
+            creator_name: m.creator?.nickname || 'Unknown',
+            current_participants: countMap[m.id] || 0,
+            reports_count: 0,
+            is_restaurant_hosted: false,
+          }));
+
+          setMeals(mapped);
+        }
+      } catch (err) {
+        console.error('Failed to load meals:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadMeals();
   }, []);
 
+  const cuisines = useMemo(() => {
+    const set = new Set(meals.map(m => m.cuisine_type));
+    return Array.from(set);
+  }, [meals]);
+
   const filtered = useMemo(() => {
-    let list = [...DEMO_MEALS];
+    let list = [...meals];
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(m =>
@@ -52,15 +119,15 @@ export default function AdminMealsPage() {
       return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
     });
     return list;
-  }, [search, statusFilter, cuisineFilter, sortBy, sortDir]);
+  }, [meals, search, statusFilter, cuisineFilter, sortBy, sortDir]);
 
   const stats = useMemo(() => ({
-    total: DEMO_MEALS.length,
-    open: DEMO_MEALS.filter(m => m.status === 'open').length,
-    completed: DEMO_MEALS.filter(m => m.status === 'completed').length,
-    cancelled: DEMO_MEALS.filter(m => m.status === 'cancelled').length,
-    reported: DEMO_MEALS.filter(m => m.reports_count > 0).length,
-  }), []);
+    total: meals.length,
+    open: meals.filter(m => m.status === 'open').length,
+    completed: meals.filter(m => m.status === 'completed').length,
+    cancelled: meals.filter(m => m.status === 'cancelled').length,
+    reported: meals.filter(m => m.reports_count > 0).length,
+  }), [meals]);
 
   const SortIcon = ({ field }: { field: SortField }) => {
     if (sortBy !== field) return <ChevronDown className="w-3 h-3 text-gray-300" />;

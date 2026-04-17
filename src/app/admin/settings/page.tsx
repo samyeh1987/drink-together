@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import {
-  Settings, Bell, Shield, Globe, Users, CreditCard, FileText,
-  Palette, Mail, MessageSquare, Clock, Save, RotateCcw,
+  Settings, Bell, Globe, CreditCard, FileText,
+  Save, RotateCcw,
   ChevronRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';

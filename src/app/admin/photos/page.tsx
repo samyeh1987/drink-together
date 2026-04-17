@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import {
   Search, Filter, Eye, X, Heart, Star, Clock,
   CheckCircle2, XCircle, Image as ImageIcon, Trash2,
-  ChevronRight, MoreVertical, Download,
+  Download,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DEMO_PHOTOS, ADMIN_STATUS_COLORS, type AdminPhoto } from '../data';

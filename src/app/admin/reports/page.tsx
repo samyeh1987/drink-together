@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import {
   Search, Eye, X, AlertTriangle, CheckCircle2, XCircle,
   Clock, MessageSquare, User, ChevronRight, Filter,
-  Mail, Calendar, ShieldCheck, Send,
+  Calendar, ShieldCheck, Send,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DEMO_REPORTS, ADMIN_STATUS_COLORS, REPORT_REASON_LABELS, type AdminReport } from '../data';

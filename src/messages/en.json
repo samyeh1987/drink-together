@@ -167,7 +167,14 @@
     "mealsHosted": "Meals Hosted",
     "mealsJoined": "Meals Joined",
     "reviews": "Reviews",
-    "saveProfile": "Save Profile"
+    "saveProfile": "Save Profile",
+    "gender": "Gender",
+    "male": "Male",
+    "female": "Female",
+    "preferNotToSay": "Prefer not to say",
+    "photos": "My Photos",
+    "addPhoto": "Add Photo",
+    "photoLimit": "Up to 6 photos"
   },
   "credit": {
     "title": "Credit Score System",
@@ -230,34 +237,13 @@
     "confirm": "Confirm Cancel",
     "confirmLeave": "Confirm Leave"
   },
-  "profile": {
-    "editProfile": "Edit Profile",
-    "nickname": "Nickname",
-    "avatar": "Avatar",
-    "ageRange": "Age Range",
-    "occupation": "Occupation",
-    "bio": "About Me",
-    "interests": "Interests",
-    "languagesSpoken": "Languages Spoken",
-    "creditScore": "Credit Level",
-    "creditHistory": "Credit History",
-    "mealsHosted": "Meals Hosted",
-    "mealsJoined": "Meals Joined",
-    "reviews": "Reviews",
-    "saveProfile": "Save Profile",
-    "gender": "Gender",
-    "male": "Male",
-    "female": "Female",
-    "preferNotToSay": "Prefer not to say",
-    "photos": "My Photos",
-    "addPhoto": "Add Photo",
-    "photoLimit": "Up to 6 photos"
-  },
+  "auth": {
     "loginWithGoogle": "Log in with Google",
     "verifyEmail": "Verify Your Email",
     "verifyEmailDesc": "Please check your inbox and verify your email to start hosting or joining meals.",
     "verificationSent": "Verification email sent!",
-    "emailVerified": "Email verified successfully!"
+    "emailVerified": "Email verified successfully!",
+    "signInRequired": "Please sign in to continue"
   },
   "notification": {
     "title": "Notifications",

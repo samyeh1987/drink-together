@@ -167,7 +167,14 @@
     "mealsHosted": "发起的饭局",
     "mealsJoined": "参加的饭局",
     "reviews": "评价",
-    "saveProfile": "保存资料"
+    "saveProfile": "保存资料",
+    "gender": "性别",
+    "male": "男性",
+    "female": "女性",
+    "preferNotToSay": "不想透露",
+    "photos": "我的照片",
+    "addPhoto": "添加照片",
+    "photoLimit": "最多 6 张照片"
   },
   "credit": {
     "title": "信用分系统",
@@ -230,35 +237,13 @@
     "confirm": "确认取消",
     "confirmLeave": "确认退出"
   },
-  "profile": {
-    "editProfile": "编辑资料",
-    "nickname": "昵称",
-    "avatar": "头像",
-    "ageRange": "年龄范围",
-    "occupation": "职业类型",
-    "bio": "自我介绍",
-    "interests": "兴趣标签",
-    "languagesSpoken": "会说的语言",
-    "creditScore": "信用等级",
-    "creditHistory": "信用记录",
-    "mealsHosted": "发起的饭局",
-    "mealsJoined": "参加的饭局",
-    "reviews": "评价",
-    "saveProfile": "保存资料",
-    "gender": "性别",
-    "male": "男性",
-    "female": "女性",
-    "preferNotToSay": "不想透露",
-    "photos": "我的照片",
-    "addPhoto": "添加照片",
-    "photoLimit": "最多 6 张照片"
-  },
   "auth": {
     "loginWithGoogle": "使用 Google 登录",
     "verifyEmail": "验证您的邮箱",
     "verifyEmailDesc": "请查看收件箱并验证您的邮箱，即可开始发起或参加饭局。",
     "verificationSent": "验证邮件已发送！",
-    "emailVerified": "邮箱验证成功！"
+    "emailVerified": "邮箱验证成功！",
+    "signInRequired": "请先登录"
   },
   "notification": {
     "title": "通知",
