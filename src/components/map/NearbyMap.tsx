@@ -110,6 +110,11 @@ export default function NearbyMap({ mapTitle, mapSubtitle, viewDetailsText, open
 
       mapInstanceRef.current = map;
 
+      // Add tile layer (map background)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+      }).addTo(map);
+
       // Add zoom control to bottom-right
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 

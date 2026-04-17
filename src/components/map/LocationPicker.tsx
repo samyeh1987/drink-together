@@ -82,6 +82,11 @@ export default function LocationPicker({
 
       mapInstanceRef.current = map;
 
+      // Add tile layer (map background)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+      }).addTo(map);
+
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
       // Click to place marker
