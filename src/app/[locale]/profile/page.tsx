@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/store/auth-store';
 import { fetchProfile, fetchCreditHistory, fetchMyMeals } from '@/lib/api';
+import ProfileForm from '@/components/profile/ProfileForm';
 
 // Language display mapping
 const languageFlags: Record<string, string> = {
@@ -56,6 +57,7 @@ export default function ProfilePage() {
   const [mealsHosted, setMealsHosted] = useState(0);
   const [mealsJoined, setMealsJoined] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [showEditForm, setShowEditForm] = useState(false);
 
   const creditInfo = getCreditLevel(user?.credit_score || 100);
   const photoSlots = 6;
@@ -114,7 +116,7 @@ export default function ProfilePage() {
           >
             <LogOut className="w-5 h-5" />
           </button>
-          <button className="p-2 rounded-xl bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-colors">
+          <button onClick={() => setShowEditForm(true)} className="p-2 rounded-xl bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-colors">
             <Edit3 className="w-5 h-5" />
           </button>
         </div>
@@ -384,6 +386,9 @@ export default function ProfilePage() {
           </div>
         </motion.div>
       </div>
+
+      {/* Edit Profile Modal */}
+      <ProfileForm isOpen={showEditForm} onClose={() => setShowEditForm(false)} />
     </div>
   );
 }

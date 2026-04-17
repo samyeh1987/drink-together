@@ -14,6 +14,7 @@
     "submit": "Submit",
     "search": "Search",
     "noResults": "No results found",
+    "filter": "Filter",
     "error": "Something went wrong",
     "success": "Success",
     "language": "Language"
@@ -106,7 +107,13 @@
     "rejected": "Rejected",
     "creator": "Host",
     "languages": "Languages",
-    "currency": "฿"
+    "currency": "฿",
+    "noParticipantsYet": "No participants yet. Be the first to join!"
+  },
+  "userProfile": {
+    "title": "User Profile",
+    "notFound": "User not found",
+    "joinedDate": "Joined"
   },
   "cuisine": {
     "japanese": "Japanese",

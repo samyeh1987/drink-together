@@ -14,6 +14,7 @@
     "submit": "提交",
     "search": "搜索",
     "noResults": "没有找到结果",
+    "filter": "筛选",
     "error": "出了点问题",
     "success": "成功",
     "language": "语言"
@@ -106,7 +107,13 @@
     "rejected": "已拒绝",
     "creator": "发起人",
     "languages": "语言",
-    "currency": "฿"
+    "currency": "฿",
+    "noParticipantsYet": "还没有参与者，快来成为第一个！"
+  },
+  "userProfile": {
+    "title": "用户资料",
+    "notFound": "找不到此用户",
+    "joinedDate": "加入时间"
   },
   "cuisine": {
     "japanese": "日料",

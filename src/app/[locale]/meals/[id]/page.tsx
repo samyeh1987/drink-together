@@ -25,6 +25,7 @@ import {
 import { useMealStore } from '@/store/meal-store';
 import { useAuthStore } from '@/store/auth-store';
 import { joinMeal, leaveMeal, cancelMeal } from '@/lib/api';
+import CommentSection from '@/components/meal/CommentSection';
 
 const statusColors: Record<string, string> = {
   open: 'bg-blue-100 text-blue-700',
@@ -389,27 +390,29 @@ export default function MealDetailPage() {
             {/* Participant List with toggle */}
             <div className="space-y-2">
               {/* Creator row (always present) */}
-              <div className="flex items-center justify-between p-3 bg-light rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-coral/20 flex items-center justify-center overflow-hidden">
-                    {meal.creator?.avatar_url ? (
-                      <img src={meal.creator.avatar_url} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-xs font-bold text-dark">
-                        {(meal.creator?.nickname || '?').charAt(0)}
-                      </span>
-                    )}
+              <Link href={meal.creator ? `/${locale}/user/${meal.creator.id}` : '#'} className="block">
+                <div className="flex items-center justify-between p-3 bg-light rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-coral/20 flex items-center justify-center overflow-hidden">
+                      {meal.creator?.avatar_url ? (
+                        <img src={meal.creator.avatar_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-xs font-bold text-dark">
+                          {(meal.creator?.nickname || '?').charAt(0)}
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-dark">{meal.creator?.nickname || 'Host'}</p>
+                      <p className="text-[10px] text-primary">{t('attendance.host')}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-dark">{meal.creator?.nickname || 'Host'}</p>
-                    <p className="text-[10px] text-primary">{t('attendance.host')}</p>
-                  </div>
+                  <span className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-mint/15 text-mint border border-mint/30">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    {t('attendance.attended')}
+                  </span>
                 </div>
-                <span className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-mint/15 text-mint border border-mint/30">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  {t('attendance.attended')}
-                </span>
-              </div>
+              </Link>
 
               {/* Other participants */}
               {(meal.participants || []).filter((p: any) => p.status === 'approved').map((participant: any, index: number) => (
@@ -417,7 +420,7 @@ export default function MealDetailPage() {
                   key={participant.id}
                   className="flex items-center justify-between p-3 bg-light rounded-xl"
                 >
-                  <div className="flex items-center gap-3">
+                  <Link href={participant.user ? `/${locale}/user/${participant.user.id}` : '#'} className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-coral/20 flex items-center justify-center overflow-hidden">
                       {participant.user?.avatar_url ? (
                         <img src={participant.user.avatar_url} alt="" className="w-full h-full object-cover" />
@@ -430,7 +433,7 @@ export default function MealDetailPage() {
                     <div>
                       <p className="text-sm font-medium text-dark">{participant.user?.nickname || 'User'}</p>
                     </div>
-                  </div>
+                  </Link>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setParticipantStatus(prev => ({ ...prev, [participant.id]: 'attended' }))}
@@ -488,16 +491,18 @@ export default function MealDetailPage() {
           </p>
           <div className="flex items-center gap-3">
             {/* Avatar */}
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-coral flex items-center justify-center flex-shrink-0 overflow-hidden">
-              {meal.creator?.avatar_url ? (
-                <img src={meal.creator.avatar_url} alt="" className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-base font-bold text-white">
-                  {(meal.creator?.nickname || '?').charAt(0)}
-                </span>
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
+            <Link href={meal.creator ? `/${locale}/user/${meal.creator.id}` : '#'} className="flex-shrink-0">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-coral flex items-center justify-center overflow-hidden">
+                {meal.creator?.avatar_url ? (
+                  <img src={meal.creator.avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-base font-bold text-white">
+                    {(meal.creator?.nickname || '?').charAt(0)}
+                  </span>
+                )}
+              </div>
+            </Link>
+            <Link href={meal.creator ? `/${locale}/user/${meal.creator.id}` : '#'} className="flex-1 min-w-0">
               <p className="text-base font-semibold text-dark truncate">
                 {meal.creator?.nickname || 'Anonymous'}
               </p>
@@ -509,8 +514,12 @@ export default function MealDetailPage() {
                   {'⭐'.repeat(creditStars[creatorCredit] || 3)}
                 </span>
               </div>
-            </div>
-            <ChevronRight className="w-5 h-5 text-gray-light flex-shrink-0" />
+            </Link>
+            {meal.creator && (
+              <Link href={`/${locale}/user/${meal.creator.id}`} className="flex-shrink-0">
+                <ChevronRight className="w-5 h-5 text-gray-light" />
+              </Link>
+            )}
           </div>
         </motion.div>
 
@@ -532,42 +541,43 @@ export default function MealDetailPage() {
           {(meal.participants || []).length > 0 ? (
             <div className="flex items-center -space-x-2">
               {/* Creator avatar */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4 }}
-                className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-coral/30 border-2 border-white flex items-center justify-center overflow-hidden"
-                title={meal.creator?.nickname || 'Host'}
-              >
-                {meal.creator?.avatar_url ? (
-                  <img src={meal.creator.avatar_url} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-xs font-bold text-dark">
-                    {(meal.creator?.nickname || '?').charAt(0)}
-                  </span>
-                )}
-              </motion.div>
+              <Link href={meal.creator ? `/${locale}/user/${meal.creator.id}` : '#'} title={meal.creator?.nickname || 'Host'}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.4 }}
+                  className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-coral/30 border-2 border-white flex items-center justify-center overflow-hidden"
+                >
+                  {meal.creator?.avatar_url ? (
+                    <img src={meal.creator.avatar_url} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-xs font-bold text-dark">
+                      {(meal.creator?.nickname || '?').charAt(0)}
+                    </span>
+                  )}
+                </motion.div>
+              </Link>
               {/* Participant avatars */}
               {meal.participants
                 .filter((p: any) => p.status === 'approved')
                 .slice(0, showAllParticipants ? 20 : 4)
                 .map((participant: any, index: number) => (
-                  <motion.div
-                    key={participant.id}
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.4 + index * 0.05 }}
-                    className="w-10 h-10 rounded-full bg-gradient-to-br from-mint/20 to-primary/20 border-2 border-white flex items-center justify-center overflow-hidden"
-                    title={participant.user?.nickname || 'User'}
-                  >
-                    {participant.user?.avatar_url ? (
-                      <img src={participant.user.avatar_url} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-xs font-bold text-dark">
-                        {(participant.user?.nickname || '?').charAt(0)}
-                      </span>
-                    )}
-                  </motion.div>
+                  <Link key={participant.id} href={participant.user ? `/${locale}/user/${participant.user.id}` : '#'} title={participant.user?.nickname || 'User'}>
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.4 + index * 0.05 }}
+                      className="w-10 h-10 rounded-full bg-gradient-to-br from-mint/20 to-primary/20 border-2 border-white flex items-center justify-center overflow-hidden"
+                    >
+                      {participant.user?.avatar_url ? (
+                        <img src={participant.user.avatar_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-xs font-bold text-dark">
+                          {(participant.user?.nickname || '?').charAt(0)}
+                        </span>
+                      )}
+                    </motion.div>
+                  </Link>
                 ))
               }
             </div>
@@ -594,6 +604,9 @@ export default function MealDetailPage() {
             </p>
           </motion.div>
         )}
+
+        {/* Comments Section */}
+        <CommentSection mealId={meal.id} />
       </div>
 
       {/* Fixed Bottom Buttons */}

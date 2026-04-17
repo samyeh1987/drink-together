@@ -14,6 +14,7 @@
     "submit": "ส่ง",
     "search": "ค้นหา",
     "noResults": "ไม่พบผลลัพธ์",
+    "filter": "กรอง",
     "error": "เกิดข้อผิดพลาด",
     "success": "สำเร็จ",
     "language": "ภาษา"
@@ -106,7 +107,13 @@
     "rejected": "ถูกปฏิเสธ",
     "creator": "เจ้าภาพ",
     "languages": "ภาษา",
-    "currency": "฿"
+    "currency": "฿",
+    "noParticipantsYet": "ยังไม่มีผู้เข้าร่วม เป็นคนแรกเลย!"
+  },
+  "userProfile": {
+    "title": "โปรไฟล์ผู้ใช้",
+    "notFound": "ไม่พบผู้ใช้นี้",
+    "joinedDate": "เข้าร่วมเมื่อ"
   },
   "cuisine": {
     "japanese": "ญี่ปุ่น",
