@@ -565,32 +565,39 @@ export default function CreateMealPage() {
     }
 
     setIsSubmitting(true);
-    const result = await createMeal({
-      title: form.title,
-      restaurant_name: form.restaurant,
-      restaurant_address: form.address,
-      cuisine_type: form.cuisine,
-      meal_languages: form.languages,
-      datetime: new Date(form.dateTime).toISOString(),
-      deadline: form.deadline ? new Date(form.deadline).toISOString() : new Date(form.dateTime).toISOString(),
-      min_participants: form.minParticipants,
-      max_participants: form.maxParticipants,
-      payment_method: form.payment,
-      budget_min: budgetMin,
-      budget_max: budgetMax,
-      description: form.note,
-      note: form.note,
-      tags: form.tags,
-      latitude: form.latitude,
-      longitude: form.longitude,
-    });
+    try {
+      console.log('[CreateMeal] Submitting form:', JSON.stringify(form, null, 2));
+      const result = await createMeal({
+        title: form.title,
+        restaurant_name: form.restaurant,
+        restaurant_address: form.address,
+        cuisine_type: form.cuisine,
+        meal_languages: form.languages,
+        datetime: new Date(form.dateTime).toISOString(),
+        deadline: form.deadline ? new Date(form.deadline).toISOString() : new Date(form.dateTime).toISOString(),
+        min_participants: form.minParticipants,
+        max_participants: form.maxParticipants,
+        payment_method: form.payment,
+        budget_min: budgetMin,
+        budget_max: budgetMax,
+        description: form.note,
+        note: form.note,
+        tags: form.tags,
+        latitude: form.latitude,
+        longitude: form.longitude,
+      });
+      console.log('[CreateMeal] Result:', result);
 
-    setIsSubmitting(false);
-
-    if (result.success) {
-      router.push(`/${locale}/meals/${result.mealId}`);
-    } else {
-      setSubmitError(result.error || 'Failed to create meal');
+      if (result.success) {
+        router.push(`/${locale}/meals/${result.mealId}`);
+      } else {
+        setSubmitError(result.error || 'Failed to create meal');
+      }
+    } catch (err) {
+      console.error('[CreateMeal] Exception:', err);
+      setSubmitError(err instanceof Error ? err.message : 'Unknown error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
