@@ -175,7 +175,9 @@ export async function createMeal(formData: {
     .single();
 
   if (mealError || !meal) {
-    return { success: false, error: mealError?.message || 'Failed to create meal' };
+    const errMsg = mealError?.message || 'Failed to create meal';
+    alert(`[createMeal DB Error]\nCode: ${mealError?.code}\nMessage: ${errMsg}\nDetails: ${mealError?.details || 'N/A'}\nHint: ${mealError?.hint || 'N/A'}`);
+    return { success: false, error: errMsg };
   }
 
   // Insert meal tags if any

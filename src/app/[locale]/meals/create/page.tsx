@@ -595,7 +595,10 @@ export default function CreateMealPage() {
       }
     } catch (err) {
       console.error('[CreateMeal] Exception:', err);
-      setSubmitError(err instanceof Error ? err.message : 'Unknown error');
+      const errMsg = err instanceof Error ? err.message : String(err);
+      setSubmitError(errMsg);
+      // Show full error as alert for mobile debugging
+      alert(`[CreateMeal Error]\n${errMsg}\n\nStack: ${err instanceof Error ? err.stack : 'N/A'}`);
     } finally {
       setIsSubmitting(false);
     }
