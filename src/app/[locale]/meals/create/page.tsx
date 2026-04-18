@@ -564,6 +564,40 @@ export default function CreateMealPage() {
       }
     }
 
+    // Validate required fields
+    if (!form.title.trim()) {
+      setSubmitError('Please enter a title');
+      return;
+    }
+    if (!form.restaurant.trim()) {
+      setSubmitError('Please enter restaurant name');
+      return;
+    }
+    if (!form.cuisine) {
+      setSubmitError('Please select cuisine type');
+      return;
+    }
+    if (!form.dateTime) {
+      setSubmitError('Please select date and time');
+      return;
+    }
+    if (!form.languages.length) {
+      setSubmitError('Please select at least one language');
+      return;
+    }
+
+    // Validate date formats
+    const dateObj = new Date(form.dateTime);
+    const deadlineObj = form.deadline ? new Date(form.deadline) : dateObj;
+    if (isNaN(dateObj.getTime())) {
+      setSubmitError('Invalid date/time selected');
+      return;
+    }
+    if (form.deadline && isNaN(deadlineObj.getTime())) {
+      setSubmitError('Invalid deadline selected');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       console.log('[CreateMeal] Submitting form:', JSON.stringify(form, null, 2));
@@ -573,8 +607,8 @@ export default function CreateMealPage() {
         restaurant_address: form.address,
         cuisine_type: form.cuisine,
         meal_languages: form.languages,
-        datetime: new Date(form.dateTime).toISOString(),
-        deadline: form.deadline ? new Date(form.deadline).toISOString() : new Date(form.dateTime).toISOString(),
+        datetime: dateObj.toISOString(),
+        deadline: deadlineObj.toISOString(),
         min_participants: form.minParticipants,
         max_participants: form.maxParticipants,
         payment_method: form.payment,
