@@ -321,7 +321,7 @@ export default function AdminMealsPage() {
           </table>
         </div>
         <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 bg-gray-50/50">
-          <p className="text-xs text-gray-500">{t('meals.showingOf', { count: filtered.length, total: DEMO_MEALS.length })}</p>
+          <p className="text-xs text-gray-500">{t('meals.showingOf', { count: filtered.length, total: meals.length })}</p>
         </div>
       </div>
 
