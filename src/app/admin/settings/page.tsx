@@ -23,69 +23,69 @@ interface SettingItem {
 const SETTINGS: Record<TabKey, { icon: typeof Settings; label: string; description: string; items: SettingItem[] }> = {
   general: {
     icon: Settings,
-    label: 'General',
-    description: 'Basic platform settings',
+    label: '基本設定',
+    description: '平台基本設定',
     items: [
-      { key: 'app_name', label: 'App Name', description: 'The name displayed across the platform', type: 'text', value: 'EatTogether' },
-      { key: 'app_tagline', label: 'Tagline', description: 'Short description of the platform', type: 'text', value: "Don't Eat Alone" },
-      { key: 'default_currency', label: 'Default Currency', description: 'Platform currency for pricing', type: 'select', value: 'THB', options: [{ label: '🇹🇭 THB - Thai Baht', value: 'THB' }, { label: '🇺🇸 USD - US Dollar', value: 'USD' }, { label: '🇨🇳 CNY - Chinese Yuan', value: 'CNY' }] },
-      { key: 'timezone', label: 'Timezone', description: 'Platform default timezone', type: 'select', value: 'Asia/Bangkok', options: [{ label: 'UTC+7 Bangkok', value: 'Asia/Bangkok' }, { label: 'UTC+8 Taipei', value: 'Asia/Taipei' }, { label: 'UTC+9 Tokyo', value: 'Asia/Tokyo' }] },
-      { key: 'maintenance_mode', label: 'Maintenance Mode', description: 'Temporarily disable the platform for maintenance', type: 'toggle', value: false },
+      { key: 'app_name', label: '應用名稱', description: '平台上顯示的名稱', type: 'text', value: 'DrinkTogether' },
+      { key: 'app_tagline', label: '標語', description: '平台的簡短描述', type: 'text', value: '不要一個人喝酒' },
+      { key: 'default_currency', label: '預設貨幣', description: '平台計價貨幣', type: 'select', value: 'THB', options: [{ label: '🇹🇭 THB - 泰銖', value: 'THB' }, { label: '🇺🇸 USD - 美元', value: 'USD' }, { label: '🇨🇳 CNY - 人民幣', value: 'CNY' }] },
+      { key: 'timezone', label: '時區', description: '平台預設時區', type: 'select', value: 'Asia/Bangkok', options: [{ label: 'UTC+7 曼谷', value: 'Asia/Bangkok' }, { label: 'UTC+8 台北', value: 'Asia/Taipei' }, { label: 'UTC+9 東京', value: 'Asia/Tokyo' }] },
+      { key: 'maintenance_mode', label: '維護模式', description: '暫時關閉平台進行維護', type: 'toggle', value: false },
     ],
   },
   credit: {
     icon: CreditCard,
-    label: 'Credit System',
-    description: 'Credit score parameters and rules',
+    label: '信用分系統',
+    description: '信用分參數與規則',
     items: [
-      { key: 'initial_credit', label: 'Initial Credit Score', description: 'Credit score for new users', type: 'number', value: 100 },
-      { key: 'no_show_penalty', label: 'No-Show Penalty', description: 'Points deducted for each no-show', type: 'number', value: -20 },
-      { key: 'host_bonus', label: 'Host Completion Bonus', description: 'Points awarded when a hosted meal is completed', type: 'number', value: 10 },
-      { key: 'participant_bonus', label: 'Participant Bonus', description: 'Points awarded for attending a meal', type: 'number', value: 5 },
-      { key: 'review_bonus', label: 'Review Submission Bonus', description: 'Points for submitting a review after a meal', type: 'number', value: 3 },
-      { key: 'excellent_threshold', label: 'Excellent Level Threshold', description: 'Minimum score for "Excellent" level', type: 'number', value: 150 },
-      { key: 'ban_threshold', label: 'Auto-Ban Threshold', description: 'Credit score below which user is suspended', type: 'number', value: 30 },
-      { key: 'daily_signup_limit', label: 'Daily Signup Limit', description: 'Max new signups per day to prevent spam', type: 'number', value: 100 },
+      { key: 'initial_credit', label: '初始信用分', description: '新用戶的預設信用分', type: 'number', value: 100 },
+      { key: 'no_show_penalty', label: '放鴿子扣分', description: '每次放鴿子扣除的積分', type: 'number', value: -20 },
+      { key: 'host_bonus', label: '主辦完成獎勵', description: '飯局完成後主辦人獲得的積分', type: 'number', value: 10 },
+      { key: 'participant_bonus', label: '參與獎勵', description: '參與飯局後獲得的積分', type: 'number', value: 5 },
+      { key: 'review_bonus', label: '評價獎勵', description: '提交飯局評價後獲得的積分', type: 'number', value: 3 },
+      { key: 'excellent_threshold', label: '優秀門檻', description: '達到「優秀」等級的最低分數', type: 'number', value: 150 },
+      { key: 'ban_threshold', label: '自動停權門檻', description: '低於此分數將自動停權', type: 'number', value: 30 },
+      { key: 'daily_signup_limit', label: '每日註冊上限', description: '每日最大新註冊數，防止垃圾註冊', type: 'number', value: 100 },
     ],
   },
   notifications: {
     icon: Bell,
-    label: 'Notifications',
-    description: 'Email and push notification settings',
+    label: '通知設定',
+    description: '郵件與推播通知設定',
     items: [
-      { key: 'email_new_user', label: 'Welcome Email', description: 'Send welcome email to new users', type: 'toggle', value: true },
-      { key: 'email_meal_reminder', label: 'Meal Reminder', description: 'Send reminder X hours before meal', type: 'toggle', value: true },
-      { key: 'reminder_hours', label: 'Reminder Hours Before Meal', description: 'How many hours before to send reminder', type: 'number', value: 6 },
-      { key: 'email_no_show_warning', label: 'No-Show Warning', description: 'Email users when reported for no-show', type: 'toggle', value: true },
-      { key: 'email_credit_change', label: 'Credit Score Changes', description: 'Notify users about credit score adjustments', type: 'toggle', value: true },
-      { key: 'push_enabled', label: 'Push Notifications', description: 'Enable browser push notifications', type: 'toggle', value: true },
-      { key: 'admin_report_alert', label: 'Admin Report Alerts', description: 'Get notified about new reports immediately', type: 'toggle', value: true },
+      { key: 'email_new_user', label: '歡迎郵件', description: '向新用戶發送歡迎郵件', type: 'toggle', value: true },
+      { key: 'email_meal_reminder', label: '飯局提醒', description: '在飯局開始前發送提醒', type: 'toggle', value: true },
+      { key: 'reminder_hours', label: '提醒時數', description: '飯局開始前多少小時發送提醒', type: 'number', value: 6 },
+      { key: 'email_no_show_warning', label: '放鴿子警告', description: '當被舉報放鴿子時通知用戶', type: 'toggle', value: true },
+      { key: 'email_credit_change', label: '信用分變動通知', description: '通知用戶信用分調整', type: 'toggle', value: true },
+      { key: 'push_enabled', label: '推播通知', description: '啟用瀏覽器推播通知', type: 'toggle', value: true },
+      { key: 'admin_report_alert', label: '檢舉提醒', description: '收到新檢舉時立即通知', type: 'toggle', value: true },
     ],
   },
   content: {
     icon: FileText,
-    label: 'Content Moderation',
-    description: 'Content review and moderation rules',
+    label: '內容審核',
+    description: '內容審核與管理規則',
     items: [
-      { key: 'photo_review_required', label: 'Photo Review Required', description: 'Require admin approval before photos appear in gallery', type: 'toggle', value: true },
-      { key: 'meal_review_required', label: 'Meal Review Required', description: 'Require admin approval for new meals', type: 'toggle', value: false },
-      { key: 'profanity_filter', label: 'Profanity Filter', description: 'Auto-filter inappropriate language in profiles and descriptions', type: 'toggle', value: true },
-      { key: 'max_meals_per_day', label: 'Max Meals per User per Day', description: 'Limit meals a user can create per day', type: 'number', value: 3 },
-      { key: 'max_report_threshold', label: 'Auto-Cancel Threshold', description: 'Auto-cancel meal after this many reports', type: 'number', value: 3 },
-      { key: 'profile_completion_required', label: 'Profile Completion Required', description: 'Require users to complete profile before creating meals', type: 'toggle', value: false },
+      { key: 'photo_review_required', label: '照片需審核', description: '照片需管理員審核後才顯示在相冊', type: 'toggle', value: true },
+      { key: 'meal_review_required', label: '飯局需審核', description: '新飯局需管理員審核', type: 'toggle', value: false },
+      { key: 'profanity_filter', label: '髒話過濾器', description: '自動過濾個人資料和描述中的不當語言', type: 'toggle', value: true },
+      { key: 'max_meals_per_day', label: '每日飯局上限', description: '限制用戶每天可建立的飯局數量', type: 'number', value: 3 },
+      { key: 'max_report_threshold', label: '自動取消門檻', description: '收到此數量的檢舉後自動取消飯局', type: 'number', value: 3 },
+      { key: 'profile_completion_required', label: '需完成個人資料', description: '用戶需完成個人資料才能建立飯局', type: 'toggle', value: false },
     ],
   },
   locale: {
     icon: Globe,
-    label: 'Localization',
-    description: 'Language and region settings',
+    label: '在地化',
+    description: '語言與地區設定',
     items: [
-      { key: 'default_locale', label: 'Default Language', description: 'Fallback language when user locale is not available', type: 'select', value: 'en', options: [{ label: '🇬🇧 English', value: 'en' }, { label: '🇨🇳 简体中文', value: 'zh-CN' }, { label: '🇹🇭 ภาษาไทย', value: 'th' }] },
-      { key: 'supported_locales', label: 'Supported Languages', description: 'Languages available on the platform', type: 'text', value: 'en, zh-CN, th' },
-      { key: 'google_auth_enabled', label: 'Google OAuth Login', description: 'Enable Google Sign-In', type: 'toggle', value: true },
-      { key: 'email_auth_enabled', label: 'Email/Password Login', description: 'Enable email/password authentication', type: 'toggle', value: true },
-      { key: 'otp_enabled', label: 'Phone OTP Verification', description: 'Enable phone number OTP for Thai numbers', type: 'toggle', value: false },
-      { key: 'min_nickname_length', label: 'Min Nickname Length', description: 'Minimum characters for user nickname', type: 'number', value: 2 },
+      { key: 'default_locale', label: '預設語言', description: '當用戶語言不可用時的備用語言', type: 'select', value: 'zh-CN', options: [{ label: '🇬🇧 English', value: 'en' }, { label: '🇨🇳 简体中文', value: 'zh-CN' }, { label: '🇹🇭 ภาษาไทย', value: 'th' }] },
+      { key: 'supported_locales', label: '支援語言', description: '平台上可用的語言', type: 'text', value: 'en, zh-CN, th' },
+      { key: 'google_auth_enabled', label: 'Google 登入', description: '啟用 Google 登入', type: 'toggle', value: true },
+      { key: 'email_auth_enabled', label: '信箱登入', description: '啟用信箱/密碼登入', type: 'toggle', value: true },
+      { key: 'otp_enabled', label: '手機驗證', description: '啟用泰國手機號碼 OTP 驗證', type: 'toggle', value: false },
+      { key: 'min_nickname_length', label: '暱稱最少字數', description: '用戶暱稱的最少字元數', type: 'number', value: 2 },
     ],
   },
 };
@@ -235,13 +235,13 @@ export default function AdminSettingsPage() {
                   className={cn(
                     'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
                     activeTab === key
-                      ? 'bg-[#FF6B35]/10 text-[#FF6B35]'
-                      : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+                      ? 'bg-primary/20 text-primary'
+                      : 'text-gray-light hover:bg-white/10 hover:text-white'
                   )}
                 >
                   <Icon className="w-4 h-4" />
                   <span>{tab.label}</span>
-                  {activeTab === key && <ChevronRight className="w-3.5 h-3.5 ml-auto text-[#FF6B35]/60" />}
+                  {activeTab === key && <ChevronRight className="w-3.5 h-3.5 ml-auto text-primary/60" />}
                 </button>
               );
             })}
@@ -251,10 +251,10 @@ export default function AdminSettingsPage() {
         {/* Settings Content */}
         <div className="flex-1">
           <div className="glass rounded-2xl border border-gray/30">
-            <div className="px-6 py-5 border-b border-gray-100">
+            <div className="px-6 py-5 border-b border-gray/30">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#FF6B35]/10 flex items-center justify-center">
-                  {(() => { const Icon = currentTab.icon; return <Icon className="w-5 h-5 text-[#FF6B35]" />; })()}
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  {(() => { const Icon = currentTab.icon; return <Icon className="w-5 h-5 text-primary" />; })()}
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-white">{currentTab.label}</h2>
@@ -262,7 +262,7 @@ export default function AdminSettingsPage() {
                 </div>
               </div>
             </div>
-            <div className="divide-y divide-gray-50">
+            <div className="divide-y divide-gray/30">
               {currentTab.items.map(item => (
                 <div key={item.key} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3">
                   <div className="flex-1 min-w-0">
