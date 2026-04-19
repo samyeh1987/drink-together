@@ -465,19 +465,19 @@ export default function AdminRestaurantsPage() {
               {/* Contact Info */}
               <div className="space-y-3 bg-gray-50 rounded-xl p-4">
                 <h4 className="text-sm font-semibold text-gray-700">{t('restaurants.contactInfo')}</h4>
-                {[
+                {([
                   selectedRestaurant.address && { icon: MapPin, label: t('restaurants.address'), value: selectedRestaurant.address },
                   selectedRestaurant.phone && { icon: Phone, label: t('restaurants.phone'), value: selectedRestaurant.phone },
                   selectedRestaurant.email && { icon: Mail, label: t('restaurants.email'), value: selectedRestaurant.email },
                   selectedRestaurant.contact_person && { icon: Users, label: t('restaurants.contactPerson'), value: selectedRestaurant.contact_person },
-                ].filter(Boolean).map(item => {
-                  const Icon = item!.icon;
+                ].filter((item): item is NonNullable<typeof item> => Boolean(item)).map(item => {
+                  const Icon = item.icon;
                   return (
-                    <div key={item!.label} className="flex items-start gap-2.5">
+                    <div key={item.label} className="flex items-start gap-2.5">
                       <Icon className="w-4 h-4 text-gray-400 mt-0.5" />
                       <div>
-                        <span className="text-[11px] text-gray-400">{item!.label}</span>
-                        <p className="text-sm text-gray-700">{item!.value}</p>
+                        <span className="text-[11px] text-gray-400">{item.label}</span>
+                        <p className="text-sm text-gray-700">{item.value}</p>
                       </div>
                     </div>
                   );
