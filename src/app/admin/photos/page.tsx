@@ -180,10 +180,10 @@ export default function AdminPhotosPage() {
       {/* Page Title */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">{t('photos.title')}</h1>
-          <p className="text-sm text-gray-500 mt-1">{t('photos.subtitle')}</p>
+          <h1 className="text-2xl font-bold text-white">{t('photos.title')}</h1>
+          <p className="text-sm text-gray-light mt-1">{t('photos.subtitle')}</p>
         </div>
-        <button className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+        <button className="inline-flex items-center gap-2 px-4 py-2.5 glass rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors">
           <Download className="w-4 h-4" /> {t('photos.exportAll')}
         </button>
       </div>
@@ -191,21 +191,21 @@ export default function AdminPhotosPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { label: t('photos.totalPhotos'), value: stats.total, icon: ImageIcon, color: 'from-purple-500 to-purple-600' },
-          { label: t('photos.pendingReview'), value: stats.pending, icon: Clock, color: 'from-yellow-500 to-yellow-600' },
-          { label: t('photos.featured'), value: stats.featured, icon: Star, color: 'from-[#FFD700] to-[#FFA500]' },
-          { label: t('photos.totalLikes'), value: stats.totalLikes, icon: Heart, color: 'from-red-400 to-red-500' },
+          { label: t('photos.totalPhotos'), value: stats.total, icon: ImageIcon, color: 'from-coral to-pink-400' },
+          { label: t('photos.pendingReview'), value: stats.pending, icon: Clock, color: 'from-gold to-yellow-400' },
+          { label: t('photos.featured'), value: stats.featured, icon: Star, color: 'from-gold to-yellow-400' },
+          { label: t('photos.totalLikes'), value: stats.totalLikes, icon: Heart, color: 'from-coral to-red-400' },
         ].map(s => {
           const Icon = s.icon;
           return (
-            <div key={s.label} className="bg-white rounded-xl p-4 border border-gray-100">
+            <div key={s.label} className="card glass p-4">
               <div className="flex items-center gap-2 mb-1.5">
                 <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${s.color} flex items-center justify-center`}>
                   <Icon className="w-3.5 h-3.5 text-white" />
                 </div>
-                <span className="text-xs text-gray-500 font-medium">{s.label}</span>
+                <span className="text-xs text-gray-light font-medium">{s.label}</span>
               </div>
-              <p className="text-xl font-bold text-gray-800">{loading ? '...' : s.value}</p>
+              <p className="text-xl font-bold text-white">{loading ? '...' : s.value}</p>
             </div>
           );
         })}
@@ -214,12 +214,13 @@ export default function AdminPhotosPage() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-light" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder={t('photos.searchPlaceholder')}
+            className="w-full pl-10 pr-4 py-2.5 bg-dark/50 border border-gray/30 rounded-xl text-sm text-white placeholder:text-gray-light focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] transition-all"
           />
         </div>

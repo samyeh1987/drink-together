@@ -288,12 +288,12 @@ export default function AdminRestaurantsPage() {
       {/* Page Title */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">{t('restaurants.title')}</h1>
-          <p className="text-sm text-gray-500 mt-1">{t('restaurants.subtitle')}</p>
+          <h1 className="text-2xl font-bold text-white">{t('restaurants.title')}</h1>
+          <p className="text-sm text-gray-light mt-1">{t('restaurants.subtitle')}</p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#FF6B35] text-white rounded-xl text-sm font-medium hover:bg-[#FF6B35]/90 transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary/80 transition-colors"
         >
           <Plus className="w-4 h-4" /> {t('restaurants.addRestaurant')}
         </button>
@@ -302,21 +302,21 @@ export default function AdminRestaurantsPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { label: t('restaurants.totalRestaurants'), value: stats.total, icon: Store, color: 'from-[#FF6B35] to-[#FF6B6B]' },
-          { label: t('restaurants.active'), value: stats.active, icon: Star, color: 'from-[#2EC4B6] to-[#5DD9CE]' },
-          { label: t('restaurants.pendingApproval'), value: stats.pending, icon: Clock, color: 'from-yellow-500 to-yellow-600' },
-          { label: t('restaurants.activeDeals'), value: stats.totalDeals, icon: Package, color: 'from-purple-500 to-purple-600' },
+          { label: t('restaurants.totalRestaurants'), value: stats.total, icon: Store, color: 'from-primary to-pink-400' },
+          { label: t('restaurants.active'), value: stats.active, icon: Star, color: 'from-mint to-cyan-400' },
+          { label: t('restaurants.pendingApproval'), value: stats.pending, icon: Clock, color: 'from-gold to-yellow-400' },
+          { label: t('restaurants.activeDeals'), value: stats.totalDeals, icon: Package, color: 'from-coral to-pink-400' },
         ].map(s => {
           const Icon = s.icon;
           return (
-            <div key={s.label} className="bg-white rounded-xl p-4 border border-gray-100">
+            <div key={s.label} className="card glass p-4">
               <div className="flex items-center gap-2 mb-1.5">
                 <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${s.color} flex items-center justify-center`}>
                   <Icon className="w-3.5 h-3.5 text-white" />
                 </div>
-                <span className="text-xs text-gray-500 font-medium">{s.label}</span>
+                <span className="text-xs text-gray-light font-medium">{s.label}</span>
               </div>
-              <p className="text-xl font-bold text-gray-800">{s.value}</p>
+              <p className="text-xl font-bold text-white">{s.value}</p>
             </div>
           );
         })}
@@ -325,13 +325,13 @@ export default function AdminRestaurantsPage() {
       {/* Search + Filter */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-light" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder={t('restaurants.searchPlaceholder')}
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-dark/50 border border-gray/30 rounded-xl text-sm text-white placeholder:text-gray-light focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -341,7 +341,7 @@ export default function AdminRestaurantsPage() {
               onClick={() => setStatusFilter(s)}
               className={cn(
                 'px-3 py-2 rounded-lg text-xs font-medium transition-colors capitalize',
-                statusFilter === s ? 'bg-[#FF6B35] text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                statusFilter === s ? 'bg-primary text-white' : 'glass text-gray-light hover:bg-white/10'
               )}
             >
               {s}
@@ -353,20 +353,20 @@ export default function AdminRestaurantsPage() {
       {/* Loading State */}
       {loading && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 text-[#FF6B35] animate-spin" />
-          <span className="ml-2 text-sm text-gray-500">Loading restaurants...</span>
+          <Loader2 className="w-6 h-6 text-primary animate-spin" />
+          <span className="ml-2 text-sm text-gray-light">Loading restaurants...</span>
         </div>
       )}
 
       {/* Empty State */}
       {!loading && restaurants.length === 0 && (
         <div className="text-center py-16">
-          <Store className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 text-sm mb-1">No restaurants yet</p>
-          <p className="text-gray-400 text-xs mb-4">Add your first restaurant to get started</p>
+          <Store className="w-12 h-12 text-gray-light mx-auto mb-3" />
+          <p className="text-gray-light text-sm mb-1">No restaurants yet</p>
+          <p className="text-gray-light text-xs mb-4 opacity-70">Add your first restaurant to get started</p>
           <button
             onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#FF6B35] text-white rounded-xl text-sm font-medium hover:bg-[#FF6B35]/90"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary/80"
           >
             <Plus className="w-4 h-4" /> {t('restaurants.addRestaurant')}
           </button>
@@ -379,16 +379,16 @@ export default function AdminRestaurantsPage() {
           {filtered.map(restaurant => (
             <div
               key={restaurant.id}
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden cursor-pointer"
+              className="card glass hover:shadow-lg transition-shadow overflow-hidden cursor-pointer"
               onClick={() => handleSelectRestaurant(restaurant)}
             >
               {/* Header with placeholder image area */}
-              <div className="h-32 bg-gradient-to-br from-[#FF6B35]/10 to-[#FF6B6B]/10 flex items-center justify-center relative">
-                <span className="text-5xl">{CUISINE_EMOJI[restaurant.cuisine_type] || '🍴'}</span>
+              <div className="h-32 bg-gradient-to-br from-primary/10 to-mint/10 flex items-center justify-center relative">
+                <span className="text-5xl">{CUISINE_EMOJI[restaurant.cuisine_type] || '🍸'}</span>
                 <span className={cn(
                   'absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider',
-                  restaurant.status === 'active' ? 'bg-[#2EC4B6]/20 text-[#2EC4B6]' :
-                  restaurant.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'
+                  restaurant.status === 'active' ? 'bg-mint/20 text-mint' :
+                  restaurant.status === 'pending' ? 'bg-gold/20 text-gold' : 'bg-gray/20 text-gray-light'
                 )}>
                   {restaurant.status}
                 </span>
@@ -397,26 +397,26 @@ export default function AdminRestaurantsPage() {
               <div className="p-4">
                 <div className="flex items-start justify-between mb-2">
                   <div>
-                    <h3 className="text-base font-bold text-gray-800">{restaurant.name}</h3>
-                    <p className="text-xs text-gray-400">{restaurant.name_local}</p>
+                    <h3 className="text-base font-bold text-white">{restaurant.name}</h3>
+                    <p className="text-xs text-gray-light">{restaurant.name_local}</p>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Star className="w-3.5 h-3.5 text-[#FFD700] fill-[#FFD700]" />
-                    <span className="text-sm font-semibold text-gray-700">{restaurant.rating}</span>
+                    <Star className="w-3.5 h-3.5 text-gold fill-gold" />
+                    <span className="text-sm font-semibold text-white">{restaurant.rating}</span>
                   </div>
                 </div>
 
                 <div className="space-y-1.5 mb-3">
                   {restaurant.address && (
-                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                    <div className="flex items-center gap-1.5 text-xs text-gray-light">
                       <MapPin className="w-3 h-3" /> {restaurant.address}
                     </div>
                   )}
-                  <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                  <div className="flex items-center gap-1.5 text-xs text-gray-light">
                     <Tag className="w-3 h-3" /> {restaurant.cuisine_type}
                   </div>
                   {restaurant.contact_person && (
-                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                    <div className="flex items-center gap-1.5 text-xs text-gray-light">
                       <Phone className="w-3 h-3" /> {restaurant.contact_person}
                     </div>
                   )}

@@ -55,22 +55,22 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:z-auto',
+          'fixed top-0 left-0 z-50 h-full w-64 bg-dark/95 backdrop-blur-xl border-r border-primary/30 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:z-auto',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="flex items-center justify-between px-5 py-5 border-b border-gray-100">
+          <div className="flex items-center justify-between px-5 py-5 border-b border-gray/30">
             <Link href="/admin" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 bg-gradient-to-br from-[#FF6B35] to-[#FF6B6B] rounded-xl flex items-center justify-center shadow-sm">
-                <UtensilsCrossed className="w-5 h-5 text-white" />
+              <div className="w-9 h-9 bg-gradient-to-br from-primary to-mint rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
+                <span className="text-lg">🍸</span>
               </div>
               <div>
-                <span className="text-base font-bold text-[#1A1A2E]">
-                  Eat<span className="text-[#FF6B35]">Together</span>
+                <span className="text-base font-bold text-white">
+                  Drink<span className="text-primary">Together</span>
                 </span>
-                <span className="block text-[10px] text-gray-400 font-medium tracking-wider uppercase">{t('layout.adminPanel')}</span>
+                <span className="block text-[10px] text-gray-light font-medium tracking-wider uppercase">{t('layout.adminPanel')}</span>
               </div>
             </Link>
             <button
@@ -97,29 +97,29 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
                   className={cn(
                     'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group',
                     isActive
-                      ? 'bg-[#FF6B35]/10 text-[#FF6B35]'
-                      : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+                      ? 'bg-primary/20 text-primary'
+                      : 'text-gray-light hover:bg-white/5 hover:text-white'
                   )}
                 >
                   <div className={cn(
                     'w-8 h-8 rounded-lg flex items-center justify-center transition-colors',
                     isActive
-                      ? 'bg-[#FF6B35]/15'
-                      : 'group-hover:bg-gray-100'
+                      ? 'bg-primary/20'
+                      : 'group-hover:bg-white/5'
                   )}>
                     <Icon className={cn(
                       'w-4 h-4',
-                      isActive ? 'text-[#FF6B35]' : 'text-gray-400 group-hover:text-gray-600'
+                      isActive ? 'text-primary' : 'text-gray-light group-hover:text-white'
                     )} />
                   </div>
                   <span className="flex-1">{item.label}</span>
                   {item.badge && item.badge > 0 && (
-                    <span className="w-5 h-5 rounded-full bg-[#FF6B6B] text-white text-[10px] font-bold flex items-center justify-center">
+                    <span className="w-5 h-5 rounded-full bg-coral text-white text-[10px] font-bold flex items-center justify-center">
                       {item.badge}
                     </span>
                   )}
                   {isActive && (
-                    <ChevronRight className="w-4 h-4 text-[#FF6B35]/60" />
+                    <ChevronRight className="w-4 h-4 text-primary/60" />
                   )}
                 </Link>
               );
@@ -127,14 +127,14 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
           </nav>
 
           {/* Bottom section */}
-          <div className="px-3 py-4 border-t border-gray-100">
+          <div className="px-3 py-4 border-t border-gray/30">
             {/* View frontend link */}
             <Link
               href="/en"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-light hover:bg-white/5 hover:text-white transition-all"
             >
-              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
-                <svg className="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center">
+                <svg className="w-4 h-4 text-gray-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                   <polyline points="15 3 21 3 21 9" />
                   <line x1="10" y1="14" x2="21" y2="3" />
@@ -147,25 +147,25 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-screen">
+      <div className="flex-1 flex flex-col min-h-screen bg-dark">
         {/* Top Header Bar */}
-        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-gray-200/60">
+        <header className="sticky top-0 z-30 glass border-b border-primary/30">
           <div className="flex items-center justify-between h-16 px-4 lg:px-6">
             <div className="flex items-center gap-3">
               {/* Mobile menu button */}
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 rounded-xl hover:bg-gray-100 transition-colors"
+                className="lg:hidden p-2 rounded-xl hover:bg-white/5 transition-colors"
               >
-                <Menu className="w-5 h-5 text-gray-600" />
+                <Menu className="w-5 h-5 text-white" />
               </button>
               {/* Breadcrumb */}
               <div className="hidden sm:flex items-center gap-1.5 text-sm">
-                <Link href="/admin" className="text-gray-400 hover:text-gray-600 transition-colors">{t('layout.admin')}</Link>
+                <Link href="/admin" className="text-gray-light hover:text-white transition-colors">{t('layout.admin')}</Link>
                 {pathname !== '/admin' && (
                   <>
-                    <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
-                    <span className="text-gray-700 font-medium">
+                    <ChevronRight className="w-3.5 h-3.5 text-gray-light" />
+                    <span className="text-white font-medium">
                       {getPageLabel()}
                     </span>
                   </>
@@ -174,18 +174,18 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
             </div>
             <div className="flex items-center gap-3">
               {/* Notifications */}
-              <button className="relative p-2 rounded-xl hover:bg-gray-100 transition-colors">
-                <Bell className="w-5 h-5 text-gray-500" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#FF6B6B] rounded-full" />
+              <button className="relative p-2 rounded-xl hover:bg-white/5 transition-colors">
+                <Bell className="w-5 h-5 text-gray-light" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-coral rounded-full animate-pulse" />
               </button>
               {/* Admin avatar */}
-              <div className="flex items-center gap-2.5 pl-3 border-l border-gray-200">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#FF6B35] to-[#FF6B6B] flex items-center justify-center">
+              <div className="flex items-center gap-2.5 pl-3 border-l border-gray/30">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-mint flex items-center justify-center shadow-lg shadow-primary/30">
                   <span className="text-xs font-bold text-white">A</span>
                 </div>
                 <div className="hidden sm:block">
-                  <p className="text-sm font-semibold text-gray-700">Admin</p>
-                  <p className="text-[11px] text-gray-400">{t('layout.superAdmin')}</p>
+                  <p className="text-sm font-semibold text-white">Admin</p>
+                  <p className="text-[11px] text-gray-light">{t('layout.superAdmin')}</p>
                 </div>
               </div>
             </div>

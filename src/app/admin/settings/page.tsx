@@ -195,13 +195,13 @@ export default function AdminSettingsPage() {
       {/* Page Title */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">{t('settings.title')}</h1>
-          <p className="text-sm text-gray-500 mt-1">{t('settings.subtitle')}</p>
+          <h1 className="text-2xl font-bold text-white">{t('settings.title')}</h1>
+          <p className="text-sm text-gray-light mt-1">{t('settings.subtitle')}</p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={handleReset}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 glass rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors"
           >
             <RotateCcw className="w-4 h-4" /> {t('settings.reset')}
           </button>
@@ -211,8 +211,8 @@ export default function AdminSettingsPage() {
             className={cn(
               'inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-50',
               saved
-                ? 'bg-[#2EC4B6] text-white'
-                : 'bg-[#FF6B35] text-white hover:bg-[#FF6B35]/90'
+                ? 'bg-mint text-white'
+                : 'bg-primary text-white hover:bg-primary/80'
             )}
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -224,7 +224,7 @@ export default function AdminSettingsPage() {
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Tab Navigation */}
         <div className="lg:w-56 flex-shrink-0">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-2 space-y-1 lg:sticky lg:top-24">
+          <div className="card glass p-2 space-y-1 lg:sticky lg:top-24">
             {(Object.keys(SETTINGS) as TabKey[]).map(key => {
               const tab = SETTINGS[key];
               const Icon = tab.icon;

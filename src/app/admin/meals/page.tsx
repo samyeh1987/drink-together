@@ -149,8 +149,8 @@ export default function AdminMealsPage() {
   }), [meals]);
 
   const SortIcon = ({ field }: { field: SortField }) => {
-    if (sortBy !== field) return <ChevronDown className="w-3 h-3 text-gray-300" />;
-    return sortDir === 'asc' ? <ChevronUp className="w-3 h-3 text-[#FF6B35]" /> : <ChevronDown className="w-3 h-3 text-[#FF6B35]" />;
+    if (sortBy !== field) return <ChevronDown className="w-3 h-3 text-gray-light" />;
+    return sortDir === 'asc' ? <ChevronUp className="w-3 h-3 text-primary" /> : <ChevronDown className="w-3 h-3 text-primary" />;
   };
 
   const formatDatetime = (d: string) => {
@@ -161,29 +161,29 @@ export default function AdminMealsPage() {
     <div className="space-y-6">
       {/* Page Title */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">{t('meals.title')}</h1>
-        <p className="text-sm text-gray-500 mt-1">{t('meals.subtitle')}</p>
+        <h1 className="text-2xl font-bold text-white">{t('meals.title')}</h1>
+        <p className="text-sm text-gray-light mt-1">{t('meals.subtitle')}</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {[
-          { label: t('meals.totalMeals'), value: stats.total, icon: UtensilsCrossed, color: 'from-[#FF6B35] to-[#FF6B6B]' },
-          { label: t('meals.open'), value: stats.open, icon: Clock, color: 'from-blue-500 to-blue-600' },
-          { label: t('meals.completed'), value: stats.completed, icon: CheckCircle2, color: 'from-[#2EC4B6] to-[#5DD9CE]' },
+          { label: t('meals.totalMeals'), value: stats.total, icon: UtensilsCrossed, color: 'from-primary to-pink-400' },
+          { label: t('meals.open'), value: stats.open, icon: Clock, color: 'from-mint to-cyan-400' },
+          { label: t('meals.completed'), value: stats.completed, icon: CheckCircle2, color: 'from-mint to-cyan-400' },
           { label: t('meals.cancelled'), value: stats.cancelled, icon: XCircle, color: 'from-red-500 to-red-600' },
-          { label: t('meals.reported'), value: stats.reported, icon: AlertTriangle, color: 'from-yellow-500 to-yellow-600' },
+          { label: t('meals.reported'), value: stats.reported, icon: AlertTriangle, color: 'from-gold to-yellow-400' },
         ].map(s => {
           const Icon = s.icon;
           return (
-            <div key={s.label} className="bg-white rounded-xl p-4 border border-gray-100">
+            <div key={s.label} className="card glass p-4">
               <div className="flex items-center gap-2 mb-1.5">
                 <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${s.color} flex items-center justify-center`}>
                   <Icon className="w-3.5 h-3.5 text-white" />
                 </div>
-                <span className="text-xs text-gray-500 font-medium">{s.label}</span>
+                <span className="text-xs text-gray-light font-medium">{s.label}</span>
               </div>
-              <p className="text-xl font-bold text-gray-800">{s.value}</p>
+              <p className="text-xl font-bold text-white">{s.value}</p>
             </div>
           );
         })}
@@ -192,29 +192,29 @@ export default function AdminMealsPage() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-light" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder={t('meals.searchPlaceholder')}
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-dark/50 border border-gray/30 rounded-xl text-sm text-white placeholder:text-gray-light focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
           />
           {search && (
             <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2">
-              <X className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+              <X className="w-4 h-4 text-gray-light hover:text-white" />
             </button>
           )}
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <Filter className="w-4 h-4 text-gray-400" />
+          <Filter className="w-4 h-4 text-gray-light" />
           {['all', 'open', 'confirmed', 'completed', 'cancelled', 'pending'].map(s => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
               className={cn(
                 'px-3 py-2 rounded-lg text-xs font-medium transition-colors capitalize',
-                statusFilter === s ? 'bg-[#FF6B35] text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                statusFilter === s ? 'bg-primary text-white' : 'glass text-gray-light hover:bg-white/10'
               )}
             >
               {s}
@@ -225,14 +225,14 @@ export default function AdminMealsPage() {
 
       {/* Cuisine Filter */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
-        <span className="text-xs text-gray-500 flex-shrink-0">Cuisine:</span>
+        <span className="text-xs text-gray-light flex-shrink-0">Cuisine:</span>
         {['all', ...cuisines].map(c => (
           <button
             key={c}
             onClick={() => setCuisineFilter(c)}
             className={cn(
               'flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex-shrink-0 capitalize',
-              cuisineFilter === c ? 'bg-[#FF6B35] text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+              cuisineFilter === c ? 'bg-primary text-white' : 'glass text-gray-light hover:bg-white/10'
             )}
           >
             {c !== 'all' && <span>{CUISINE_EMOJI[c] || ''}</span>}
@@ -242,43 +242,43 @@ export default function AdminMealsPage() {
       </div>
 
       {/* Meal Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="card glass overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-100">
-                <th className="text-left text-xs font-semibold text-gray-500 px-5 py-3">{t('meals.meal')}</th>
-                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3">{t('meals.host')}</th>
-                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3">{t('meals.status')}</th>
-                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3 cursor-pointer hover:text-gray-700" onClick={() => { if (sortBy === 'datetime') setSortDir(d => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('datetime'); setSortDir('desc'); } }}>
+              <tr className="border-b border-gray/30">
+                <th className="text-left text-xs font-semibold text-gray-light px-5 py-3">{t('meals.meal')}</th>
+                <th className="text-left text-xs font-semibold text-gray-light px-4 py-3">{t('meals.host')}</th>
+                <th className="text-left text-xs font-semibold text-gray-light px-4 py-3">{t('meals.status')}</th>
+                <th className="text-left text-xs font-semibold text-gray-light px-4 py-3 cursor-pointer hover:text-white" onClick={() => { if (sortBy === 'datetime') setSortDir(d => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('datetime'); setSortDir('desc'); } }}>
                   <div className="flex items-center gap-1">{t('meals.date')} <SortIcon field="datetime" /></div>
                 </th>
-                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3">{t('meals.pax')}</th>
-                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3 cursor-pointer hover:text-gray-700" onClick={() => { if (sortBy === 'reports_count') setSortDir(d => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('reports_count'); setSortDir('desc'); } }}>
+                <th className="text-left text-xs font-semibold text-gray-light px-4 py-3">{t('meals.pax')}</th>
+                <th className="text-left text-xs font-semibold text-gray-light px-4 py-3 cursor-pointer hover:text-white" onClick={() => { if (sortBy === 'reports_count') setSortDir(d => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('reports_count'); setSortDir('desc'); } }}>
                   <div className="flex items-center gap-1">{t('meals.reports')} <SortIcon field="reports_count" /></div>
                 </th>
-                <th className="text-right text-xs font-semibold text-gray-500 px-5 py-3">{t('meals.actions')}</th>
+                <th className="text-right text-xs font-semibold text-gray-light px-5 py-3">{t('meals.actions')}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-gray/20">
               {filtered.map(meal => (
-                <tr key={meal.id} className="hover:bg-gray-50/50 transition-colors">
+                <tr key={meal.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="text-xl flex-shrink-0">{CUISINE_EMOJI[meal.cuisine_type] || '🍴'}</div>
+                      <div className="text-xl flex-shrink-0">{CUISINE_EMOJI[meal.cuisine_type] || '🍸'}</div>
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-gray-800 truncate">{meal.title}</p>
-                        <p className="text-[11px] text-gray-400 truncate">{meal.restaurant_name}</p>
+                        <p className="text-sm font-medium text-white truncate">{meal.title}</p>
+                        <p className="text-[11px] text-gray-light truncate">{meal.restaurant_name}</p>
                       </div>
                       {meal.is_restaurant_hosted && (
-                        <span className="flex-shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#FFD700]/20 text-[#B8860B] uppercase tracking-wider">
+                        <span className="flex-shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded bg-gold/20 text-gold uppercase tracking-wider">
                           {t('meals.partner')}
                         </span>
                       )}
                     </div>
                   </td>
                   <td className="px-4 py-3.5">
-                    <span className="text-sm text-gray-600">{meal.creator_name}</span>
+                    <span className="text-sm text-gray-light">{meal.creator_name}</span>
                   </td>
                   <td className="px-4 py-3.5">
                     <span className={cn('text-[11px] font-medium px-2.5 py-1 rounded-full capitalize', ADMIN_STATUS_COLORS[meal.status])}>
@@ -286,14 +286,14 @@ export default function AdminMealsPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3.5">
-                    <span className="text-xs text-gray-600">{formatDatetime(meal.datetime)}</span>
+                    <span className="text-xs text-gray-light">{formatDatetime(meal.datetime)}</span>
                   </td>
                   <td className="px-4 py-3.5">
                     <div className="flex items-center gap-1">
-                      <Users className="w-3.5 h-3.5 text-gray-400" />
+                      <Users className="w-3.5 h-3.5 text-gray-light" />
                       <span className={cn(
                         'text-sm font-medium',
-                        meal.current_participants >= meal.max_participants ? 'text-red-500' : meal.current_participants >= meal.min_participants ? 'text-[#2EC4B6]' : 'text-gray-600'
+                        meal.current_participants >= meal.max_participants ? 'text-red-400' : meal.current_participants >= meal.min_participants ? 'text-mint' : 'text-gray-light'
                       )}>
                         {meal.current_participants}/{meal.max_participants}
                       </span>
@@ -301,7 +301,7 @@ export default function AdminMealsPage() {
                   </td>
                   <td className="px-4 py-3.5">
                     {meal.reports_count > 0 && (
-                      <span className="flex items-center gap-1 text-xs font-medium text-red-500">
+                      <span className="flex items-center gap-1 text-xs font-medium text-red-400">
                         <AlertTriangle className="w-3 h-3" /> {meal.reports_count}
                       </span>
                     )}
@@ -310,22 +310,22 @@ export default function AdminMealsPage() {
                     <div className="relative inline-block">
                       <button
                         onClick={() => setActionMenu(actionMenu === meal.id ? null : meal.id)}
-                        className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
                       >
-                        <MoreVertical className="w-4 h-4 text-gray-400" />
+                        <MoreVertical className="w-4 h-4 text-gray-light" />
                       </button>
                       {actionMenu === meal.id && (
-                        <div className="absolute right-0 top-full mt-1 w-44 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-20">
+                        <div className="absolute right-0 top-full mt-1 w-44 glass rounded-xl shadow-lg border border-gray/30 py-1 z-20">
                           <button
                             onClick={() => { setSelectedMeal(meal); setActionMenu(null); }}
-                            className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                            className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-white hover:bg-white/10"
                           >
                             <Eye className="w-3.5 h-3.5" /> {t('meals.viewDetails')}
                           </button>
                           {meal.status !== 'cancelled' && meal.status !== 'completed' && (
                             <button
                               onClick={() => { handleCancelMeal(meal); }}
-                              className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                              className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-red-400 hover:bg-red-500/10"
                             >
                               <Ban className="w-3.5 h-3.5" /> {t('meals.cancelMeal')}
                             </button>
@@ -339,35 +339,35 @@ export default function AdminMealsPage() {
             </tbody>
           </table>
         </div>
-        <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 bg-gray-50/50">
-          <p className="text-xs text-gray-500">{t('meals.showingOf', { count: filtered.length, total: meals.length })}</p>
+        <div className="flex items-center justify-between px-5 py-3 border-t border-gray/30 bg-dark/30">
+          <p className="text-xs text-gray-light">{t('meals.showingOf', { count: filtered.length, total: meals.length })}</p>
         </div>
       </div>
 
       {/* Meal Detail Drawer */}
       {selectedMeal && (
         <div className="fixed inset-0 z-50 flex justify-end">
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setSelectedMeal(null)} />
-          <div className="relative w-full max-w-lg bg-white h-full overflow-y-auto shadow-xl">
-            <div className="sticky top-0 bg-white z-10 px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-gray-800">{t('meals.mealDetails')}</h2>
-              <button onClick={() => setSelectedMeal(null)} className="p-1.5 rounded-lg hover:bg-gray-100">
-                <X className="w-5 h-5 text-gray-500" />
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSelectedMeal(null)} />
+          <div className="relative w-full max-w-lg glass h-full overflow-y-auto shadow-xl border-l border-primary/30">
+            <div className="sticky top-0 glass z-10 px-6 py-4 border-b border-gray/30 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-white">{t('meals.mealDetails')}</h2>
+              <button onClick={() => setSelectedMeal(null)} className="p-1.5 rounded-lg hover:bg-white/10">
+                <X className="w-5 h-5 text-gray-light" />
               </button>
             </div>
             <div className="p-6 space-y-5">
               {/* Header */}
               <div>
                 <div className="flex items-start gap-3">
-                  <span className="text-3xl">{CUISINE_EMOJI[selectedMeal.cuisine_type] || '🍴'}</span>
+                  <span className="text-3xl">{CUISINE_EMOJI[selectedMeal.cuisine_type] || '🍸'}</span>
                   <div className="flex-1">
-                    <h3 className="text-lg font-bold text-gray-800">{selectedMeal.title}</h3>
-                    <p className="text-sm text-gray-500">{selectedMeal.restaurant_name}</p>
+                    <h3 className="text-lg font-bold text-white">{selectedMeal.title}</h3>
+                    <p className="text-sm text-gray-light">{selectedMeal.restaurant_name}</p>
                     <span className={cn('inline-block mt-1 text-[11px] font-medium px-2.5 py-1 rounded-full capitalize', ADMIN_STATUS_COLORS[selectedMeal.status])}>
                       {selectedMeal.status}
                     </span>
                     {selectedMeal.is_restaurant_hosted && (
-                      <span className="inline-block ml-2 text-[9px] font-bold px-2 py-0.5 rounded bg-[#FFD700]/20 text-[#B8860B] uppercase tracking-wider">
+                      <span className="inline-block ml-2 text-[9px] font-bold px-2 py-0.5 rounded bg-gold/20 text-gold uppercase tracking-wider">
                         {t('meals.restaurantHosted')}
                       </span>
                     )}
@@ -378,21 +378,21 @@ export default function AdminMealsPage() {
               {/* Details */}
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { icon: Calendar, label: t('meals.dateTime'), value: formatDatetime(selectedMeal.datetime), color: 'text-blue-500' },
-                  { icon: Clock, label: t('meals.deadline'), value: formatDatetime(selectedMeal.deadline), color: 'text-yellow-500' },
-                  { icon: Users, label: t('meals.participants'), value: `${selectedMeal.current_participants} / ${selectedMeal.max_participants}`, color: 'text-[#2EC4B6]' },
-                  { icon: MapPin, label: t('meals.location'), value: selectedMeal.restaurant_address, color: 'text-red-400' },
-                  { icon: CreditCard, label: t('meals.payment'), value: selectedMeal.payment_method.replace(/([A-Z])/g, ' $1').trim(), color: 'text-purple-500' },
-                  { icon: Globe, label: t('meals.languages'), value: selectedMeal.meal_languages.join(', ').toUpperCase(), color: 'text-[#FF6B35]' },
+                  { icon: Calendar, label: t('meals.dateTime'), value: formatDatetime(selectedMeal.datetime), color: 'text-mint' },
+                  { icon: Clock, label: t('meals.deadline'), value: formatDatetime(selectedMeal.deadline), color: 'text-gold' },
+                  { icon: Users, label: t('meals.participants'), value: `${selectedMeal.current_participants} / ${selectedMeal.max_participants}`, color: 'text-primary' },
+                  { icon: MapPin, label: t('meals.location'), value: selectedMeal.restaurant_address, color: 'text-coral' },
+                  { icon: CreditCard, label: t('meals.payment'), value: selectedMeal.payment_method.replace(/([A-Z])/g, ' $1').trim(), color: 'text-coral' },
+                  { icon: Globe, label: t('meals.languages'), value: selectedMeal.meal_languages.join(', ').toUpperCase(), color: 'text-primary' },
                 ].map(item => {
                   const Icon = item.icon;
                   return (
-                    <div key={item.label} className="bg-gray-50 rounded-xl p-3">
+                    <div key={item.label} className="bg-dark/50 rounded-xl p-3">
                       <div className="flex items-center gap-1.5 mb-1">
                         <Icon className={cn('w-3.5 h-3.5', item.color)} />
-                        <span className="text-[11px] text-gray-500">{item.label}</span>
+                        <span className="text-[11px] text-gray-light">{item.label}</span>
                       </div>
-                      <p className="text-sm font-medium text-gray-800 break-words">{item.value}</p>
+                      <p className="text-sm font-medium text-white break-words">{item.value}</p>
                     </div>
                   );
                 })}
@@ -400,9 +400,9 @@ export default function AdminMealsPage() {
 
               {/* Budget */}
               {selectedMeal.budget_min && (
-                <div className="bg-[#FFF8F0] rounded-xl p-4">
-                  <p className="text-xs text-gray-500 mb-1">{t('meals.budgetPerPerson')}</p>
-                  <p className="text-lg font-bold text-[#FF6B35]">
+                <div className="bg-primary/10 rounded-xl p-4 border border-primary/30">
+                  <p className="text-xs text-gray-light mb-1">{t('meals.budgetPerPerson')}</p>
+                  <p className="text-lg font-bold text-primary">
                     {formatCurrency(selectedMeal.budget_min ?? 0)} - {formatCurrency(selectedMeal.budget_max ?? 0)}
                   </p>
                 </div>
@@ -410,32 +410,32 @@ export default function AdminMealsPage() {
 
               {/* Description */}
               <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">{t('meals.description')}</h4>
-                <p className="text-sm text-gray-600 leading-relaxed">{selectedMeal.description}</p>
+                <h4 className="text-sm font-semibold text-white mb-2">{t('meals.description')}</h4>
+                <p className="text-sm text-gray-light leading-relaxed">{selectedMeal.description}</p>
               </div>
 
               {/* Host Info */}
-              <div className="border-t border-gray-100 pt-4">
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">{t('meals.host')}</h4>
-                <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#FF6B35]/20 to-[#FF6B6B]/20 flex items-center justify-center">
-                    <span className="text-sm font-bold text-[#FF6B35]">{selectedMeal.creator_name.charAt(0)}</span>
+              <div className="border-t border-gray/30 pt-4">
+                <h4 className="text-sm font-semibold text-white mb-2">{t('meals.host')}</h4>
+                <div className="flex items-center gap-3 bg-dark/50 rounded-xl p-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-mint/20 flex items-center justify-center">
+                    <span className="text-sm font-bold text-primary">{selectedMeal.creator_name.charAt(0)}</span>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-800">{selectedMeal.creator_name}</p>
-                    <p className="text-xs text-gray-400">{t('meals.created')} {new Date(selectedMeal.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                    <p className="text-sm font-medium text-white">{selectedMeal.creator_name}</p>
+                    <p className="text-xs text-gray-light">{t('meals.created')} {new Date(selectedMeal.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
                   </div>
                 </div>
               </div>
 
               {/* Reports */}
               {selectedMeal.reports_count > 0 && (
-                <div className="border-t border-gray-100 pt-4">
+                <div className="border-t border-gray/30 pt-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <AlertTriangle className="w-4 h-4 text-red-500" />
-                    <h4 className="text-sm font-semibold text-red-600">Reports ({selectedMeal.reports_count})</h4>
+                    <AlertTriangle className="w-4 h-4 text-red-400" />
+                    <h4 className="text-sm font-semibold text-red-400">Reports ({selectedMeal.reports_count})</h4>
                   </div>
-                  <div className="bg-red-50 rounded-xl p-3 text-sm text-red-600">
+                  <div className="bg-red-500/10 rounded-xl p-3 text-sm text-red-400">
                     {t('meals.unresolvedReports', { count: selectedMeal.reports_count })}
                   </div>
                 </div>

@@ -104,18 +104,18 @@ export default function AdminDashboard() {
     : 0;
 
   const statsConfig = [
-    { labelKey: 'dashboard.totalUsers', value: loading ? '...' : String(stats.totalUsers), icon: Users, color: 'from-blue-500 to-blue-600' },
-    { labelKey: 'dashboard.activeMeals', value: loading ? '...' : String(stats.activeMeals), icon: UtensilsCrossed, color: 'from-[#FF6B35] to-[#FF6B6B]' },
-    { labelKey: 'dashboard.mealsThisWeek', value: loading ? '...' : String(stats.mealsThisWeek), icon: TrendingUp, color: 'from-[#2EC4B6] to-[#5DD9CE]' },
-    { labelKey: 'dashboard.newUsersToday', value: loading ? '...' : String(stats.newUsersToday), icon: UserPlus, color: 'from-purple-500 to-purple-600' },
+    { labelKey: 'dashboard.totalUsers', value: loading ? '...' : String(stats.totalUsers), icon: Users, color: 'from-primary to-pink-400' },
+    { labelKey: 'dashboard.activeMeals', value: loading ? '...' : String(stats.activeMeals), icon: UtensilsCrossed, color: 'from-primary to-mint' },
+    { labelKey: 'dashboard.mealsThisWeek', value: loading ? '...' : String(stats.mealsThisWeek), icon: TrendingUp, color: 'from-mint to-cyan-400' },
+    { labelKey: 'dashboard.newUsersToday', value: loading ? '...' : String(stats.newUsersToday), icon: UserPlus, color: 'from-coral to-pink-400' },
   ];
 
   return (
     <div className="space-y-6">
       {/* Page Title */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">{t('dashboard.title')}</h1>
-        <p className="text-sm text-gray-500 mt-1">{t('dashboard.subtitle')}</p>
+        <h1 className="text-2xl font-bold text-white">{t('dashboard.title')}</h1>
+        <p className="text-sm text-gray-light mt-1">{t('dashboard.subtitle')}</p>
       </div>
 
       {/* Stats Cards */}
@@ -123,13 +123,13 @@ export default function AdminDashboard() {
         {statsConfig.map((stat) => {
           const Icon = stat.icon;
           return (
-            <div key={stat.labelKey} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div key={stat.labelKey} className="card glass p-5">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm text-gray-500 font-medium">{t(stat.labelKey)}</p>
-                  <p className="text-2xl font-bold text-gray-800 mt-1">{stat.value}</p>
+                  <p className="text-sm text-gray-light font-medium">{t(stat.labelKey)}</p>
+                  <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
                 </div>
-                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-sm`}>
+                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-lg`}>
                   {loading ? <Loader2 className="w-5 h-5 text-white animate-spin" /> : <Icon className="w-5 h-5 text-white" />}
                 </div>
               </div>
@@ -140,78 +140,78 @@ export default function AdminDashboard() {
 
       {/* Quick Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="card glass p-4">
           <div className="flex items-center gap-2 mb-2">
-            <CheckCircle2 className="w-4 h-4 text-[#2EC4B6]" />
-            <span className="text-xs text-gray-500 font-medium">{t('dashboard.confirmationRate')}</span>
+            <CheckCircle2 className="w-4 h-4 text-mint" />
+            <span className="text-xs text-gray-light font-medium">{t('dashboard.confirmationRate')}</span>
           </div>
-          <p className="text-xl font-bold text-gray-800">{loading ? '--' : `${confirmationRate}%`}</p>
-          <div className="w-full h-1.5 bg-gray-100 rounded-full mt-2">
-            <div className="h-1.5 bg-[#2EC4B6] rounded-full transition-all" style={{ width: `${confirmationRate}%` }} />
+          <p className="text-xl font-bold text-white">{loading ? '--' : `${confirmationRate}%`}</p>
+          <div className="w-full h-1.5 bg-dark rounded-full mt-2">
+            <div className="h-1.5 bg-mint rounded-full transition-all" style={{ width: `${confirmationRate}%` }} />
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="card glass p-4">
           <div className="flex items-center gap-2 mb-2">
-            <XCircle className="w-4 h-4 text-[#FF6B6B]" />
-            <span className="text-xs text-gray-500 font-medium">{t('dashboard.cancellationRate')}</span>
+            <XCircle className="w-4 h-4 text-coral" />
+            <span className="text-xs text-gray-light font-medium">{t('dashboard.cancellationRate')}</span>
           </div>
-          <p className="text-xl font-bold text-gray-800">{loading ? '--' : `${cancellationRate}%`}</p>
-          <div className="w-full h-1.5 bg-gray-100 rounded-full mt-2">
-            <div className="h-1.5 bg-[#FF6B6B] rounded-full transition-all" style={{ width: `${cancellationRate}%` }} />
+          <p className="text-xl font-bold text-white">{loading ? '--' : `${cancellationRate}%`}</p>
+          <div className="w-full h-1.5 bg-dark rounded-full mt-2">
+            <div className="h-1.5 bg-coral rounded-full transition-all" style={{ width: `${cancellationRate}%` }} />
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="card glass p-4">
           <div className="flex items-center gap-2 mb-2">
-            <Store className="w-4 h-4 text-[#FFD700]" />
-            <span className="text-xs text-gray-500 font-medium">{t('dashboard.partnerRestaurants')}</span>
+            <Store className="w-4 h-4 text-gold" />
+            <span className="text-xs text-gray-light font-medium">{t('dashboard.partnerRestaurants')}</span>
           </div>
-          <p className="text-xl font-bold text-gray-800">{loading ? '...' : stats.partnerRestaurants}</p>
+          <p className="text-xl font-bold text-white">{loading ? '...' : stats.partnerRestaurants}</p>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="card glass p-4">
           <div className="flex items-center gap-2 mb-2">
-            <ImageIcon className="w-4 h-4 text-purple-500" />
-            <span className="text-xs text-gray-500 font-medium">{t('dashboard.galleryPhotos')}</span>
+            <ImageIcon className="w-4 h-4 text-primary" />
+            <span className="text-xs text-gray-light font-medium">{t('dashboard.galleryPhotos')}</span>
           </div>
-          <p className="text-xl font-bold text-gray-800">{loading ? '...' : stats.totalPhotos}</p>
+          <p className="text-xl font-bold text-white">{loading ? '...' : stats.totalPhotos}</p>
         </div>
       </div>
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Recent Meals */}
-        <div className="xl:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
-            <h2 className="font-semibold text-gray-800">{t('dashboard.recentMeals')}</h2>
-            <span className="text-xs text-[#FF6B35] font-medium cursor-pointer hover:underline">{t('dashboard.viewAll')}</span>
+        <div className="xl:col-span-2 card glass">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-gray/30">
+            <h2 className="font-semibold text-white">{t('dashboard.recentMeals')}</h2>
+            <span className="text-xs text-primary font-medium cursor-pointer hover:underline">{t('dashboard.viewAll')}</span>
           </div>
           <div className="px-5 py-12 text-center">
             {loading ? (
-              <Loader2 className="w-8 h-8 text-[#FF6B35] mx-auto mb-3 animate-spin" />
+              <Loader2 className="w-8 h-8 text-primary mx-auto mb-3 animate-spin" />
             ) : stats.totalMeals > 0 ? (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-light">
                 {stats.totalMeals} meals total, {stats.activeMeals} active
               </p>
             ) : (
-              <p className="text-sm text-gray-400">No meals created yet</p>
+              <p className="text-sm text-gray-light">No meals created yet</p>
             )}
           </div>
         </div>
 
         {/* Recent Users */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
-            <h2 className="font-semibold text-gray-800">{t('dashboard.newUsers')}</h2>
-            <span className="text-xs text-[#FF6B35] font-medium cursor-pointer hover:underline">{t('dashboard.viewAll')}</span>
+        <div className="card glass">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-gray/30">
+            <h2 className="font-semibold text-white">{t('dashboard.newUsers')}</h2>
+            <span className="text-xs text-primary font-medium cursor-pointer hover:underline">{t('dashboard.viewAll')}</span>
           </div>
           <div className="px-5 py-12 text-center">
             {loading ? (
-              <Loader2 className="w-8 h-8 text-[#FF6B35] mx-auto mb-3 animate-spin" />
+              <Loader2 className="w-8 h-8 text-primary mx-auto mb-3 animate-spin" />
             ) : stats.totalUsers > 0 ? (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-light">
                 {stats.totalUsers} registered users
               </p>
             ) : (
-              <p className="text-sm text-gray-400">No users registered yet</p>
+              <p className="text-sm text-gray-light">No users registered yet</p>
             )}
           </div>
         </div>
