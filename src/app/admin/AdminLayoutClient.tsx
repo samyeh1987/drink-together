@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
@@ -46,8 +47,14 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
         <div className="flex h-full items-center justify-between px-4 lg:px-6">
           {/* Logo */}
           <Link href="/admin" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-mint rounded-lg flex items-center justify-center shadow-lg shadow-primary/30">
-              <span className="text-sm">🍸</span>
+            <div className="w-8 h-8 rounded-lg overflow-hidden shadow-lg shadow-primary/30">
+              <Image
+                src="/logo.png"
+                alt="DrinkTogether"
+                width={32}
+                height={32}
+                className="w-full h-full object-cover"
+              />
             </div>
             <div>
               <span className="text-sm font-bold text-white">

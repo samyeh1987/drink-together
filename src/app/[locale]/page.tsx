@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import {
   UtensilsCrossed,
   Plus,
@@ -120,14 +121,20 @@ export default function HomePage() {
         <div className="relative px-4 pt-6 pb-8">
           {/* Top Bar */}
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-coral rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
-                <UtensilsCrossed className="w-5 h-5 text-white" />
+            <Link href={`/${locale}`} className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-primary/30">
+                <Image
+                  src="/logo.png"
+                  alt="DrinkTogether"
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover"
+                />
               </div>
               <span className="text-lg font-bold text-white">
                 Drink<span className="text-primary">Together</span>
               </span>
-            </div>
+            </Link>
           <div className="flex items-center gap-2">
             {/* Language Switcher */}
             <div className="relative">
