@@ -22,7 +22,7 @@ export default function AdminLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
       </head>
       <body className="min-h-screen bg-dark">
-        <div className="flex lg:pl-64">
+        <div className="flex">
           <AdminI18nProvider>
             <AdminLayoutClient>{children}</AdminLayoutClient>
           </AdminI18nProvider>
