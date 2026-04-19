@@ -235,8 +235,8 @@ export default function ProfilePage() {
           className="card p-4 mb-4"
         >
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-bold text-dark">{t('profile.photos')}</h3>
-            <span className="text-xs text-gray">{photos.length}/{photoSlots}</span>
+            <h3 className="font-bold text-white">{t('profile.photos')}</h3>
+            <span className="text-xs text-gray-light">{photos.length}/{photoSlots}</span>
           </div>
           <div className="grid grid-cols-3 gap-2">
             {photos.map((photo, index) => (
@@ -296,39 +296,39 @@ export default function ProfilePage() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="grid grid-cols-3 gap-3 mb-4"
         >
-          {/* Meals Hosted */}
+          {/* Drinks Hosted */}
           <Link href={`/${locale}/meals/my?tab=hosting`}>
-            <div className="card p-3 text-center cursor-pointer group">
-              <div className="w-10 h-10 mx-auto rounded-xl bg-primary/10 flex items-center justify-center mb-2">
+            <div className="card p-3 text-center cursor-pointer group hover:border-primary/50 transition-all">
+              <div className="w-10 h-10 mx-auto rounded-xl bg-primary/20 flex items-center justify-center mb-2">
                 <UtensilsCrossed className="w-5 h-5 text-primary" />
               </div>
-              <div className="text-xl font-bold text-dark">{mealsHosted}</div>
-              <div className="text-xs text-gray">{t('profile.mealsHosted')}</div>
+              <div className="text-xl font-bold text-primary">{mealsHosted}</div>
+              <div className="text-xs text-gray-light">{locale === 'zh-CN' ? '主辦' : 'Hosted'}</div>
             </div>
           </Link>
 
-          {/* Meals Joined */}
+          {/* Drinks Joined */}
           <Link href={`/${locale}/meals/my?tab=joined`}>
-            <div className="card p-3 text-center cursor-pointer group">
-              <div className="w-10 h-10 mx-auto rounded-xl bg-mint/10 flex items-center justify-center mb-2">
+            <div className="card p-3 text-center cursor-pointer group hover:border-mint/50 transition-all">
+              <div className="w-10 h-10 mx-auto rounded-xl bg-mint/20 flex items-center justify-center mb-2">
                 <Users className="w-5 h-5 text-mint" />
               </div>
-              <div className="text-xl font-bold text-dark">{mealsJoined}</div>
-              <div className="text-xs text-gray">{t('profile.mealsJoined')}</div>
+              <div className="text-xl font-bold text-mint">{mealsJoined}</div>
+              <div className="text-xs text-gray-light">{locale === 'zh-CN' ? '參與' : 'Joined'}</div>
             </div>
           </Link>
 
           {/* Credit Score */}
           <div className="card p-3 text-center">
-            <div className="w-10 h-10 mx-auto rounded-xl bg-gold/10 flex items-center justify-center mb-2">
+            <div className="w-10 h-10 mx-auto rounded-xl bg-gold/20 flex items-center justify-center mb-2">
               <Award className="w-5 h-5 text-gold" />
             </div>
-            <div className="text-xl font-bold text-dark">{user.credit_score || 100}</div>
-            <div className="text-xs text-gray">{t('profile.creditScore')}</div>
+            <div className="text-xl font-bold text-gold">{user.credit_score || 100}</div>
+            <div className="text-xs text-gray-light">{t('profile.creditScore')}</div>
           </div>
         </motion.div>
 
-        {/* Quick Access - My Meals */}
+        {/* Quick Access - My Drinks */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -336,15 +336,15 @@ export default function ProfilePage() {
           className="mb-4"
         >
           <Link href={`/${locale}/meals/my`}>
-            <div className="card p-4 flex items-center justify-between cursor-pointer group">
+            <div className="card p-4 flex items-center justify-between cursor-pointer group hover:border-primary/50 transition-all">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
                   <ClipboardList className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-dark text-sm">{t('nav.myMeals')}</h3>
+                  <h3 className="font-bold text-white text-sm">{t('nav.myMeals')}</h3>
                   <p className="text-xs text-gray-light">
-                    {mealsHosted + mealsJoined} {t('myMeals.mealsFound', { count: mealsHosted + mealsJoined })}
+                    {mealsHosted + mealsJoined} {locale === 'zh-CN' ? '個酒局' : 'drinks'}
                   </p>
                 </div>
               </div>
@@ -361,7 +361,7 @@ export default function ProfilePage() {
           className="card p-4 mb-4"
         >
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-bold text-dark">{t('credit.title')}</h3>
+            <h3 className="font-bold text-white">{t('credit.title')}</h3>
             <Link href={`/${locale}/rules`} className="text-xs text-primary flex items-center gap-1">
               {t('credit.rules')}
               <ChevronRight className="w-3 h-3" />
@@ -369,35 +369,35 @@ export default function ProfilePage() {
           </div>
 
           {/* Credit Level Display */}
-          <div className="flex items-center gap-3 mb-4 p-3 bg-gradient-to-r from-gold/10 to-coral/10 rounded-xl">
+          <div className="flex items-center gap-3 mb-4 p-3 glass rounded-xl">
             <div className="flex items-center gap-0.5">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star
                   key={i}
                   className={`w-5 h-5 ${
-                    i < creditInfo.stars ? creditInfo.color : 'text-gray-lighter'
+                    i < creditInfo.stars ? creditInfo.color : 'text-gray'
                   }`}
                   fill={i < creditInfo.stars ? 'currentColor' : 'none'}
                 />
               ))}
             </div>
             <div className="flex-1">
-              <div className="font-bold text-dark capitalize">
+              <div className="font-bold text-white capitalize">
                 {t(`credit.${creditInfo.level}`)}
               </div>
-              <div className="text-xs text-gray">
+              <div className="text-xs text-gray-light">
                 {user.credit_score || 100} {t('profile.creditScore')}
               </div>
             </div>
           </div>
 
           {/* Credit History */}
-          <h4 className="text-xs font-semibold text-gray mb-2">{t('profile.creditHistory')}</h4>
+          <h4 className="text-xs font-semibold text-gray-light mb-2">{t('profile.creditHistory')}</h4>
           <div className="space-y-2">
             {creditHistory.length > 0 ? creditHistory.map((item: any, index: number) => (
               <div
                 key={index}
-                className="flex items-center justify-between py-2 border-b border-gray-lighter/50 last:border-0"
+                className="flex items-center justify-between py-2 border-b border-gray/30 last:border-0"
               >
                 <div className="flex items-center gap-2">
                   <span
@@ -407,7 +407,7 @@ export default function ProfilePage() {
                   >
                     {(item.points_change || 0) > 0 ? `+${item.points_change}` : item.points_change}
                   </span>
-                  <span className="text-xs text-gray">{item.reason || item.event_type || ''}</span>
+                  <span className="text-xs text-gray-light">{item.reason || item.event_type || ''}</span>
                 </div>
                 <span className="text-xs text-gray-light">
                   {new Date(item.created_at).toLocaleDateString()}
@@ -428,10 +428,10 @@ export default function ProfilePage() {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="card p-4 mb-4"
         >
-          <h3 className="font-bold text-dark mb-3">{t('profile.interests')}</h3>
+          <h3 className="font-bold text-white mb-3">{t('profile.interests')}</h3>
           <div className="flex flex-wrap gap-2">
             {interests.length > 0 ? interests.map((interest: string) => (
-              <span key={interest} className="tag tag-active">
+              <span key={interest} className="tag bg-primary/20 text-primary">
                 {t(`tag.${interest}`)}
               </span>
             )) : (
@@ -449,10 +449,10 @@ export default function ProfilePage() {
           transition={{ duration: 0.5, delay: 0.5 }}
           className="card p-4"
         >
-          <h3 className="font-bold text-dark mb-3">{t('profile.languagesSpoken')}</h3>
+          <h3 className="font-bold text-white mb-3">{t('profile.languagesSpoken')}</h3>
           <div className="flex flex-wrap gap-2">
             {(user.languages_spoken || []).map((lang: string) => (
-              <span key={lang} className="tag">
+              <span key={lang} className="tag bg-dark/50 text-gray-light">
                 {languageFlags[lang]} {t(`language.${lang}`)}
               </span>
             ))}

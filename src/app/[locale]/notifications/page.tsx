@@ -31,13 +31,13 @@ const iconMap: Record<string, React.ElementType> = {
 };
 
 const iconColors: Record<string, string> = {
-  'user-plus': 'bg-blue-100 text-blue-600',
-  'check-circle': 'bg-mint/10 text-mint',
-  'party-popper': 'bg-gold/10 text-gold',
-  'clock': 'bg-orange-100 text-orange-600',
-  'message-circle': 'bg-purple-100 text-purple-600',
-  'star': 'bg-gold/10 text-gold',
-  'alert': 'bg-red-100 text-coral',
+  'user-plus': 'bg-primary/20 text-primary',
+  'check-circle': 'bg-mint/20 text-mint',
+  'party-popper': 'bg-gold/20 text-gold',
+  'clock': 'bg-orange-500/20 text-orange-400',
+  'message-circle': 'bg-coral/20 text-coral',
+  'star': 'bg-gold/20 text-gold',
+  'alert': 'bg-red-500/20 text-red-400',
 };
 
 const typeToIcon: Record<string, string> = {
@@ -131,13 +131,13 @@ export default function NotificationsPage() {
 
   return (
     <div className="min-h-screen pb-20">
-      {/* Header */}
-      <div className="sticky top-0 z-30 bg-dark/80 backdrop-blur-lg border-b border-gray-lighter/50">
+      {/* Header - Glass Effect */}
+      <div className="sticky top-0 z-30 glass border-b border-primary/30">
         <div className="px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h1 className="text-lg font-bold text-dark">{t('notification.title')}</h1>
+            <h1 className="text-lg font-bold text-white">{t('notification.title')}</h1>
             {unreadCount > 0 && (
-              <span className="px-2 py-0.5 rounded-full bg-coral text-white text-[10px] font-bold">
+              <span className="px-2 py-0.5 rounded-full bg-coral text-white text-[10px] font-bold animate-pulse">
                 {unreadCount}
               </span>
             )}
@@ -146,7 +146,7 @@ export default function NotificationsPage() {
             <button
               onClick={handleMarkAllRead}
               disabled={markingAll}
-              className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary-dark transition-colors disabled:opacity-50"
+              className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary-light transition-colors disabled:opacity-50"
             >
               <CheckCheck className="w-4 h-4" />
               <span>{t('notification.markAllRead')}</span>
@@ -159,7 +159,7 @@ export default function NotificationsPage() {
       <div className="px-4 py-3">
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
-            <Bell className="w-12 h-12 text-gray-lighter mb-3" />
+            <Bell className="w-12 h-12 text-gray-light mb-3" />
             <p className="text-sm text-gray-light">
               {locale === 'zh-CN' ? '暫無通知' : 'No notifications yet'}
             </p>
@@ -168,7 +168,7 @@ export default function NotificationsPage() {
           notifications.map((notif, i) => {
             const iconType = typeToIcon[notif.type] || 'message-circle';
             const Icon = iconMap[iconType] || Bell;
-            const colorClass = iconColors[iconType] || 'bg-gray-100 text-gray';
+            const colorClass = iconColors[iconType] || 'bg-gray/20 text-gray-light';
 
             return (
               <motion.div
@@ -179,12 +179,12 @@ export default function NotificationsPage() {
                 onClick={() => !notif.read && handleMarkRead(notif.id)}
                 className={cn(
                   'relative flex gap-3 p-3.5 rounded-xl mb-2 transition-all duration-200 cursor-pointer',
-                  notif.read ? 'bg-white' : 'bg-primary/5'
+                  notif.read ? 'bg-dark/50' : 'bg-primary/10'
                 )}
               >
                 {/* Unread dot */}
                 {!notif.read && (
-                  <div className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-primary rounded-full" />
+                  <div className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
                 )}
 
                 {/* Icon */}
@@ -195,8 +195,8 @@ export default function NotificationsPage() {
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm">
-                    <span className="font-semibold text-dark">{notif.title}</span>{' '}
-                    <span className="text-gray">{notif.message}</span>
+                    <span className="font-semibold text-white">{notif.title}</span>{' '}
+                    <span className="text-gray-light">{notif.message}</span>
                   </p>
                   <p className="text-[11px] text-gray-light mt-1">
                     {relativeTime(notif.created_at)}

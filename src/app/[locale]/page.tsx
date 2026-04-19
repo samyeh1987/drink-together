@@ -110,22 +110,22 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen pb-20">
-      {/* Hero Section - Mobile First */}
+      {/* Hero Section - Neon Nightclub Theme */}
       <section className="relative overflow-hidden">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-cream to-coral/5" />
-        <div className="absolute top-10 right-5 w-48 h-48 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-5 left-5 w-64 h-64 bg-mint/10 rounded-full blur-3xl" />
+        {/* Background gradient - Neon effect */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-cream to-mint/10" />
+        <div className="absolute top-10 right-5 w-48 h-48 bg-primary/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-5 left-5 w-64 h-64 bg-mint/20 rounded-full blur-3xl" />
 
         <div className="relative px-4 pt-6 pb-8">
           {/* Top Bar */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-sm">
-                <UtensilsCrossed className="w-4.5 h-4.5 text-white" />
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-coral rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
+                <UtensilsCrossed className="w-5 h-5 text-white" />
               </div>
-              <span className="text-lg font-bold text-dark">
-                Eat<span className="text-primary">Together</span>
+              <span className="text-lg font-bold text-white">
+                Drink<span className="text-primary">Together</span>
               </span>
             </div>
           <div className="flex items-center gap-2">
@@ -133,7 +133,7 @@ export default function HomePage() {
             <div className="relative">
               <button
                 onClick={() => setShowLangMenu(!showLangMenu)}
-                className="flex items-center gap-1 p-2 rounded-xl text-gray hover:text-dark hover:bg-white/50 transition-all"
+                className="flex items-center gap-1 p-2 rounded-xl text-gray-light hover:text-white hover:bg-dark/50 transition-all"
               >
                 <Globe className="w-5 h-5" />
                 <ChevronDown className={`w-3 h-3 transition-transform ${showLangMenu ? 'rotate-180' : ''}`} />
@@ -147,14 +147,14 @@ export default function HomePage() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -8, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute right-0 top-12 z-50 bg-white rounded-xl shadow-lg border border-gray-lighter/50 py-1.5 min-w-[140px] overflow-hidden"
+                      className="absolute right-0 top-12 z-50 bg-dark/95 backdrop-blur-lg rounded-xl shadow-xl border border-primary/30 py-1.5 min-w-[140px] overflow-hidden"
                     >
                       {locales.map((l) => (
                         <button
                           key={l.code}
                           onClick={() => switchLocale(l.code)}
                           className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors ${
-                            locale === l.code ? 'bg-primary/5 text-primary font-semibold' : 'text-dark hover:bg-gray-50'
+                            locale === l.code ? 'bg-primary/20 text-primary font-semibold' : 'text-white hover:bg-dark/50'
                           }`}
                         >
                           <span className="text-base">{l.flag}</span>
@@ -171,10 +171,10 @@ export default function HomePage() {
             </div>
             <Link
               href={`/${locale}/notifications`}
-              className="relative p-2 rounded-xl text-gray hover:text-dark hover:bg-white/50 transition-all"
+              className="relative p-2 rounded-xl text-gray-light hover:text-white hover:bg-dark/50 transition-all"
             >
               <Sparkles className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-coral rounded-full" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-coral rounded-full animate-pulse" />
             </Link>
           </div>
           </div>
@@ -186,15 +186,15 @@ export default function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h1 className="text-3xl font-extrabold text-dark leading-tight mb-3">
+              <h1 className="text-3xl font-extrabold text-white leading-tight mb-3">
                 {t('home.heroTitle').split('').map((char, i) => (
-                  <span key={i} className={char === '吃' || char === '一' || char === '人' ? 'text-primary' : ''}>
+                  <span key={i} className={char === '喝' || char === '一' || char === '人' ? 'text-primary' : char === '酒' ? 'text-mint' : ''}>
                     {char}
                   </span>
                 ))}
               </h1>
 
-              <p className="text-base text-gray leading-relaxed mb-5">
+              <p className="text-base text-gray-light leading-relaxed mb-5">
                 {t('home.heroSubtitle')}
               </p>
 
@@ -217,32 +217,32 @@ export default function HomePage() {
               </div>
             </motion.div>
 
-            {/* Stats - Horizontal scroll on mobile */}
+            {/* Stats - Neon Glass Effect */}
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
               className="flex gap-4 mt-6"
             >
-              <div className="bg-white/70 backdrop-blur-sm rounded-xl px-4 py-3 flex-1 text-center shadow-sm">
-                <div className="text-lg font-bold text-dark">{stats.totalMeals}</div>
-                <div className="text-xs text-gray">{locale === 'zh-CN' ? '飯局' : 'Meals Shared'}</div>
+              <div className="glass rounded-xl px-4 py-3 flex-1 text-center">
+                <div className="text-lg font-bold text-primary">{stats.totalMeals}</div>
+                <div className="text-xs text-gray-light">{locale === 'zh-CN' ? '酒局' : 'Drinks Shared'}</div>
               </div>
-              <div className="bg-white/70 backdrop-blur-sm rounded-xl px-4 py-3 flex-1 text-center shadow-sm">
-                <div className="text-lg font-bold text-dark">{stats.totalUsers}</div>
-                <div className="text-xs text-gray">{locale === 'zh-CN' ? '飯友' : 'Foodies'}</div>
+              <div className="glass rounded-xl px-4 py-3 flex-1 text-center">
+                <div className="text-lg font-bold text-mint">{stats.totalUsers}</div>
+                <div className="text-xs text-gray-light">{locale === 'zh-CN' ? '酒友' : 'Drinkers'}</div>
               </div>
-              <div className="bg-white/70 backdrop-blur-sm rounded-xl px-4 py-3 flex-1 text-center shadow-sm">
-                <div className="text-lg font-bold text-dark">{stats.activeMeals}</div>
-                <div className="text-xs text-gray">{locale === 'zh-CN' ? '進行中' : 'Active'}</div>
+              <div className="glass rounded-xl px-4 py-3 flex-1 text-center">
+                <div className="text-lg font-bold text-coral">{stats.activeMeals}</div>
+                <div className="text-xs text-gray-light">{locale === 'zh-CN' ? '進行中' : 'Active'}</div>
               </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Nearby Meals Map */}
-      <section className="py-4">
+      {/* 🔒 Map Section Hidden - Uncomment to enable */}
+      {/* <section className="py-4">
         <NearbyMap
           mapTitle={t('home.nearbyMapTitle')}
           mapSubtitle={t('home.nearbyMapSubtitle')}
@@ -250,12 +250,12 @@ export default function HomePage() {
           openMealsText={t('home.openMeals')}
           locale={locale}
         />
-      </section>
+      </section> */}
 
-      {/* How It Works - Compact horizontal cards */}
+      {/* How It Works - Neon horizontal cards */}
       <section className="py-6">
         <div className="px-4">
-          <h2 className="text-lg font-bold text-dark mb-4">
+          <h2 className="text-lg font-bold text-white mb-4">
             {t('home.howItWorks')}
           </h2>
           <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 snap-x snap-mandatory scrollbar-hide">
@@ -265,7 +265,7 @@ export default function HomePage() {
                 title: t('home.step1Title'),
                 desc: t('home.step1Desc'),
                 color: 'from-primary to-primary-light',
-                bgColor: 'bg-primary/10',
+                bgColor: 'bg-primary/20',
                 textColor: 'text-primary',
                 step: '01',
               },
@@ -274,7 +274,7 @@ export default function HomePage() {
                 title: t('home.step2Title'),
                 desc: t('home.step2Desc'),
                 color: 'from-mint to-mint-light',
-                bgColor: 'bg-mint/10',
+                bgColor: 'bg-mint/20',
                 textColor: 'text-mint',
                 step: '02',
               },
@@ -283,7 +283,7 @@ export default function HomePage() {
                 title: t('home.step3Title'),
                 desc: t('home.step3Desc'),
                 color: 'from-gold to-amber-400',
-                bgColor: 'bg-gold/10',
+                bgColor: 'bg-gold/20',
                 textColor: 'text-gold',
                 step: '03',
               },
@@ -296,12 +296,12 @@ export default function HomePage() {
                 className="flex-shrink-0 w-44 snap-start"
               >
                 <div className="card p-4 h-full">
-                  <div className="text-xs font-black text-gray-lighter/60 mb-2">{item.step}</div>
+                  <div className="text-xs font-black text-gray-light/40 mb-2">{item.step}</div>
                   <div className={`w-10 h-10 rounded-xl ${item.bgColor} flex items-center justify-center mb-3`}>
                     <item.icon className={`w-5 h-5 ${item.textColor}`} />
                   </div>
-                  <h3 className="text-sm font-bold text-dark mb-1">{item.title}</h3>
-                  <p className="text-xs text-gray leading-relaxed">{item.desc}</p>
+                  <h3 className="text-sm font-bold text-white mb-1">{item.title}</h3>
+                  <p className="text-xs text-gray-light leading-relaxed">{item.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -309,52 +309,52 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Restaurant Deals Banner */}
+      {/* Bar Deals Banner - Neon Style */}
       <section className="px-4 mb-4">
         <Link href={`/${locale}/deals`}>
-          <div className="bg-gradient-to-r from-gold/15 via-gold/10 to-coral/10 rounded-2xl p-4 border border-gold/15 cursor-pointer group">
+          <div className="glass rounded-2xl p-4 cursor-pointer group hover:border-gold/50 transition-all">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gold/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                <BadgePercent className="w-5 h-5 text-gold" />
+              <div className="w-12 h-12 bg-gradient-to-br from-gold/30 to-gold/10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-gold/20">
+                <BadgePercent className="w-6 h-6 text-gold" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-dark text-sm">{t('home.dealsTitle')}</h3>
-                <p className="text-xs text-gray mt-0.5">{t('home.dealsSubtitle')}</p>
+                <h3 className="font-bold text-white text-sm">{t('home.dealsTitle')}</h3>
+                <p className="text-xs text-gray-light mt-0.5">{t('home.dealsSubtitle')}</p>
               </div>
-              <ArrowRight className="w-4 h-4 text-gold flex-shrink-0 group-hover:translate-x-0.5 transition-transform" />
+              <ArrowRight className="w-5 h-5 text-gold flex-shrink-0 group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
         </Link>
       </section>
 
-      {/* Photo Gallery Banner */}
+      {/* Photo Gallery Banner - Neon Style */}
       <section className="px-4 mb-6">
         <Link href={`/${locale}/gallery`}>
-          <div className="bg-gradient-to-r from-primary/15 via-coral/10 to-mint/10 rounded-2xl p-4 border border-primary/15 cursor-pointer group">
+          <div className="glass rounded-2xl p-4 cursor-pointer group hover:border-primary/50 transition-all">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                <ImageIcon className="w-5 h-5 text-primary" />
+              <div className="w-12 h-12 bg-gradient-to-br from-primary/30 to-coral/10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20">
+                <ImageIcon className="w-6 h-6 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-dark text-sm">{t('home.galleryTitle')}</h3>
-                <p className="text-xs text-gray mt-0.5">{t('home.gallerySubtitle')}</p>
+                <h3 className="font-bold text-white text-sm">{t('home.galleryTitle')}</h3>
+                <p className="text-xs text-gray-light mt-0.5">{t('home.gallerySubtitle')}</p>
               </div>
-              <ArrowRight className="w-4 h-4 text-primary flex-shrink-0 group-hover:translate-x-0.5 transition-transform" />
+              <ArrowRight className="w-5 h-5 text-primary flex-shrink-0 group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
         </Link>
       </section>
 
-      {/* Popular Meals - Single column on mobile */}
+      {/* Popular Drinks - Neon Cards */}
       <section className="pb-8">
         <div className="px-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-dark">
+            <h2 className="text-lg font-bold text-white">
               {t('home.popularMeals')}
             </h2>
             <Link
               href={`/${locale}/meals`}
-              className="flex items-center gap-1 text-xs font-medium text-primary"
+              className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary-light transition-colors"
             >
               <span>{t('home.viewAll')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -370,34 +370,34 @@ export default function HomePage() {
                 transition={{ delay: i * 0.08 }}
               >
                 <Link href={`/${locale}/meals/${meal.id}`}>
-                  <div className="card p-4 cursor-pointer group">
+                  <div className="card p-4 cursor-pointer group hover:border-primary/50 transition-all">
                     {/* Top Row: Title + Status */}
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-dark text-[15px] group-hover:text-primary transition-colors truncate">
+                        <h3 className="font-bold text-white text-[15px] group-hover:text-primary transition-colors truncate">
                           {meal.title}
                         </h3>
                       </div>
-                      <span className={`tag text-[11px] ml-2 flex-shrink-0 ${statusColors[meal.status] || 'bg-gray-100 text-gray'}`}>
+                      <span className={`tag text-[11px] ml-2 flex-shrink-0 ${meal.status === 'open' ? 'bg-mint/20 text-mint' : meal.status === 'confirmed' ? 'bg-primary/20 text-primary' : 'bg-gray/20 text-gray-light'}`}>
                         {t(`meal.status.${meal.status}`)}
                       </span>
                     </div>
 
-                    {/* Restaurant */}
-                    <div className="flex items-center gap-1 text-sm text-gray mb-2.5">
-                      <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                    {/* Bar/Restaurant */}
+                    <div className="flex items-center gap-1 text-sm text-gray-light mb-2.5">
+                      <MapPin className="w-3.5 h-3.5 text-mint flex-shrink-0" />
                       <span className="truncate">{meal.restaurant}</span>
                     </div>
 
                     {/* Languages + Note row */}
                     <div className="flex items-center gap-2 mb-3 flex-wrap">
                       {meal.languages.map((lang: any) => (
-                        <span key={lang.key} className="tag text-[11px]">
+                        <span key={lang.key} className="tag text-[11px] bg-dark/50 text-gray-light">
                           {lang.flag} {t(`language.${lang.key}`)}
                         </span>
                       ))}
                       {meal.note && (
-                        <span className="px-2 py-0.5 rounded-md bg-light text-[11px] text-gray-light flex items-center gap-1">
+                        <span className="px-2 py-0.5 rounded-md bg-mint/10 text-[11px] text-mint flex items-center gap-1">
                           <MessageCircle className="w-3 h-3" />
                           {meal.note}
                         </span>
@@ -406,9 +406,9 @@ export default function HomePage() {
 
                     {/* Bottom Row */}
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 text-sm text-gray">
+                      <div className="flex items-center gap-3 text-sm text-gray-light">
                         <div className="flex items-center gap-1">
-                          <Calendar className="w-3.5 h-3.5" />
+                          <Calendar className="w-3.5 h-3.5 text-gray-light" />
                           <span className="text-xs">
                             {new Date(meal.datetime).toLocaleDateString(locale === 'th' ? 'th-TH' : locale, {
                               month: 'short',
@@ -420,20 +420,20 @@ export default function HomePage() {
                         </div>
                         <div className="flex items-center gap-1">
                           <Users className="w-3.5 h-3.5" />
-                          <span className={`text-xs ${meal.current >= meal.min ? 'text-mint font-semibold' : ''}`}>
+                          <span className={`text-xs ${meal.current >= meal.min ? 'text-mint font-semibold' : 'text-gray-light'}`}>
                             {meal.current}/{meal.max}
                           </span>
                         </div>
                         <span className="text-sm">{meal.paymentEmoji}</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/20 to-coral/20 flex items-center justify-center">
-                          <span className="text-[10px] font-bold text-primary">
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/30 to-coral/30 flex items-center justify-center">
+                          <span className="text-[10px] font-bold text-white">
                             {meal.creatorName.charAt(0)}
                           </span>
                         </div>
-                        <span className="text-xs text-gray">{meal.creatorName}</span>
-                        <span className={`text-[10px] ${creditColors[meal.creatorCredit] || 'text-gray'}`}>
+                        <span className="text-xs text-gray-light">{meal.creatorName}</span>
+                        <span className={`text-[10px] ${creditColors[meal.creatorCredit] || 'text-gray-light'}`}>
                           {meal.creatorCredit === 'excellent' ? '⭐⭐⭐⭐⭐' :
                            meal.creatorCredit === 'good' ? '⭐⭐⭐⭐' : '⭐⭐⭐'}
                         </span>
@@ -448,9 +448,9 @@ export default function HomePage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="card p-8 text-center"
               >
-                <div className="text-4xl mb-3">🍽️</div>
-                <p className="text-sm text-gray font-medium">
-                  {locale === 'zh-CN' ? '尚未有飯局，快來發起第一場吧！' : locale === 'th' ? 'ยังไม่มีมื้ออาหาร มาเริ่มต้นเลย!' : 'No meals yet. Be the first to host one!'}
+                <div className="text-4xl mb-3">🍸</div>
+                <p className="text-sm text-gray-light font-medium">
+                  {locale === 'zh-CN' ? '尚未有酒局，快來發起第一場吧！' : locale === 'th' ? 'ยังไม่มีงานเลี้ยง มาเริ่มต้นเลย!' : 'No drinks yet. Be the first to host one!'}
                 </p>
                 <Link
                   href={`/${locale}/meals/create`}

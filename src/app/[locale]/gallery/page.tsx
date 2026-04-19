@@ -103,15 +103,15 @@ export default function GalleryPage() {
   return (
     <div className="min-h-screen pb-20 bg-dark">
       {/* Header */}
-      <header className="sticky top-0 z-50 glass border-b border-white/20">
+      <header className="sticky top-0 z-50 glass border-b border-primary/30">
         <div className="flex items-center justify-between px-4 py-3">
           <Link
             href={`/${locale}`}
-            className="p-2 -ml-2 rounded-xl hover:bg-white/50 transition-colors"
+            className="p-2 -ml-2 rounded-xl hover:bg-dark/50 transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-white" />
           </Link>
-          <h1 className="text-base font-semibold text-dark">
+          <h1 className="text-base font-semibold text-white">
             {t('gallery.title')}
           </h1>
           <div className="w-9" />
@@ -121,36 +121,36 @@ export default function GalleryPage() {
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-20">
           <Loader2 className="w-8 h-8 text-primary animate-spin mb-3" />
-          <p className="text-sm text-gray">{t('common.loading')}</p>
+          <p className="text-sm text-gray-light">{t('common.loading')}</p>
         </div>
       ) : photos.length === 0 ? (
         /* Empty state */
         <div className="flex flex-col items-center justify-center py-20 px-8">
-          <div className="w-16 h-16 bg-light rounded-2xl flex items-center justify-center mb-4">
+          <div className="w-16 h-16 glass rounded-2xl flex items-center justify-center mb-4">
             <Camera className="w-8 h-8 text-gray-light" />
           </div>
-          <p className="text-sm text-gray font-medium mb-1">
+          <p className="text-sm text-white font-medium mb-1">
             {locale === 'zh-CN' ? '還沒有照片' : locale === 'th' ? 'ยังไม่มีรูปภาพ' : 'No photos yet'}
           </p>
           <p className="text-xs text-gray-light text-center mt-1">
             {locale === 'zh-CN'
-              ? '參加飯局後，拍下美食時光，分享給大家吧！'
+              ? '參加酒局後，拍下歡樂時光，分享給大家吧！'
               : locale === 'th'
-                ? 'เข้าร่วมมื้ออาหาร ถ่ายรูปช่วงเวลาดีๆ และแชร์กับทุกคน!'
-                : 'Join a meal, capture the moment, and share it with everyone!'}
+                ? 'เข้าร่วมงานดื่ม ถ่ายรูปช่วงเวลาดีๆ และแชร์กับทุกคน!'
+                : 'Join a drink, capture the moment, and share it with everyone!'}
           </p>
           <Link
             href={`/${locale}/meals`}
             className="btn-primary inline-flex items-center gap-2 py-2.5 px-5 text-sm mt-6"
           >
-            {locale === 'zh-CN' ? '探索飯局' : locale === 'th' ? 'ค้นหามื้ออาหาร' : 'Explore Meals'}
+            {locale === 'zh-CN' ? '探索酒局' : locale === 'th' ? 'ค้นหางานดื่ม' : 'Explore Drinks'}
           </Link>
         </div>
       ) : (
         <>
           {/* Stats bar */}
           <div className="px-4 pb-3">
-            <p className="text-xs text-gray">
+            <p className="text-xs text-gray-light">
               {photos.length} {t('gallery.photosCount')}
             </p>
           </div>
@@ -188,17 +188,17 @@ export default function GalleryPage() {
                     </div>
                     {/* Info */}
                     <div className="p-2.5">
-                      <p className="text-xs font-semibold text-dark truncate">{photo.mealTitle}</p>
+                      <p className="text-xs font-semibold text-white truncate">{photo.mealTitle}</p>
                       <div className="flex items-center justify-between mt-1.5">
                         <div className="flex items-center gap-1.5">
-                          <div className="w-4 h-4 rounded-full bg-gradient-to-br from-primary/20 to-coral/20 flex items-center justify-center overflow-hidden">
+                          <div className="w-4 h-4 rounded-full bg-gradient-to-br from-primary/30 to-coral/30 flex items-center justify-center overflow-hidden">
                             {photo.authorAvatar ? (
                               <img src={photo.authorAvatar} alt="" className="w-full h-full object-cover" />
                             ) : (
-                              <span className="text-[8px] font-bold text-primary">{photo.author.charAt(0)}</span>
+                              <span className="text-[8px] font-bold text-white">{photo.author.charAt(0)}</span>
                             )}
                           </div>
-                          <span className="text-[10px] text-gray truncate">{photo.author}</span>
+                          <span className="text-[10px] text-gray-light truncate">{photo.author}</span>
                         </div>
                         <span className="text-[10px] text-gray-light">{relativeTime(photo.timestamp)}</span>
                       </div>

@@ -17,13 +17,13 @@ import {
 import { useMealStore } from '@/store/meal-store';
 
 const statusColors: Record<string, string> = {
-  open: 'bg-blue-100 text-blue-700',
-  confirmed: 'bg-mint/10 text-mint',
-  closed: 'bg-purple-100 text-purple-700',
-  cancelled: 'bg-red-100 text-red-600',
-  pending: 'bg-gray-100 text-gray',
-  ongoing: 'bg-primary/10 text-primary',
-  completed: 'bg-green-100 text-green-700',
+  open: 'bg-mint/20 text-mint',
+  confirmed: 'bg-primary/20 text-primary',
+  closed: 'bg-gray/20 text-gray-light',
+  cancelled: 'bg-red-500/20 text-red-400',
+  pending: 'bg-gold/20 text-gold',
+  ongoing: 'bg-coral/20 text-coral',
+  completed: 'bg-gray/20 text-gray-light',
 };
 
 const creditColors: Record<string, string> = {
@@ -40,14 +40,13 @@ const creditStars: Record<string, string> = {
   newbie: '⭐⭐',
 };
 
-const CUISINE_OPTIONS = ['japanese', 'thai', 'chinese', 'korean', 'italian', 'hotpot', 'bbq'] as const;
+const CUISINE_OPTIONS = ['cocktail', 'beer', 'whisky', 'wine', 'sake', 'draft', 'shot', 'mocktail', 'champagne', 'other'] as const;
 const LANGUAGE_OPTIONS = ['en', 'zh', 'th', 'ja', 'ko'] as const;
 const PAYMENT_OPTIONS = ['hostTreats', 'splitBill'] as const;
 
 const CUISINE_EMOJI: Record<string, string> = {
-  japanese: '🍣', thai: '🍜', chinese: '🥡', korean: '🍖', italian: '🍕',
-  western: '🥩', hotpot: '🫕', bbq: '🔥', buffet: '🍽️', seafood: '🦐',
-  dimsum: '🥟', vegetarian: '🥗', other: '🍴',
+  cocktail: '🍸', beer: '🍺', whisky: '🥃', wine: '🍷', sake: '🍶',
+  draft: '🍻', shot: '💉', mocktail: '🍹', champagne: '🥂', other: '🍾',
 };
 
 const PAYMENT_EMOJI: Record<string, string> = {
@@ -125,7 +124,7 @@ export default function MealsPage() {
             <motion.h1
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              className="text-xl font-bold text-dark"
+              className="text-xl font-bold text-white"
             >
               {t('nav.meals')}
             </motion.h1>
@@ -150,7 +149,7 @@ export default function MealsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t('common.search')}
-              className="input pl-10 pr-10 py-2.5 text-sm"
+              className="input bg-dark/50 border-gray/30 text-white placeholder:text-gray-light pl-10 pr-10 py-2.5 text-sm"
             />
             {searchQuery && (
               <button
@@ -173,8 +172,8 @@ export default function MealsPage() {
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
                 showFilters || activeFilterCount > 0
-                  ? 'bg-primary/10 text-primary'
-                  : 'bg-light text-gray hover:bg-gray-lighter/80'
+                  ? 'bg-primary/20 text-primary'
+                  : 'bg-dark/50 text-gray-light hover:bg-dark/70'
               }`}
             >
               <SlidersHorizontal className="w-3.5 h-3.5" />
@@ -193,7 +192,7 @@ export default function MealsPage() {
                   <button
                     key={c}
                     onClick={() => toggleFilter('cuisine', c)}
-                    className="tag tag-active text-[11px] flex-shrink-0 gap-1"
+                    className="tag bg-primary/20 text-primary text-[11px] flex-shrink-0 gap-1"
                   >
                     {t(`cuisine.${c}`)}
                     <X className="w-3 h-3" />
@@ -203,7 +202,7 @@ export default function MealsPage() {
                   <button
                     key={l}
                     onClick={() => toggleFilter('language', l)}
-                    className="tag tag-active text-[11px] flex-shrink-0 gap-1"
+                    className="tag bg-mint/20 text-mint text-[11px] flex-shrink-0 gap-1"
                   >
                     {t(`language.${l}`)}
                     <X className="w-3 h-3" />
@@ -213,7 +212,7 @@ export default function MealsPage() {
                   <button
                     key={p}
                     onClick={() => toggleFilter('payment', p)}
-                    className="tag tag-active text-[11px] flex-shrink-0 gap-1"
+                    className="tag bg-gold/20 text-gold text-[11px] flex-shrink-0 gap-1"
                   >
                     {t(`payment.${p}`)}
                     <X className="w-3 h-3" />
@@ -241,10 +240,10 @@ export default function MealsPage() {
               className="overflow-hidden"
             >
               <div className="px-4 pb-4 space-y-3">
-                {/* Cuisine */}
+                {/* Drink Type */}
                 <div>
-                  <p className="text-xs font-semibold text-gray mb-2">
-                    {t('cuisine.japanese') ? '' : ''}Cuisine / 菜系
+                  <p className="text-xs font-semibold text-gray-light mb-2">
+                    🍸 Drinks
                   </p>
                   <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
                     {CUISINE_OPTIONS.map((cuisine) => (
@@ -252,10 +251,10 @@ export default function MealsPage() {
                         key={cuisine}
                         onClick={() => toggleFilter('cuisine', cuisine)}
                         className={`tag flex-shrink-0 text-xs transition-all duration-200 ${
-                          selectedCuisines.includes(cuisine) ? 'tag-active' : ''
+                          selectedCuisines.includes(cuisine) ? 'bg-primary/20 text-primary' : 'bg-dark/50 text-gray-light'
                         }`}
                       >
-                        {t(`cuisine.${cuisine}`)}
+                        {CUISINE_EMOJI[cuisine]} {t(`cuisine.${cuisine}`)}
                       </button>
                     ))}
                   </div>
@@ -263,7 +262,7 @@ export default function MealsPage() {
 
                 {/* Languages */}
                 <div>
-                  <p className="text-xs font-semibold text-gray mb-2">
+                  <p className="text-xs font-semibold text-gray-light mb-2">
                     {t('meal.languages')}
                   </p>
                   <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
@@ -272,7 +271,7 @@ export default function MealsPage() {
                         key={lang}
                         onClick={() => toggleFilter('language', lang)}
                         className={`tag flex-shrink-0 text-xs transition-all duration-200 ${
-                          selectedLanguages.includes(lang) ? 'tag-active' : ''
+                          selectedLanguages.includes(lang) ? 'bg-mint/20 text-mint' : 'bg-dark/50 text-gray-light'
                         }`}
                       >
                         {t(`language.${lang}`)}
@@ -283,8 +282,8 @@ export default function MealsPage() {
 
                 {/* Payment */}
                 <div>
-                  <p className="text-xs font-semibold text-gray mb-2">
-                    💳 {t('payment.splitBill') ? '' : ''}Payment
+                  <p className="text-xs font-semibold text-gray-light mb-2">
+                    💳 Payment
                   </p>
                   <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
                     {PAYMENT_OPTIONS.map((pay) => (
@@ -292,7 +291,7 @@ export default function MealsPage() {
                         key={pay}
                         onClick={() => toggleFilter('payment', pay)}
                         className={`tag flex-shrink-0 text-xs transition-all duration-200 ${
-                          selectedPayments.includes(pay) ? 'tag-active' : ''
+                          selectedPayments.includes(pay) ? 'bg-gold/20 text-gold' : 'bg-dark/50 text-gray-light'
                         }`}
                       >
                         {t(`payment.${pay}`)}
@@ -311,7 +310,7 @@ export default function MealsPage() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="w-8 h-8 text-primary animate-spin mb-3" />
-            <p className="text-sm text-gray">{t('common.loading') || 'Loading...'}</p>
+            <p className="text-sm text-gray-light">{t('common.loading') || 'Loading...'}</p>
           </div>
         ) : filteredMeals.length === 0 ? (
           <motion.div
@@ -319,13 +318,13 @@ export default function MealsPage() {
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center justify-center py-20 text-center"
           >
-            <div className="w-16 h-16 bg-light rounded-2xl flex items-center justify-center mb-4">
+            <div className="w-16 h-16 glass rounded-2xl flex items-center justify-center mb-4">
               <Search className="w-7 h-7 text-gray-light" />
             </div>
-            <p className="text-sm text-gray mb-1">{t('common.noResults')}</p>
+            <p className="text-sm text-gray-light mb-1">{t('common.noResults')}</p>
             <button
               onClick={clearAllFilters}
-              className="text-xs text-primary font-medium mt-2 hover:underline"
+              className="text-xs text-primary font-medium mt-2 hover:text-primary-light transition-colors"
             >
               {t('common.cancel')} Filters
             </button>
@@ -341,38 +340,38 @@ export default function MealsPage() {
                 layout
               >
                 <Link href={`/${locale}/meals/${meal.id}`}>
-                  <div className="card p-4 cursor-pointer group">
+                  <div className="card p-4 cursor-pointer group hover:border-primary/50 transition-all">
                     {/* Top Row: Title + Status */}
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-dark text-[15px] group-hover:text-primary transition-colors truncate">
+                        <h3 className="font-bold text-white text-[15px] group-hover:text-primary transition-colors truncate">
                           {meal.title}
                         </h3>
                       </div>
                       <span
                         className={`tag text-[11px] ml-2 flex-shrink-0 ${
-                          statusColors[meal.status] || 'bg-gray-100 text-gray'
+                          statusColors[meal.status] || 'bg-gray/20 text-gray-light'
                         }`}
                       >
                         {t(`meal.status.${meal.status}`)}
                       </span>
                     </div>
 
-                    {/* Restaurant */}
-                    <div className="flex items-center gap-1 text-sm text-gray mb-2.5">
-                      <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                    {/* Bar/Restaurant */}
+                    <div className="flex items-center gap-1 text-sm text-gray-light mb-2.5">
+                      <MapPin className="w-3.5 h-3.5 text-mint flex-shrink-0" />
                       <span className="truncate">{(meal as any).restaurant_name}</span>
                     </div>
 
                     {/* Languages + Note row */}
                     <div className="flex items-center gap-2 mb-3 flex-wrap">
                       {((meal as any)._languages || []).map((lang: { key: string; flag: string }) => (
-                        <span key={lang.key} className="tag text-[11px]">
+                        <span key={lang.key} className="tag text-[11px] bg-dark/50 text-gray-light">
                           {lang.flag} {t(`language.${lang.key}`)}
                         </span>
                       ))}
                       {meal.note && (
-                        <span className="px-2 py-0.5 rounded-md bg-light text-[11px] text-gray-light flex items-center gap-1">
+                        <span className="px-2 py-0.5 rounded-md bg-mint/10 text-[11px] text-mint flex items-center gap-1">
                           <MessageCircle className="w-3 h-3" />
                           {meal.note}
                         </span>
@@ -381,7 +380,7 @@ export default function MealsPage() {
 
                     {/* Bottom Row */}
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 text-sm text-gray">
+                      <div className="flex items-center gap-3 text-sm text-gray-light">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-3.5 h-3.5" />
                           <span className="text-xs">
@@ -402,7 +401,7 @@ export default function MealsPage() {
                             className={`text-xs ${
                               (meal as any)._currentParticipants >= meal.min_participants
                                 ? 'text-mint font-semibold'
-                                : ''
+                                : 'text-gray-light'
                             }`}
                           >
                             {(meal as any)._currentParticipants}/{meal.max_participants}
@@ -412,21 +411,21 @@ export default function MealsPage() {
                       </div>
                       {meal.creator && (
                         <div className="flex items-center gap-1.5">
-                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/20 to-coral/20 flex items-center justify-center overflow-hidden">
+                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/30 to-coral/30 flex items-center justify-center overflow-hidden">
                             {meal.creator.avatar_url ? (
                               <img src={meal.creator.avatar_url} alt="" className="w-full h-full object-cover" />
                             ) : (
-                              <span className="text-[10px] font-bold text-primary">
+                              <span className="text-[10px] font-bold text-white">
                                 {(meal.creator.nickname || '?').charAt(0)}
                               </span>
                             )}
                           </div>
-                          <span className="text-xs text-gray">
+                          <span className="text-xs text-gray-light">
                             {meal.creator.nickname || 'Anonymous'}
                           </span>
                           <span
                             className={`text-[10px] ${
-                              creditColors[getCreatorCredit(meal.creator.credit_score || 100)] || 'text-gray'
+                              creditColors[getCreatorCredit(meal.creator.credit_score || 100)] || 'text-gray-light'
                             }`}
                           >
                             {creditStars[getCreatorCredit(meal.creator.credit_score || 100)] || '⭐⭐⭐'}
