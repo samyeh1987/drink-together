@@ -1,24 +1,103 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Search, Eye, X, AlertTriangle, CheckCircle2, XCircle,
   Clock, MessageSquare, User, ChevronRight, Filter,
-  Calendar, ShieldCheck, Send,
+  Calendar, ShieldCheck, Send, Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { DEMO_REPORTS, ADMIN_STATUS_COLORS, REPORT_REASON_LABELS, type AdminReport } from '../data';
+import { ADMIN_STATUS_COLORS, REPORT_REASON_LABELS, type AdminReport } from '../data';
 import { useAdminT } from '../AdminI18nProvider';
 
 export default function AdminReportsPage() {
   const t = useAdminT();
+  const [reports, setReports] = useState<AdminReport[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedReport, setSelectedReport] = useState<AdminReport | null>(null);
   const [resolutionNote, setResolutionNote] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
+
+  useEffect(() => {
+    async function loadReports() {
+      try {
+        const { createClient } = await import('@/lib/supabase/client');
+        const supabase = createClient();
+
+        const { data, error } = await supabase
+          .from('reports')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!error && data) {
+          // Enrich with reporter and reported user names
+          const userIds = new Set<string>();
+          data.forEach((r: any) => {
+            userIds.add(r.reporter_id);
+            if (r.reported_user_id) userIds.add(r.reported_user_id);
+          });
+
+          let profileMap: Record<string, { nickname: string | null; email: string | null }> = {};
+          if (userIds.size > 0) {
+            const { data: profiles } = await supabase
+              .from('profiles')
+              .select('id, nickname, email')
+              .in('id', Array.from(userIds));
+            if (profiles) {
+              profileMap = profiles.reduce((acc, p: any) => {
+                acc[p.id] = { nickname: p.nickname, email: p.email };
+                return acc;
+              }, {} as Record<string, { nickname: string | null; email: string | null }>);
+            }
+          }
+
+          // Enrich with meal titles
+          const mealIds = data.map((r: any) => r.meal_id).filter(Boolean);
+          let mealMap: Record<string, string> = {};
+          if (mealIds.length > 0) {
+            const { data: meals } = await supabase
+              .from('meals')
+              .select('id, title')
+              .in('id', mealIds);
+            if (meals) {
+              mealMap = meals.reduce((acc, m: any) => {
+                acc[m.id] = m.title;
+                return acc;
+              }, {} as Record<string, string>);
+            }
+          }
+
+          const mapped: AdminReport[] = data.map((r: any) => ({
+            id: r.id,
+            reporter_name: profileMap[r.reporter_id]?.nickname || 'Unknown',
+            reporter_email: profileMap[r.reporter_id]?.email || '',
+            reported_user_name: r.reported_user_id ? (profileMap[r.reported_user_id]?.nickname || 'Unknown') : null,
+            reported_user_email: r.reported_user_id ? (profileMap[r.reported_user_id]?.email || '') : null,
+            meal_title: r.meal_id ? (mealMap[r.meal_id] || 'Unknown Meal') : '',
+            meal_id: r.meal_id || '',
+            reason: r.reason,
+            description: r.description || '',
+            status: r.status,
+            created_at: r.created_at,
+            resolved_at: r.resolved_at,
+            resolution_note: r.resolution_note,
+          }));
+
+          setReports(mapped);
+        }
+      } catch (err) {
+        console.error('Failed to load reports:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadReports();
+  }, []);
 
   const filtered = useMemo(() => {
-    let list = [...DEMO_REPORTS];
+    let list = [...reports];
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(r =>
@@ -29,19 +108,68 @@ export default function AdminReportsPage() {
     }
     if (statusFilter !== 'all') list = list.filter(r => r.status === statusFilter);
     return list.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-  }, [search, statusFilter]);
+  }, [reports, search, statusFilter]);
 
   const stats = useMemo(() => ({
-    total: DEMO_REPORTS.length,
-    pending: DEMO_REPORTS.filter(r => r.status === 'pending').length,
-    reviewing: DEMO_REPORTS.filter(r => r.status === 'reviewing').length,
-    resolved: DEMO_REPORTS.filter(r => r.status === 'resolved').length,
-  }), []);
+    total: reports.length,
+    pending: reports.filter(r => r.status === 'pending').length,
+    reviewing: reports.filter(r => r.status === 'reviewing').length,
+    resolved: reports.filter(r => r.status === 'resolved').length,
+  }), [reports]);
 
-  const handleResolve = (report: AdminReport, action: 'resolved' | 'dismissed') => {
-    alert(`Report ${report.id} ${action}: ${resolutionNote || '(no note)'}`);
-    setSelectedReport(null);
-    setResolutionNote('');
+  const handleResolve = async (report: AdminReport, action: 'resolved' | 'dismissed') => {
+    setActionLoading(true);
+    try {
+      const { createClient } = await import('@/lib/supabase/client');
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('reports')
+        .update({
+          status: action,
+          resolution_note: resolutionNote || null,
+          resolved_at: new Date().toISOString(),
+        })
+        .eq('id', report.id);
+      if (error) throw error;
+      setReports(prev => prev.map(r => r.id === report.id ? {
+        ...r,
+        status: action,
+        resolution_note: resolutionNote || null,
+        resolved_at: new Date().toISOString(),
+      } : r));
+      setSelectedReport(null);
+      setResolutionNote('');
+    } catch (err) {
+      console.error('Failed to resolve report:', err);
+      alert('Failed to update report');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleNotifyReporter = async (report: AdminReport) => {
+    try {
+      const { createClient } = await import('@/lib/supabase/client');
+      const supabase = createClient();
+      // Find reporter user ID from the report
+      const { data: reportData } = await supabase
+        .from('reports')
+        .select('reporter_id')
+        .eq('id', report.id)
+        .single();
+      if (reportData?.reporter_id) {
+        const { createNotification } = await import('@/lib/api');
+        await createNotification({
+          userId: reportData.reporter_id,
+          type: 'confirmed', // Reuse confirmed type as generic notification
+          mealTitle: `Report #${report.id.slice(0, 8)}`,
+        });
+        alert('Notification sent to reporter');
+      }
+    } catch (err) {
+      console.error('Failed to send notification:', err);
+      alert('Failed to send notification');
+    }
   };
 
   return (
@@ -69,7 +197,7 @@ export default function AdminReportsPage() {
                 </div>
                 <span className="text-xs text-gray-500 font-medium">{s.label}</span>
               </div>
-              <p className="text-xl font-bold text-gray-800">{s.value}</p>
+              <p className="text-xl font-bold text-gray-800">{loading ? '...' : s.value}</p>
             </div>
           );
         })}
@@ -104,66 +232,80 @@ export default function AdminReportsPage() {
         </div>
       </div>
 
+      {/* Loading */}
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 text-[#FF6B35] animate-spin" />
+          <span className="ml-2 text-sm text-gray-500">Loading reports...</span>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!loading && reports.length === 0 && (
+        <div className="text-center py-16">
+          <CheckCircle2 className="w-12 h-12 text-[#2EC4B6] mx-auto mb-3" />
+          <p className="text-gray-500 text-sm">No reports yet</p>
+          <p className="text-gray-400 text-xs mt-1">Reports will appear here when users submit them</p>
+        </div>
+      )}
+
       {/* Report List */}
-      <div className="space-y-3">
-        {filtered.map(report => (
-          <div
-            key={report.id}
-            onClick={() => { setSelectedReport(report); setResolutionNote(''); }}
-            className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 hover:shadow-md hover:border-gray-200 transition-all cursor-pointer"
-          >
-            <div className="flex items-start gap-4">
-              {/* Icon */}
-              <div className={cn(
-                'w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0',
-                report.status === 'pending' ? 'bg-yellow-50' :
-                report.status === 'reviewing' ? 'bg-blue-50' :
-                report.status === 'resolved' ? 'bg-[#2EC4B6]/10' : 'bg-gray-100'
-              )}>
-                {report.status === 'pending' ? (
-                  <AlertTriangle className="w-5 h-5 text-yellow-500" />
-                ) : report.status === 'reviewing' ? (
-                  <Eye className="w-5 h-5 text-blue-500" />
-                ) : report.status === 'resolved' ? (
-                  <CheckCircle2 className="w-5 h-5 text-[#2EC4B6]" />
-                ) : (
-                  <XCircle className="w-5 h-5 text-gray-400" />
-                )}
-              </div>
-
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <span className={cn('text-[11px] font-medium px-2 py-0.5 rounded-full capitalize', ADMIN_STATUS_COLORS[report.status])}>
-                    {report.status}
-                  </span>
-                  <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
-                    {REPORT_REASON_LABELS[report.reason] || report.reason}
-                  </span>
-                  <span className="text-[11px] text-gray-400">
-                    {new Date(report.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                  </span>
+      {!loading && reports.length > 0 && (
+        <div className="space-y-3">
+          {filtered.map(report => (
+            <div
+              key={report.id}
+              onClick={() => { setSelectedReport(report); setResolutionNote(''); }}
+              className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 hover:shadow-md hover:border-gray-200 transition-all cursor-pointer"
+            >
+              <div className="flex items-start gap-4">
+                <div className={cn(
+                  'w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0',
+                  report.status === 'pending' ? 'bg-yellow-50' :
+                  report.status === 'reviewing' ? 'bg-blue-50' :
+                  report.status === 'resolved' ? 'bg-[#2EC4B6]/10' : 'bg-gray-100'
+                )}>
+                  {report.status === 'pending' ? (
+                    <AlertTriangle className="w-5 h-5 text-yellow-500" />
+                  ) : report.status === 'reviewing' ? (
+                    <Eye className="w-5 h-5 text-blue-500" />
+                  ) : report.status === 'resolved' ? (
+                    <CheckCircle2 className="w-5 h-5 text-[#2EC4B6]" />
+                  ) : (
+                    <XCircle className="w-5 h-5 text-gray-400" />
+                  )}
                 </div>
-                <p className="text-sm text-gray-700 line-clamp-2 mb-1">{report.description}</p>
-                <div className="flex items-center gap-3 text-xs text-gray-500">
-                  <span className="flex items-center gap-1">
-                    <User className="w-3 h-3" /> {report.reporter_name}
-                  </span>
-                  <span>→</span>
-                  <span className="flex items-center gap-1">
-                    <AlertTriangle className="w-3 h-3" /> {report.reported_user_name || 'N/A'}
-                  </span>
-                  <span className="text-gray-400">·</span>
-                  <span className="truncate">{report.meal_title}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <span className={cn('text-[11px] font-medium px-2 py-0.5 rounded-full capitalize', ADMIN_STATUS_COLORS[report.status])}>
+                      {report.status}
+                    </span>
+                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                      {REPORT_REASON_LABELS[report.reason] || report.reason}
+                    </span>
+                    <span className="text-[11px] text-gray-400">
+                      {new Date(report.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-700 line-clamp-2 mb-1">{report.description}</p>
+                  <div className="flex items-center gap-3 text-xs text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <User className="w-3 h-3" /> {report.reporter_name}
+                    </span>
+                    <span>→</span>
+                    <span className="flex items-center gap-1">
+                      <AlertTriangle className="w-3 h-3" /> {report.reported_user_name || 'N/A'}
+                    </span>
+                    <span className="text-gray-400">·</span>
+                    <span className="truncate">{report.meal_title}</span>
+                  </div>
                 </div>
+                <ChevronRight className="w-5 h-5 text-gray-300 flex-shrink-0 mt-1" />
               </div>
-
-              {/* Arrow */}
-              <ChevronRight className="w-5 h-5 text-gray-300 flex-shrink-0 mt-1" />
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Report Detail Modal */}
       {selectedReport && (
@@ -215,14 +357,16 @@ export default function AdminReportsPage() {
               </div>
 
               {/* Related Meal */}
-              <div className="border border-gray-100 rounded-xl p-3">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <MessageSquare className="w-3.5 h-3.5 text-gray-400" />
-                  <span className="text-[11px] text-gray-500">{t('reports.relatedMeal')}</span>
+              {selectedReport.meal_id && (
+                <div className="border border-gray-100 rounded-xl p-3">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <MessageSquare className="w-3.5 h-3.5 text-gray-400" />
+                    <span className="text-[11px] text-gray-500">{t('reports.relatedMeal')}</span>
+                  </div>
+                  <p className="text-sm font-medium text-gray-800">{selectedReport.meal_title}</p>
+                  <p className="text-[11px] text-gray-400">ID: {selectedReport.meal_id}</p>
                 </div>
-                <p className="text-sm font-medium text-gray-800">{selectedReport.meal_title}</p>
-                <p className="text-[11px] text-gray-400">ID: {selectedReport.meal_id}</p>
-              </div>
+              )}
 
               {/* Timestamp */}
               <div className="flex items-center gap-2 text-xs text-gray-400">
@@ -230,7 +374,7 @@ export default function AdminReportsPage() {
                 {t('reports.reportedAt')} {new Date(selectedReport.created_at).toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
               </div>
 
-              {/* Existing Resolution (if resolved/dismissed) */}
+              {/* Existing Resolution */}
               {selectedReport.resolution_note && (
                 <div className="bg-[#2EC4B6]/5 border border-[#2EC4B6]/20 rounded-xl p-4">
                   <div className="flex items-center gap-1.5 mb-1">
@@ -246,7 +390,7 @@ export default function AdminReportsPage() {
                 </div>
               )}
 
-              {/* Action area (only for pending/reviewing) */}
+              {/* Action area */}
               {(selectedReport.status === 'pending' || selectedReport.status === 'reviewing') && (
                 <div className="border-t border-gray-100 pt-4 space-y-3">
                   <div>
@@ -262,19 +406,21 @@ export default function AdminReportsPage() {
                   <div className="flex gap-3">
                     <button
                       onClick={() => handleResolve(selectedReport, 'dismissed')}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors"
+                      disabled={actionLoading}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 disabled:opacity-50 transition-colors"
                     >
                       <XCircle className="w-4 h-4" /> {t('reports.dismiss')}
                     </button>
                     <button
                       onClick={() => handleResolve(selectedReport, 'resolved')}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#FF6B35] text-white rounded-xl text-sm font-medium hover:bg-[#FF6B35]/90 transition-colors"
+                      disabled={actionLoading}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#FF6B35] text-white rounded-xl text-sm font-medium hover:bg-[#FF6B35]/90 disabled:opacity-50 transition-colors"
                     >
                       <CheckCircle2 className="w-4 h-4" /> {t('reports.resolve')}
                     </button>
                   </div>
                   <button
-                    onClick={() => alert(`Notification sent to ${selectedReport.reporter_name}`)}
+                    onClick={() => handleNotifyReporter(selectedReport)}
                     className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors"
                   >
                     <Send className="w-4 h-4" /> {t('reports.notifyReporter')}

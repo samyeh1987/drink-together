@@ -49,15 +49,17 @@ export default function AdminDashboard() {
         const { createClient } = await import('@/lib/supabase/client');
         const supabase = createClient();
 
-        const [usersRes, mealsRes, photosRes] = await Promise.all([
+        const [usersRes, mealsRes, photosRes, restaurantsRes] = await Promise.all([
           supabase.from('profiles').select('*', { count: 'exact', head: true }),
           supabase.from('meals').select('*'),
           supabase.from('meal_photos').select('*', { count: 'exact', head: true }),
+          supabase.from('restaurants').select('*', { count: 'exact', head: true }),
         ]);
 
         const totalUsers = usersRes.count || 0;
         const meals = mealsRes.data || [];
         const totalPhotos = photosRes.count || 0;
+        const partnerRestaurants = restaurantsRes.count || 0;
 
         const now = new Date();
         const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -68,19 +70,22 @@ export default function AdminDashboard() {
         const cancelledMeals = meals.filter((m) => m.status === 'cancelled').length;
         const completedMeals = meals.filter((m) => m.status === 'completed').length;
 
-        // New users today - approximate from created_at
-        const newUsersToday = totalUsers > 0 ? Math.min(totalUsers, 0) : 0;
+        // New users today - query profiles created today
+        const { count: newUsersToday } = await supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true })
+          .gte('created_at', todayStart);
 
         setStats({
           totalUsers,
           activeMeals,
           mealsThisWeek,
-          newUsersToday,
+          newUsersToday: newUsersToday || 0,
           cancelledMeals,
           completedMeals,
           totalMeals: meals.length,
           totalPhotos,
-          partnerRestaurants: 0,
+          partnerRestaurants,
         });
       } catch (err) {
         console.error('Failed to load dashboard stats:', err);

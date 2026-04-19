@@ -32,6 +32,7 @@ export default function AdminUsersPage() {
   const [selectedUser, setSelectedUser] = useState<ProfileWithStats | null>(null);
   const [creditModal, setCreditModal] = useState<{ user: ProfileWithStats; amount: number; reason: string } | null>(null);
   const [actionMenu, setActionMenu] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     async function loadUsers() {
@@ -134,6 +135,78 @@ export default function AdminUsersPage() {
     suspended: users.filter(u => u.status === 'suspended').length,
     avgCredit: users.length > 0 ? Math.round(users.reduce((s, u) => s + u.credit_score, 0) / users.length) : 0,
   }), [users]);
+
+  const handleBanUser = async (user: ProfileWithStats) => {
+    if (!confirm(`Ban user "${user.nickname || user.email}"?`)) return;
+    setActionLoading(true);
+    try {
+      const { createClient } = await import('@/lib/supabase/client');
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('profiles')
+        .update({ status: 'banned' })
+        .eq('id', user.id);
+      if (error) throw error;
+      setUsers(prev => prev.map(u => u.id === user.id ? { ...u, status: 'banned' as const } : u));
+      setSelectedUser(null);
+      setActionMenu(null);
+    } catch (err) {
+      console.error('Failed to ban user:', err);
+      alert('Failed to ban user');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleReactivateUser = async (user: ProfileWithStats) => {
+    setActionLoading(true);
+    try {
+      const { createClient } = await import('@/lib/supabase/client');
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('profiles')
+        .update({ status: 'active' })
+        .eq('id', user.id);
+      if (error) throw error;
+      setUsers(prev => prev.map(u => u.id === user.id ? { ...u, status: 'active' as const } : u));
+      setSelectedUser(null);
+      setActionMenu(null);
+    } catch (err) {
+      console.error('Failed to reactivate user:', err);
+      alert('Failed to reactivate user');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleAdjustCredit = async () => {
+    if (!creditModal || creditModal.amount === 0) return;
+    setActionLoading(true);
+    try {
+      const { createClient } = await import('@/lib/supabase/client');
+      const supabase = createClient();
+      const newScore = creditModal.user.credit_score + creditModal.amount;
+      const { error } = await supabase
+        .from('profiles')
+        .update({ credit_score: newScore })
+        .eq('id', creditModal.user.id);
+      if (error) throw error;
+      // Insert credit history
+      await supabase.from('credit_history').insert({
+        user_id: creditModal.user.id,
+        change_amount: creditModal.amount,
+        new_score: newScore,
+        reason: creditModal.reason || `Admin adjustment: ${creditModal.amount > 0 ? '+' : ''}${creditModal.amount}`,
+      });
+      setUsers(prev => prev.map(u => u.id === creditModal.user.id ? { ...u, credit_score: newScore } : u));
+      setCreditModal(null);
+    } catch (err) {
+      console.error('Failed to adjust credit:', err);
+      alert('Failed to adjust credit score');
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   const handleSort = (field: SortField) => {
     if (sortBy === field) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
@@ -311,15 +384,17 @@ export default function AdminUsersPage() {
                             </button>
                             {user.status === 'active' ? (
                               <button
-                                onClick={() => setActionMenu(null)}
-                                className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                                onClick={() => { handleBanUser(user); }}
+                                disabled={actionLoading}
+                                className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
                               >
                                 <Ban className="w-3.5 h-3.5" /> {t('users.banUser')}
                               </button>
                             ) : (
                               <button
-                                onClick={() => setActionMenu(null)}
-                                className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-[#2EC4B6] hover:bg-[#2EC4B6]/5"
+                                onClick={() => { handleReactivateUser(user); }}
+                                disabled={actionLoading}
+                                className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-[#2EC4B6] hover:bg-[#2EC4B6]/5 disabled:opacity-50"
                               >
                                 <ShieldCheck className="w-3.5 h-3.5" /> {t('users.reactivate')}
                               </button>
@@ -424,15 +499,17 @@ export default function AdminUsersPage() {
                 </button>
                 {selectedUser.status === 'active' ? (
                   <button
-                    onClick={() => setSelectedUser(null)}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 text-red-600 rounded-xl text-sm font-medium hover:bg-red-100 transition-colors"
+                    onClick={() => handleBanUser(selectedUser)}
+                    disabled={actionLoading}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 text-red-600 rounded-xl text-sm font-medium hover:bg-red-100 transition-colors disabled:opacity-50"
                   >
                     <Ban className="w-4 h-4" /> {t('users.ban')}
                   </button>
                 ) : (
                   <button
-                    onClick={() => setSelectedUser(null)}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#2EC4B6]/10 text-[#2EC4B6] rounded-xl text-sm font-medium hover:bg-[#2EC4B6]/20 transition-colors"
+                    onClick={() => handleReactivateUser(selectedUser)}
+                    disabled={actionLoading}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#2EC4B6]/10 text-[#2EC4B6] rounded-xl text-sm font-medium hover:bg-[#2EC4B6]/20 transition-colors disabled:opacity-50"
                   >
                     <ShieldCheck className="w-4 h-4" /> {t('users.reactivate')}
                   </button>
@@ -486,8 +563,9 @@ export default function AdminUsersPage() {
                 {t('common.cancel')}
               </button>
               <button
-                onClick={() => { alert(`Credit adjusted: ${creditModal.amount} points for ${creditModal.user.nickname}`); setCreditModal(null); }}
-                className="flex-1 px-4 py-2.5 bg-[#FF6B35] text-white rounded-xl text-sm font-medium hover:bg-[#FF6B35]/90 transition-colors"
+                onClick={() => { handleAdjustCredit(); }}
+                disabled={actionLoading || creditModal.amount === 0}
+                className="flex-1 px-4 py-2.5 bg-[#FF6B35] text-white rounded-xl text-sm font-medium hover:bg-[#FF6B35]/90 disabled:opacity-50 transition-colors"
               >
                 {t('common.confirm')}
               </button>

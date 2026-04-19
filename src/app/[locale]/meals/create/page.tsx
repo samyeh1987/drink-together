@@ -603,7 +603,6 @@ export default function CreateMealPage() {
 
     setIsSubmitting(true);
     try {
-      console.log('[CreateMeal] Submitting form:', JSON.stringify(form, null, 2));
       const result = await createMeal({
         title: form.title,
         restaurant_name: form.restaurant,
@@ -623,7 +622,6 @@ export default function CreateMealPage() {
         latitude: form.latitude,
         longitude: form.longitude,
       });
-      console.log('[CreateMeal] Result:', result);
 
       if (result.success) {
         router.push(`/${locale}/meals/${result.mealId}`);

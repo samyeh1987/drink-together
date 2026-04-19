@@ -143,6 +143,60 @@ export default function AdminRestaurantsPage() {
     }
   };
 
+  // Edit restaurant (open add modal with pre-filled data)
+  const [editingRestaurant, setEditingRestaurant] = useState<AdminRestaurant | null>(null);
+
+  const handleEditRestaurant = (restaurant: AdminRestaurant) => {
+    setEditingRestaurant(restaurant);
+    setAddForm({
+      name: restaurant.name,
+      name_local: restaurant.name_local,
+      address: restaurant.address,
+      cuisine_type: restaurant.cuisine_type,
+      phone: restaurant.phone,
+      email: restaurant.email,
+      contact_person: restaurant.contact_person,
+      description: restaurant.description,
+    });
+    setShowAddModal(true);
+  };
+
+  const handleSaveEditRestaurant = async () => {
+    if (!editingRestaurant || !addForm.name.trim()) return;
+    setSaving(true);
+    try {
+      const supabase = getSupabase();
+      const { error } = await supabase
+        .from('restaurants')
+        .update({
+          name: addForm.name,
+          name_local: addForm.name_local || null,
+          address: addForm.address || null,
+          cuisine_type: addForm.cuisine_type,
+          phone: addForm.phone || null,
+          email: addForm.email || null,
+          contact_person: addForm.contact_person || null,
+          description: addForm.description || null,
+        })
+        .eq('id', editingRestaurant.id);
+
+      if (error) throw error;
+      setShowAddModal(false);
+      setEditingRestaurant(null);
+      setAddForm({
+        name: '', name_local: '', address: '', cuisine_type: 'thai',
+        phone: '', email: '', contact_person: '', description: '',
+      });
+      setSelectedRestaurant(null);
+      fetchRestaurants();
+    } catch (err) {
+      console.error('Failed to update restaurant:', err);
+      alert('Failed to update restaurant: ' + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setSaving(false);
+    }
+  };
+
   // Delete restaurant
   const handleDeleteRestaurant = async (id: string) => {
     if (!confirm('Are you sure you want to delete this restaurant?')) return;
@@ -154,6 +208,24 @@ export default function AdminRestaurantsPage() {
       fetchRestaurants();
     } catch (err) {
       console.error('Failed to delete restaurant:', err);
+    }
+  };
+
+  // Delete deal
+  const handleDeleteDeal = async (dealId: string) => {
+    if (!confirm('Delete this deal?')) return;
+    try {
+      const supabase = getSupabase();
+      const { error } = await supabase.from('restaurant_deals').delete().eq('id', dealId);
+      if (error) throw error;
+      if (selectedRestaurant) {
+        const deals = (selectedRestaurant.deals || []).filter(d => d.id !== dealId);
+        setSelectedRestaurant({ ...selectedRestaurant, deals });
+      }
+      fetchRestaurants();
+    } catch (err) {
+      console.error('Failed to delete deal:', err);
+      alert('Failed to delete deal');
     }
   };
 
@@ -465,7 +537,7 @@ export default function AdminRestaurantsPage() {
                             <Edit3 className="w-3.5 h-3.5 text-gray-400" />
                           </button>
                           <button
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={(e) => { e.stopPropagation(); handleDeleteDeal(deal.id); }}
                             className="p-1 rounded hover:bg-red-50"
                           >
                             <Trash2 className="w-3.5 h-3.5 text-gray-400 hover:text-red-500" />
@@ -490,7 +562,7 @@ export default function AdminRestaurantsPage() {
 
               {/* Actions */}
               <div className="flex gap-3 pt-2">
-                <button className="flex-1 px-4 py-2.5 bg-[#FF6B35] text-white rounded-xl text-sm font-medium hover:bg-[#FF6B35]/90">
+                <button onClick={() => handleEditRestaurant(selectedRestaurant)} className="flex-1 px-4 py-2.5 bg-[#FF6B35] text-white rounded-xl text-sm font-medium hover:bg-[#FF6B35]/90">
                   {t('restaurants.editRestaurant')}
                 </button>
                 <button
@@ -516,14 +588,14 @@ export default function AdminRestaurantsPage() {
         />
       )}
 
-      {/* Add Restaurant Modal */}
+      {/* Add/Edit Restaurant Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setShowAddModal(false)} />
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => { setShowAddModal(false); setEditingRestaurant(null); }} />
           <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-800">{t('restaurants.addRestaurant')}</h3>
-              <button onClick={() => setShowAddModal(false)} className="p-1 rounded-lg hover:bg-gray-100">
+              <h3 className="text-lg font-bold text-gray-800">{editingRestaurant ? t('restaurants.editRestaurant') : t('restaurants.addRestaurant')}</h3>
+              <button onClick={() => { setShowAddModal(false); setEditingRestaurant(null); }} className="p-1 rounded-lg hover:bg-gray-100">
                 <X className="w-4 h-4 text-gray-500" />
               </button>
             </div>
@@ -613,16 +685,16 @@ export default function AdminRestaurantsPage() {
               </div>
             </div>
             <div className="flex gap-3 mt-5">
-              <button onClick={() => setShowAddModal(false)} className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200">
+              <button onClick={() => { setShowAddModal(false); setEditingRestaurant(null); }} className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200">
                 Cancel
               </button>
               <button
-                onClick={handleAddRestaurant}
+                onClick={editingRestaurant ? handleSaveEditRestaurant : handleAddRestaurant}
                 disabled={saving || !addForm.name.trim()}
                 className={`flex-1 px-4 py-2.5 bg-[#FF6B35] text-white rounded-xl text-sm font-medium hover:bg-[#FF6B35]/90 ${!addForm.name.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 {saving ? <Loader2 className="w-4 h-4 animate-spin inline mr-1" /> : null}
-                Add Restaurant
+                {editingRestaurant ? 'Save Changes' : 'Add Restaurant'}
               </button>
             </div>
           </div>

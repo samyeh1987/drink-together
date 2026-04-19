@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Settings, Bell, Globe, CreditCard, FileText,
   Save, RotateCcw,
-  ChevronRight,
+  ChevronRight, Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAdminT } from '../AdminI18nProvider';
@@ -103,18 +103,69 @@ export default function AdminSettingsPage() {
     return initial;
   });
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Load settings from Supabase on mount
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        const { createClient } = await import('@/lib/supabase/client');
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from('platform_settings')
+          .select('key, value');
+
+        if (!error && data && data.length > 0) {
+          const dbValues: Record<string, string | number | boolean> = {};
+          for (const row of data) {
+            dbValues[row.key] = row.value;
+          }
+          setValues(prev => ({ ...prev, ...dbValues }));
+        }
+      } catch (err) {
+        console.error('Failed to load settings:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadSettings();
+  }, []);
 
   const updateValue = (key: string, value: string | number | boolean) => {
     setValues(prev => ({ ...prev, [key]: value }));
     setSaved(false);
   };
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const { createClient } = await import('@/lib/supabase/client');
+      const supabase = createClient();
+
+      // Upsert all settings
+      const rows = Object.entries(values).map(([key, value]) => ({
+        key,
+        value,
+      }));
+
+      // Use upsert with onConflict on 'key'
+      const { error } = await supabase
+        .from('platform_settings')
+        .upsert(rows, { onConflict: 'key' });
+
+      if (error) throw error;
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      console.error('Failed to save settings:', err);
+      alert('Failed to save settings: ' + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     const initial: Record<string, string | number | boolean> = {};
     Object.values(SETTINGS).forEach(tab => {
       tab.items.forEach(item => {
@@ -123,6 +174,18 @@ export default function AdminSettingsPage() {
     });
     setValues(initial);
     setSaved(false);
+    // Also reset DB
+    setSaving(true);
+    try {
+      const { createClient } = await import('@/lib/supabase/client');
+      const supabase = createClient();
+      const rows = Object.entries(initial).map(([key, value]) => ({ key, value }));
+      await supabase.from('platform_settings').upsert(rows, { onConflict: 'key' });
+    } catch (err) {
+      console.error('Failed to reset settings:', err);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const currentTab = SETTINGS[activeTab];
@@ -144,14 +207,16 @@ export default function AdminSettingsPage() {
           </button>
           <button
             onClick={handleSave}
+            disabled={saving}
             className={cn(
-              'inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors',
+              'inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-50',
               saved
                 ? 'bg-[#2EC4B6] text-white'
                 : 'bg-[#FF6B35] text-white hover:bg-[#FF6B35]/90'
             )}
           >
-            <Save className="w-4 h-4" /> {saved ? t('settings.saved') : t('settings.saveChanges')}
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {saved ? t('settings.saved') : t('settings.saveChanges')}
           </button>
         </div>
       </div>

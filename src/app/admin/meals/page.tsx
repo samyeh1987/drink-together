@@ -26,6 +26,25 @@ export default function AdminMealsPage() {
   const [selectedMeal, setSelectedMeal] = useState<AdminMeal | null>(null);
   const [actionMenu, setActionMenu] = useState<string | null>(null);
 
+  const handleCancelMeal = async (meal: AdminMeal) => {
+    if (!confirm(`Cancel meal "${meal.title}"?`)) return;
+    try {
+      const { createClient } = await import('@/lib/supabase/client');
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('meals')
+        .update({ status: 'cancelled' })
+        .eq('id', meal.id);
+      if (error) throw error;
+      setMeals(prev => prev.map(m => m.id === meal.id ? { ...m, status: 'cancelled' } : m));
+      setSelectedMeal(null);
+      setActionMenu(null);
+    } catch (err) {
+      console.error('Failed to cancel meal:', err);
+      alert('Failed to cancel meal');
+    }
+  };
+
   useEffect(() => {
     async function loadMeals() {
       try {
@@ -305,7 +324,7 @@ export default function AdminMealsPage() {
                           </button>
                           {meal.status !== 'cancelled' && meal.status !== 'completed' && (
                             <button
-                              onClick={() => { alert(`Meal "${meal.title}" cancelled`); setActionMenu(null); }}
+                              onClick={() => { handleCancelMeal(meal); }}
                               className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                             >
                               <Ban className="w-3.5 h-3.5" /> {t('meals.cancelMeal')}
