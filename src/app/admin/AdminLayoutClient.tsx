@@ -171,7 +171,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
       </header>
 
       {/* Main Content */}
-      <main className="pt-16 min-h-screen bg-dark">
+      <main className="pt-16 min-h-screen bg-dark px-6 py-6">
         {children}
       </main>
     </>
