@@ -667,7 +667,7 @@ export default function CreateMealPage() {
 
   // ─── Page Render ─────────────────────────────────────
   return (
-    <div className="min-h-screen bg-cream pb-20">
+    <div className="min-h-screen bg-dark pb-20">
       {/* Header */}
       <div className="sticky top-0 z-10 glass">
         <div className="flex items-center gap-3 px-4 py-3">
@@ -698,7 +698,7 @@ export default function CreateMealPage() {
 
       {/* Bottom Actions (Step 1 & 2) */}
       {step < 3 && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 safe-bottom bg-cream border-t border-gray-lighter/50 px-4 py-3 flex gap-3">
+        <div className="fixed bottom-0 left-0 right-0 z-50 safe-bottom bg-dark border-t border-gray-lighter/50 px-4 py-3 flex gap-3">
           {step > 1 && (
             <button type="button" onClick={goBack} className="btn-secondary flex-1">
               {t('common.back')}

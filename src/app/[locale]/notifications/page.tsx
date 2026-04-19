@@ -107,7 +107,7 @@ export default function NotificationsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-cream">
+      <div className="min-h-screen flex items-center justify-center bg-dark">
         <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
@@ -115,7 +115,7 @@ export default function NotificationsPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-cream gap-4 px-4">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-dark gap-4 px-4">
         <Bell className="w-12 h-12 text-gray-lighter" />
         <p className="text-gray">
           {locale === 'zh-CN' ? '請先登入查看通知' : 'Please log in to view notifications'}
@@ -132,7 +132,7 @@ export default function NotificationsPage() {
   return (
     <div className="min-h-screen pb-20">
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-cream/80 backdrop-blur-lg border-b border-gray-lighter/50">
+      <div className="sticky top-0 z-30 bg-dark/80 backdrop-blur-lg border-b border-gray-lighter/50">
         <div className="px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-bold text-dark">{t('notification.title')}</h1>

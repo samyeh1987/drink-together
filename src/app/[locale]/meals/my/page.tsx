@@ -120,7 +120,7 @@ function MealCard({
         </div>
 
         {/* Card Footer - Action Buttons */}
-        <div className="border-t border-gray-lighter/50 px-4 py-2.5 bg-cream/30">
+        <div className="border-t border-gray-lighter/50 px-4 py-2.5 bg-dark/30">
           {isActive && isParticipant && !showCancel && (
             <div className="flex items-center justify-between">
               <Link href={`/${locale}/meals/${meal.id}`} className="flex-1">

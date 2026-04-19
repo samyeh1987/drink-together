@@ -40,9 +40,9 @@ export default async function LocaleLayout({ children, params }: Props) {
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="theme-color" content="#FFF8F0" />
+        <meta name="theme-color" content="#0D0D1A" />
       </head>
-      <body className="min-h-screen flex flex-col bg-cream">
+      <body className="min-h-screen flex flex-col bg-dark">
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
             <main className="flex-1 pb-20">{children}</main>

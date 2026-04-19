@@ -1,35 +1,32 @@
-export const APP_NAME = 'EatTogether';
-export const APP_TAGLINE = 'Don\'t Eat Alone';
+export const APP_NAME = 'DrinkTogether';
+export const APP_TAGLINE = 'Don\'t Drink Alone';
 
-// Colors
+// Colors - Neon Nightclub Theme
 export const COLORS = {
-  primary: '#FF6B35',
-  primaryLight: '#FF8C5A',
-  primaryDark: '#E55A2B',
-  cream: '#FFF8F0',
-  mint: '#2EC4B6',
-  coral: '#FF6B6B',
+  primary: '#FF10F0',      // Neon Pink
+  primaryLight: '#FF6BF0',
+  primaryDark: '#CC00C0',
+  cream: '#0D0D1A',        // Dark Background
+  mint: '#00FFFF',          // Neon Cyan
+  coral: '#FF1493',         // Deep Pink
   gold: '#FFD700',
   dark: '#1A1A2E',
   gray: '#6B7280',
   lightGray: '#F3F4F6',
 } as const;
 
-// Cuisine types with i18n keys and emojis
+// Drink types with i18n keys and emojis
 export const CUISINE_TYPES = [
-  { key: 'japanese', emoji: '🍣' },
-  { key: 'thai', emoji: '🍜' },
-  { key: 'chinese', emoji: '🥡' },
-  { key: 'korean', emoji: '🍖' },
-  { key: 'italian', emoji: '🍕' },
-  { key: 'western', emoji: '🥩' },
-  { key: 'hotpot', emoji: '🫕' },
-  { key: 'bbq', emoji: '🔥' },
-  { key: 'buffet', emoji: '🍽️' },
-  { key: 'seafood', emoji: '🦐' },
-  { key: 'dimsum', emoji: '🥟' },
-  { key: 'vegetarian', emoji: '🥗' },
-  { key: 'other', emoji: '🍴' },
+  { key: 'cocktail', emoji: '🍸' },
+  { key: 'beer', emoji: '🍺' },
+  { key: 'whisky', emoji: '🥃' },
+  { key: 'wine', emoji: '🍷' },
+  { key: 'sake', emoji: '🍶' },
+  { key: 'draft', emoji: '🍻' },
+  { key: 'shot', emoji: '💉' },
+  { key: 'mocktail', emoji: '🍹' },
+  { key: 'champagne', emoji: '🥂' },
+  { key: 'other', emoji: '🍾' },
 ] as const;
 
 // Meal languages with flags

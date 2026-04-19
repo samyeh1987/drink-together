@@ -139,7 +139,7 @@ export default function ProfilePage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-cream">
+      <div className="min-h-screen flex items-center justify-center bg-dark">
         <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
@@ -147,7 +147,7 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-cream gap-4 px-4">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-dark gap-4 px-4">
         <p className="text-gray">{locale === 'zh-CN' ? '請先登入查看個人資料' : 'Please log in to view profile'}</p>
         <Link href={`/${locale}/auth/login`} className="btn-primary px-6 py-2.5 rounded-xl">
           {locale === 'zh-CN' ? '登入' : 'Login'}
@@ -162,7 +162,7 @@ export default function ProfilePage() {
     .map((tag: any) => tag?.i18n_key?.replace('tag.', '') || tag?.name);
 
   return (
-    <div className="min-h-screen pb-20 bg-cream">
+    <div className="min-h-screen pb-20 bg-dark">
       {/* Header with gradient */}
       <div className="relative bg-gradient-to-br from-primary to-coral pt-8 pb-16 px-4">
         <div className="absolute top-4 right-4 flex items-center gap-2">

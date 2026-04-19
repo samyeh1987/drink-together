@@ -49,7 +49,7 @@ export default function CancelRulesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="min-h-screen bg-dark">
       {/* Header */}
       <header className="sticky top-0 z-50 glass border-b border-white/20">
         <div className="flex items-center gap-3 px-4 py-3">
@@ -57,7 +57,7 @@ export default function CancelRulesPage() {
             href={`/${locale}/profile`}
             className="p-2 -ml-2 rounded-xl hover:bg-white/50 transition-colors"
           >
-            <ArrowLeft className="w-5 h-5 text-dark" />
+            <ArrowLeft className="w-5 h-5 text-white" />
           </Link>
           <h1 className="text-base font-semibold text-dark">{t('cancelRules.title')}</h1>
         </div>

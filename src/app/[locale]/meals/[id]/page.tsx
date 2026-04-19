@@ -180,7 +180,7 @@ export default function MealDetailPage() {
 
   if (isLoading || !meal) {
     return (
-      <div className="min-h-screen bg-cream flex items-center justify-center">
+      <div className="min-h-screen bg-dark flex items-center justify-center">
         <div className="flex flex-col items-center">
           <Loader2 className="w-8 h-8 text-primary animate-spin mb-3" />
           <p className="text-sm text-gray">{t('common.loading') || 'Loading...'}</p>
@@ -192,7 +192,7 @@ export default function MealDetailPage() {
   const creatorCredit = getCreditLabel(meal.creator?.credit_score || 100);
 
   return (
-    <div className="min-h-screen pb-24 bg-cream">
+    <div className="min-h-screen pb-24 bg-dark">
       {/* Header */}
       <header className="sticky top-0 z-50 glass border-b border-white/20">
         <div className="flex items-center justify-between px-4 py-3">

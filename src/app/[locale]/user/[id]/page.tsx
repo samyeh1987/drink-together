@@ -75,7 +75,7 @@ export default function UserProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-cream">
+      <div className="min-h-screen flex items-center justify-center bg-dark">
         <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
@@ -83,7 +83,7 @@ export default function UserProfilePage() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-cream gap-4 px-4">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-dark gap-4 px-4">
         <p className="text-gray">
           {locale === 'zh-CN' ? '找不到此用戶' : locale === 'th' ? 'ไม่พบผู้ใช้นี้' : 'User not found'}
         </p>
@@ -95,7 +95,7 @@ export default function UserProfilePage() {
   }
 
   return (
-    <div className="min-h-screen pb-20 bg-cream">
+    <div className="min-h-screen pb-20 bg-dark">
       {/* Header with gradient */}
       <div className="relative bg-gradient-to-br from-primary to-coral pt-8 pb-16 px-4">
         {/* Back button */}
