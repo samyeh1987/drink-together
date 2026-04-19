@@ -844,7 +844,7 @@ function DealModal({ t, editingDeal, saving, onSave, onClose }: {
             <select
               className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]"
               value={form.status}
-              onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
+              onChange={e => setForm(f => ({ ...f, status: e.target.value as 'active' | 'expired' | 'draft' }))}
             >
               <option value="draft">{t('restaurants.draft')}</option>
               <option value="active">Active</option>
