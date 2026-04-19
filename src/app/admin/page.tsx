@@ -111,26 +111,26 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-[1600px] mx-auto space-y-6">
       {/* Page Title */}
-      <div>
-        <h1 className="text-2xl font-bold text-white">{t('dashboard.title')}</h1>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-white">{t('dashboard.title')}</h1>
         <p className="text-sm text-gray-light mt-1">{t('dashboard.subtitle')}</p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
         {statsConfig.map((stat) => {
           const Icon = stat.icon;
           return (
-            <div key={stat.labelKey} className="card glass p-5">
+            <div key={stat.labelKey} className="card glass p-6">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm text-gray-light font-medium">{t(stat.labelKey)}</p>
-                  <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
+                  <p className="text-3xl font-bold text-white mt-2">{stat.value}</p>
                 </div>
-                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-lg`}>
-                  {loading ? <Loader2 className="w-5 h-5 text-white animate-spin" /> : <Icon className="w-5 h-5 text-white" />}
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-lg`}>
+                  {loading ? <Loader2 className="w-6 h-6 text-white animate-spin" /> : <Icon className="w-6 h-6 text-white" />}
                 </div>
               </div>
             </div>
@@ -139,7 +139,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Stats Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-6">
         <div className="card glass p-4">
           <div className="flex items-center gap-2 mb-2">
             <CheckCircle2 className="w-4 h-4 text-mint" />
@@ -177,7 +177,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Meals */}
         <div className="xl:col-span-2 card glass">
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray/30">
