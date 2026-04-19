@@ -250,15 +250,15 @@ export default function AdminSettingsPage() {
 
         {/* Settings Content */}
         <div className="flex-1">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
+          <div className="glass rounded-2xl border border-gray/30">
             <div className="px-6 py-5 border-b border-gray-100">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-[#FF6B35]/10 flex items-center justify-center">
                   {(() => { const Icon = currentTab.icon; return <Icon className="w-5 h-5 text-[#FF6B35]" />; })()}
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-gray-800">{currentTab.label}</h2>
-                  <p className="text-sm text-gray-500">{currentTab.description}</p>
+                  <h2 className="text-lg font-bold text-white">{currentTab.label}</h2>
+                  <p className="text-sm text-gray-light">{currentTab.description}</p>
                 </div>
               </div>
             </div>
@@ -266,8 +266,8 @@ export default function AdminSettingsPage() {
               {currentTab.items.map(item => (
                 <div key={item.key} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800">{item.label}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{item.description}</p>
+                    <p className="text-sm font-medium text-white">{item.label}</p>
+                    <p className="text-xs text-gray-light mt-0.5">{item.description}</p>
                   </div>
                   <div className="flex-shrink-0 sm:w-64">
                     {item.type === 'text' && (
@@ -275,7 +275,7 @@ export default function AdminSettingsPage() {
                         type="text"
                         value={values[item.key] as string}
                         onChange={e => updateValue(item.key, e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]"
+                        className="w-full px-3 py-2 bg-dark/50 border border-gray/30 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                       />
                     )}
                     {item.type === 'number' && (
@@ -283,14 +283,14 @@ export default function AdminSettingsPage() {
                         type="number"
                         value={values[item.key] as number}
                         onChange={e => updateValue(item.key, parseInt(e.target.value) || 0)}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]"
+                        className="w-full px-3 py-2 bg-dark/50 border border-gray/30 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                       />
                     )}
                     {item.type === 'select' && (
                       <select
                         value={values[item.key] as string}
                         onChange={e => updateValue(item.key, e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]"
+                        className="w-full px-3 py-2 bg-dark/50 border border-gray/30 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                       >
                         {item.options?.map(opt => (
                           <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -302,7 +302,7 @@ export default function AdminSettingsPage() {
                         onClick={() => updateValue(item.key, !(values[item.key] as boolean))}
                         className={cn(
                           'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
-                          values[item.key] ? 'bg-[#FF6B35]' : 'bg-gray-200'
+                          values[item.key] ? 'bg-primary' : 'bg-gray-600'
                         )}
                       >
                         <span
@@ -318,7 +318,7 @@ export default function AdminSettingsPage() {
                         value={values[item.key] as string}
                         onChange={e => updateValue(item.key, e.target.value)}
                         rows={3}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] resize-none"
+                        className="w-full px-3 py-2 bg-dark/50 border border-gray/30 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
                       />
                     )}
                   </div>

@@ -213,7 +213,6 @@ export default function AdminReportsPage() {
             onChange={e => setSearch(e.target.value)}
             placeholder={t('reports.searchPlaceholder')}
             className="w-full pl-10 pr-4 py-2.5 bg-dark/50 border border-gray/30 rounded-xl text-sm text-white placeholder:text-gray-light focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] transition-all"
           />
         </div>
         <div className="flex items-center gap-2">
