@@ -3,8 +3,8 @@ import AdminLayoutClient from "./AdminLayoutClient";
 import { AdminI18nProvider } from "./AdminI18nProvider";
 
 export const metadata: Metadata = {
-  title: "EatTogether Admin",
-  description: "Admin dashboard for EatTogether platform",
+  title: "DrinkTogether Admin",
+  description: "Admin dashboard for DrinkTogether platform",
 };
 
 export default function AdminLayout({
@@ -21,8 +21,8 @@ export default function AdminLayout({
         />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
       </head>
-      <body className="min-h-screen bg-[#F8F9FA]">
-        <div className="flex">
+      <body className="min-h-screen bg-dark">
+        <div className="flex lg:pl-64">
           <AdminI18nProvider>
             <AdminLayoutClient>{children}</AdminLayoutClient>
           </AdminI18nProvider>
