@@ -118,18 +118,15 @@
     "joinedDate": "加入时间"
   },
   "cuisine": {
-    "japanese": "日式酒吧",
-    "thai": "泰式酒吧",
-    "chinese": "中式酒吧",
-    "korean": "韩式酒吧",
-    "italian": "意式酒吧",
-    "western": "西式酒吧",
-    "hotpot": "鸡尾酒吧",
-    "bbq": "运动酒吧",
-    "buffet": "天台酒吧",
-    "seafood": "海鲜吧",
-    "dimsum": "葡萄酒吧",
-    "vegetarian": "素食酒吧",
+    "cocktail": "鸡尾酒吧",
+    "beer": "啤酒屋",
+    "whisky": "威士忌吧",
+    "wine": "葡萄酒吧",
+    "sake": "酒屋",
+    "draft": "生啤吧",
+    "shot": "Shot 酒吧",
+    "mocktail": "无酒精鸡尾酒吧",
+    "champagne": "香槟吧",
     "other": "其他"
   },
   "payment": {

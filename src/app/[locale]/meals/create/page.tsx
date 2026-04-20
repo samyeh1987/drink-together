@@ -198,7 +198,7 @@ function Step1({ form, updateField, t }: {
 
       {/* Title */}
       <div>
-        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+        <label className="flex items-center gap-2 text-sm font-semibold text-white mb-2">
           <Wine size={16} className="text-primary" />
           {t('meal.title')}
         </label>
@@ -213,7 +213,7 @@ function Step1({ form, updateField, t }: {
 
       {/* Bar Name */}
       <div>
-        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+        <label className="flex items-center gap-2 text-sm font-semibold text-white mb-2">
           <Wine size={16} className="text-primary" />
           {t('meal.restaurant')}
         </label>
@@ -228,7 +228,7 @@ function Step1({ form, updateField, t }: {
 
       {/* Location Picker - Address Search + Map (with auto bar name fill) */}
       <div>
-        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+        <label className="flex items-center gap-2 text-sm font-semibold text-white mb-2">
           <MapPin size={16} className="text-mint" />
           {t('meal.restaurantAddress')}
         </label>
@@ -259,7 +259,7 @@ function Step1({ form, updateField, t }: {
 
       {/* Bar Type - Horizontal scroll */}
       <div>
-        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+        <label className="flex items-center gap-2 text-sm font-semibold text-white mb-2">
           <Sparkles size={16} className="text-primary" />
           {t('meal.cuisineType')}
         </label>
@@ -271,12 +271,12 @@ function Step1({ form, updateField, t }: {
               onClick={() => updateField('cuisine', cuisine.key)}
               className={`flex-shrink-0 flex flex-col items-center gap-1 px-3 py-2 rounded-xl border-2 transition-all duration-200 ${
                 form.cuisine === cuisine.key
-                  ? 'border-primary bg-primary/10 shadow-sm'
-                  : 'border-gray-lighter bg-white hover:border-primary/40'
+                  ? 'border-primary bg-primary/20 shadow-sm'
+                  : 'border-white/20 glass hover:border-primary/40'
               }`}
             >
               <span className="text-xl">{cuisine.emoji}</span>
-              <span className="text-xs font-medium text-dark whitespace-nowrap">
+              <span className="text-xs font-medium text-white whitespace-nowrap">
                 {t(`cuisine.${cuisine.key}`)}
               </span>
             </button>
@@ -306,7 +306,7 @@ function Step2({ form, updateField, toggleArrayItem, t }: {
     <div className="space-y-5">
       {/* Date & Time */}
       <div>
-        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+        <label className="flex items-center gap-2 text-sm font-semibold text-white mb-2">
           <Calendar size={16} className="text-primary" />
           {t('meal.dateTime')}
         </label>
@@ -321,7 +321,7 @@ function Step2({ form, updateField, toggleArrayItem, t }: {
 
       {/* Deadline (optional) */}
       <div>
-        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+        <label className="flex items-center gap-2 text-sm font-semibold text-white mb-2">
           <Clock size={16} className="text-coral" />
           {t('meal.deadline')}
           <span className="text-xs font-normal text-gray-light">
@@ -342,7 +342,7 @@ function Step2({ form, updateField, toggleArrayItem, t }: {
       {/* Min / Max Participants */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+          <label className="flex items-center gap-2 text-sm font-semibold text-white mb-2">
             <Users size={16} className="text-mint" />
             {t('meal.minParticipants')}
           </label>
@@ -359,7 +359,7 @@ function Step2({ form, updateField, toggleArrayItem, t }: {
           />
         </div>
         <div>
-          <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+          <label className="flex items-center gap-2 text-sm font-semibold text-white mb-2">
             <Users size={16} className="text-primary" />
             {t('meal.maxParticipants')}
           </label>
@@ -379,7 +379,7 @@ function Step2({ form, updateField, toggleArrayItem, t }: {
 
       {/* Payment Method - Card style */}
       <div>
-        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+        <label className="flex items-center gap-2 text-sm font-semibold text-white mb-2">
           <CreditCard size={16} className="text-primary" />
           {t('meal.paymentMethod')}
         </label>
@@ -391,12 +391,12 @@ function Step2({ form, updateField, toggleArrayItem, t }: {
               onClick={() => updateField('payment', pm.key as PaymentKey)}
               className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all duration-200 ${
                 form.payment === pm.key
-                  ? 'border-primary bg-primary/10 shadow-sm'
-                  : 'border-gray-lighter bg-white hover:border-primary/40'
+                  ? 'border-primary bg-primary/20 shadow-sm'
+                  : 'border-white/20 glass hover:border-primary/40'
               }`}
             >
               <span className="text-2xl">{pm.emoji}</span>
-              <span className="text-xs font-semibold text-dark text-center leading-tight">
+              <span className="text-xs font-semibold text-white text-center leading-tight">
                 {t(`payment.${pm.key}`)}
               </span>
             </button>
@@ -406,7 +406,7 @@ function Step2({ form, updateField, toggleArrayItem, t }: {
 
       {/* Budget */}
       <div>
-        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+        <label className="flex items-center gap-2 text-sm font-semibold text-white mb-2">
           <span className="text-lg">฿</span>
           {t('meal.budget')}
         </label>
@@ -421,7 +421,7 @@ function Step2({ form, updateField, toggleArrayItem, t }: {
 
       {/* Language Selection - Multi-select tags */}
       <div>
-        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+        <label className="flex items-center gap-2 text-sm font-semibold text-white mb-2">
           <Globe size={16} className="text-primary" />
           {t('meal.mealLanguage')}
         </label>
@@ -443,7 +443,7 @@ function Step2({ form, updateField, toggleArrayItem, t }: {
 
       {/* Tags */}
       <div>
-        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+        <label className="flex items-center gap-2 text-sm font-semibold text-white mb-2">
           <Sparkles size={16} className="text-gold" />
           {t('meal.tags')}
         </label>
@@ -464,7 +464,7 @@ function Step2({ form, updateField, toggleArrayItem, t }: {
 
       {/* Note / Description */}
       <div>
-        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+        <label className="flex items-center gap-2 text-sm font-semibold text-white mb-2">
           <MessageCircle size={16} className="text-primary" />
           {t('meal.note')}
         </label>
@@ -500,11 +500,11 @@ function Step3({ form, onSubmit, isSubmitting, submitError, t }: {
     label: string;
     value: string;
   }) => (
-    <div className="flex items-start gap-3 py-3 border-b border-gray-lighter/50 last:border-0">
+    <div className="flex items-start gap-3 py-3 border-b border-white/10 last:border-0">
       <div className="mt-0.5 text-gray-light">{icon}</div>
       <div className="flex-1 min-w-0">
         <p className="text-xs text-gray-light">{label}</p>
-        <p className="text-sm font-medium text-dark break-words">{value || '—'}</p>
+        <p className="text-sm font-medium text-white break-words">{value || '—'}</p>
       </div>
     </div>
   );
@@ -512,7 +512,7 @@ function Step3({ form, onSubmit, isSubmitting, submitError, t }: {
   return (
     <div className="space-y-4">
       <div className="card p-4">
-        <h3 className="text-base font-bold text-dark mb-3 flex items-center gap-2">
+        <h3 className="text-base font-bold text-white mb-3 flex items-center gap-2">
           <Sparkles size={18} className="text-primary" />
           {t('meal.create')}
         </h3>
@@ -790,7 +790,7 @@ export default function CreateMealPage() {
           >
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-lg font-bold text-dark">{t('meal.create')}</h1>
+          <h1 className="text-lg font-bold text-white">{t('meal.create')}</h1>
         </div>
         <ProgressBar />
       </div>

@@ -118,18 +118,15 @@
     "joinedDate": "Joined"
   },
   "cuisine": {
-    "japanese": "Japanese",
-    "thai": "Thai",
-    "chinese": "Chinese",
-    "korean": "Korean",
-    "italian": "Italian",
-    "western": "Western",
-    "hotpot": "Cocktail Bar",
-    "bbq": "Sports Bar",
-    "buffet": "Rooftop Bar",
-    "seafood": "Seafood",
-    "dimsum": "Wine Bar",
-    "vegetarian": "Vegetarian",
+    "cocktail": "Cocktail Bar",
+    "beer": "Beer Bar",
+    "whisky": "Whisky Bar",
+    "wine": "Wine Bar",
+    "sake": "Sake Bar",
+    "draft": "Draft Beer",
+    "shot": "Shot Bar",
+    "mocktail": "Mocktail Bar",
+    "champagne": "Champagne Bar",
     "other": "Other"
   },
   "payment": {
