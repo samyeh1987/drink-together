@@ -26,6 +26,7 @@ import {
 } from '@/lib/constants';
 import { useLocale } from 'next-intl';
 import { createMeal } from '@/lib/api';
+import { useAuthStore } from '@/store/auth-store';
 import dynamic from 'next/dynamic';
 
 const LocationPicker = dynamic(() => import('@/components/map/LocationPicker'), { ssr: false });
@@ -519,11 +520,20 @@ export default function CreateMealPage() {
   const t = useTranslations();
   const locale = useLocale();
   const router = useRouter();
+  const { user, isLoading, fetchUser } = useAuthStore();
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [form, setForm] = useState<MealForm>(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Check if user is logged in
+  useEffect(() => {
+    if (isLoading) return;
+    if (!user) {
+      router.push(`/${locale}/auth/login?redirect=${encodeURIComponent(`/${locale}/meals/create`)}`);
+    }
+  }, [user, isLoading, router, locale]);
 
   const updateField = useCallback(<K extends keyof MealForm>(key: K, value: MealForm[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
