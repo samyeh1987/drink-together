@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
   Check,
-  UtensilsCrossed,
+  Wine,
   MapPin,
   Calendar,
   Clock,
@@ -17,6 +17,7 @@ import {
   MessageCircle,
   Sparkles,
   Loader2,
+  Star,
 } from 'lucide-react';
 import {
   CUISINE_TYPES,
@@ -92,24 +93,140 @@ function Step1({ form, updateField, t }: {
 }) {
   const locale = useLocale();
 
+  // Popular bars by city
+  const popularBars = {
+    bangkok: [
+      { name: 'Maggie Choo\'s', address: 'Silom, Bangkok' },
+      { name: 'Above Riva', address: 'Riverside, Bangkok' },
+      { name: 'Sky Bar', address: 'Sathorn, Bangkok' },
+    ],
+    pattaya: [
+      { name: 'Lucifer Bar', address: 'Walking Street, Pattaya' },
+      { name: 'The Rock House', address: 'North Pattaya' },
+    ],
+    chiangmai: [
+      { name: 'The Good View Bar', address: 'Charoenrat, Chiang Mai' },
+      { name: 'Warm Up Cafe', address: 'Nimmanhaemin, Chiang Mai' },
+    ],
+    phuket: [
+      { name: 'Bangla Boxing Stadium', address: 'Patong, Phuket' },
+      { name: 'Illuzion Phuket', address: 'Bangla Road, Patong' },
+    ],
+  };
+
+  const handleSelectBar = (bar: { name: string; address: string }) => {
+    updateField('restaurant', bar.name);
+    updateField('address', bar.address);
+  };
+
   return (
     <div className="space-y-5">
+      {/* Popular Bars Recommendation */}
+      <div className="bg-gradient-to-r from-primary/10 to-mint/10 rounded-xl p-4">
+        <h3 className="flex items-center gap-2 text-sm font-bold text-white mb-3">
+          <Star size={16} className="text-primary" />
+          {t('home.popularBars')}
+        </h3>
+        <p className="text-xs text-gray-light mb-3">{t('home.popularBarsDesc')}</p>
+        <div className="space-y-2">
+          {/* Bangkok */}
+          <div>
+            <p className="text-xs font-semibold text-primary mb-1">🏙️ Bangkok</p>
+            <div className="flex flex-wrap gap-1">
+              {popularBars.bangkok.map((bar) => (
+                <button
+                  key={bar.name}
+                  type="button"
+                  onClick={() => handleSelectBar(bar)}
+                  className="px-2 py-1 text-xs bg-dark/50 hover:bg-primary/20 border border-primary/30 rounded-lg text-white transition-all hover:scale-105"
+                >
+                  {bar.name}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Pattaya */}
+          <div>
+            <p className="text-xs font-semibold text-coral mt-2 mb-1">🌴 Pattaya</p>
+            <div className="flex flex-wrap gap-1">
+              {popularBars.pattaya.map((bar) => (
+                <button
+                  key={bar.name}
+                  type="button"
+                  onClick={() => handleSelectBar(bar)}
+                  className="px-2 py-1 text-xs bg-dark/50 hover:bg-coral/20 border border-coral/30 rounded-lg text-white transition-all hover:scale-105"
+                >
+                  {bar.name}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Chiang Mai */}
+          <div>
+            <p className="text-xs font-semibold text-mint mt-2 mb-1">🏯 Chiang Mai</p>
+            <div className="flex flex-wrap gap-1">
+              {popularBars.chiangmai.map((bar) => (
+                <button
+                  key={bar.name}
+                  type="button"
+                  onClick={() => handleSelectBar(bar)}
+                  className="px-2 py-1 text-xs bg-dark/50 hover:bg-mint/20 border border-mint/30 rounded-lg text-white transition-all hover:scale-105"
+                >
+                  {bar.name}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Phuket */}
+          <div>
+            <p className="text-xs font-semibold text-gold mt-2 mb-1">🏝️ Phuket</p>
+            <div className="flex flex-wrap gap-1">
+              {popularBars.phuket.map((bar) => (
+                <button
+                  key={bar.name}
+                  type="button"
+                  onClick={() => handleSelectBar(bar)}
+                  className="px-2 py-1 text-xs bg-dark/50 hover:bg-gold/20 border border-gold/30 rounded-lg text-white transition-all hover:scale-105"
+                >
+                  {bar.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Title */}
       <div>
         <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
-          <UtensilsCrossed size={16} className="text-primary" />
+          <Wine size={16} className="text-primary" />
           {t('meal.title')}
         </label>
         <input
           type="text"
           className="input"
-          placeholder="e.g. Hotpot night at Yaowarat!"
+          placeholder={locale === 'zh-CN' ? '例如：週五夜狂歡！' : locale === 'th' ? 'เช่น คืนศุกร์สนุก!' : 'e.g. Friday Night Fun!'}
           value={form.title}
           onChange={(e) => updateField('title', e.target.value)}
         />
       </div>
 
-      {/* Location Picker - Address Search + Map (with auto restaurant name fill) */}
+      {/* Bar Name */}
+      <div>
+        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
+          <Wine size={16} className="text-primary" />
+          {t('meal.restaurant')}
+        </label>
+        <input
+          type="text"
+          className="input"
+          placeholder={locale === 'zh-CN' ? '搜尋酒吧名稱...' : locale === 'th' ? 'ค้นหาชื่อบาร์...' : 'Search bar name...'}
+          value={form.restaurant}
+          onChange={(e) => updateField('restaurant', e.target.value)}
+        />
+      </div>
+
+      {/* Location Picker - Address Search + Map (with auto bar name fill) */}
       <div>
         <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
           <MapPin size={16} className="text-mint" />
@@ -120,7 +237,7 @@ function Step1({ form, updateField, t }: {
           onLocationSelect={(data) => {
             updateField('latitude', data.lat);
             updateField('longitude', data.lng);
-            // Auto-fill restaurant name from place selection
+            // Auto-fill bar name from place selection
             if (data.placeName && !form.restaurant) {
               updateField('restaurant', data.placeName);
             }
@@ -129,33 +246,18 @@ function Step1({ form, updateField, t }: {
           initialLat={form.latitude}
           initialLng={form.longitude}
           locale={locale}
-          searchPlaceholder={locale === 'zh-CN' ? '搜尋餐廳名或地址...' : locale === 'th' ? 'ค้นหาชื่อร้านหรือที่อยู่...' : 'Search restaurant name or address...'}
+          searchPlaceholder={locale === 'zh-CN' ? '搜尋酒吧名或地址...' : locale === 'th' ? 'ค้นหาชื่อบาร์หรือที่อยู่...' : 'Search bar name or address...'}
           restaurantName={form.restaurant}
           onRestaurantNameChange={(name) => updateField('restaurant', name)}
         />
         <p className="text-xs text-gray-light mt-1">
-          {locale === 'zh-CN' ? '💡 選擇餐廳後會自動帶入餐廳名稱' :
-           locale === 'th' ? '💡 เลือกร้านอาหารจะกรอกชื่อร้านอัตโนมัติ' :
-           '💡 Restaurant name auto-fills when you select a place'}
+          {locale === 'zh-CN' ? '💡 選擇地點後會自動帶入酒吧名稱' :
+           locale === 'th' ? '💡 เลือกสถานที่จะกรอกชื่อบาร์อัตโนมัติ' :
+           '💡 Bar name auto-fills when you select a place'}
         </p>
       </div>
 
-      {/* Restaurant Name */}
-      <div>
-        <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
-          <MapPin size={16} className="text-primary" />
-          {t('meal.restaurant')}
-        </label>
-        <input
-          type="text"
-          className="input"
-          placeholder="e.g. Somboon Seafood"
-          value={form.restaurant}
-          onChange={(e) => updateField('restaurant', e.target.value)}
-        />
-      </div>
-
-      {/* Cuisine Type - Horizontal scroll */}
+      {/* Bar Type - Horizontal scroll */}
       <div>
         <label className="flex items-center gap-2 text-sm font-semibold text-dark mb-2">
           <Sparkles size={16} className="text-primary" />

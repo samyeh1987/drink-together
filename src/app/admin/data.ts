@@ -170,3 +170,33 @@ export const CUISINE_EMOJI: Record<string, string> = {
   western: '🥩', hotpot: '🫕', bbq: '🔥', buffet: '🍽️', seafood: '🦐',
   dimsum: '🥟', vegetarian: '🥗', other: '🍴',
 };
+
+// ─── Recommended Bars ───────────────────────────────────
+export interface RecommendedBar {
+  id: string;
+  name: string;
+  name_local: string;
+  address: string;
+  city: 'bangkok' | 'pattaya' | 'chiangmai' | 'phuket';
+  phone: string;
+  description: string;
+  image_url: string | null;
+  sort_order: number;
+  status: 'active' | 'inactive';
+  created_at: string;
+  updated_at: string;
+}
+
+export const CITY_EMOJI: Record<string, string> = {
+  bangkok: '🏙️',
+  pattaya: '🌴',
+  chiangmai: '🏯',
+  phuket: '🏝️',
+};
+
+export const CITY_LABELS: Record<string, string> = {
+  bangkok: '曼谷',
+  pattaya: '芭堤雅',
+  chiangmai: '清邁',
+  phuket: '普吉島',
+};
