@@ -518,7 +518,7 @@ function Step3({ form, onSubmit, isSubmitting, submitError, t }: {
         </h3>
 
         <SummaryRow
-          icon={<UtensilsCrossed size={16} />}
+          icon={<Wine size={16} />}
           label={t('meal.title')}
           value={form.title}
         />
