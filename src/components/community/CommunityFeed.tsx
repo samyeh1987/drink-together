@@ -46,10 +46,14 @@ async function fetchCommunityPosts(userId?: string): Promise<Post[]> {
       .in('post_id', postIds);
 
     const likedSet = new Set((likes || []).map((l: any) => l.post_id));
-    return data.map((p: any) => ({ ...p, has_liked: likedSet.has(p.id) }));
+    return data.map((p: any) => ({
+      ...p,
+      user: Array.isArray(p.user) ? p.user[0] : p.user,
+      has_liked: likedSet.has(p.id),
+    })) as Post[];
   }
 
-  return data as Post[];
+  return (data as any[]).map((p: any) => ({ ...p, has_liked: false })) as Post[];
 }
 
 async function toggleLike(postId: string, userId: string, hasLiked: boolean) {
