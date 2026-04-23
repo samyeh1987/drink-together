@@ -16,6 +16,25 @@ import {
 import { useAuthStore } from '@/store/auth-store';
 import { updateProfile } from '@/lib/api';
 
+function useBodyScrollLock(lock: boolean) {
+  useEffect(() => {
+    if (lock) {
+      const scrollY = window.scrollY;
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      return () => {
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [lock]);
+}
+
 const AGE_OPTIONS = ['18-24', '25-30', '31-35', '36-40', '40+'];
 const OCCUPATION_OPTIONS = [
   'Technology', 'Design', 'Marketing', 'Finance', 'Education',
@@ -59,6 +78,9 @@ export default function ProfileForm({ isOpen, onClose }: ProfileFormProps) {
 
   const [activeTab, setActiveTab] = useState<TabKey>('basic');
   const [isSaving, setIsSaving] = useState(false);
+
+  // Lock body scroll when modal opens
+  useBodyScrollLock(isOpen);
 
   // Basic
   const [nickname, setNickname] = useState('');

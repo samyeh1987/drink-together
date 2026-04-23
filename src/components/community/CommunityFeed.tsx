@@ -8,6 +8,26 @@ import Link from 'next/link';
 import { useAuthStore } from '@/store/auth-store';
 import { createClient } from '@/lib/supabase/client';
 
+// Lock body scroll when compose modal is open
+function useBodyScrollLock(lock: boolean) {
+  useEffect(() => {
+    if (lock) {
+      const scrollY = window.scrollY;
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      return () => {
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [lock]);
+}
+
 interface Post {
   id: string;
   user_id: string;
@@ -108,6 +128,9 @@ export default function CommunityFeed() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Lock body scroll when compose modal opens
+  useBodyScrollLock(showCompose);
 
   useEffect(() => {
     (async () => {
