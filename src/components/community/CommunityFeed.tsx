@@ -333,8 +333,14 @@ export default function CommunityFeed() {
                   {locale === 'zh-CN' ? '分享到酒友圈' : 'Share to Drink Circle'}
                 </h3>
                 <button
-                  onClick={handleSubmit}
-                  disabled={submitting || !canPost}
+                  onClick={() => {
+                    if (submitting) return;
+                    if (!canPost) {
+                      alert(locale === 'zh-CN' ? '請填寫文字或加入照片' : 'Please add text or a photo');
+                      return;
+                    }
+                    handleSubmit();
+                  }}
                   className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-primary text-white text-sm font-medium disabled:opacity-40 transition-all"
                 >
                   {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
@@ -385,6 +391,11 @@ export default function CommunityFeed() {
                 maxLength={300}
                 className="w-full bg-white/5 border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-gray resize-none outline-none focus:border-primary/40 mb-3"
               />
+
+              {/* Debug status */}
+              <p className="text-xs text-center mb-2" style={{ color: imageFile ? '#00ff88' : '#888' }}>
+                {imageFile ? `✅ 已選擇圖片: ${imageFile.name}` : '❌ 未選擇圖片'}
+              </p>
 
               <input ref={fileRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
               <div className="h-6 safe-bottom" />
