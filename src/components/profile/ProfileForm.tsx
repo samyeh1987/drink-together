@@ -179,21 +179,16 @@ export default function ProfileForm({ isOpen, onClose }: ProfileFormProps) {
             onClick={onClose}
           />
 
-          {/* Modal */}
+          {/* Modal - Full screen */}
           <motion.div
-            initial={{ opacity: 0, y: '100%' }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-50 bg-dark rounded-t-3xl max-h-[92vh] flex flex-col"
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 bg-dark flex flex-col"
           >
-            {/* Handle bar */}
-            <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
-              <div className="w-10 h-1 bg-white/20 rounded-full" />
-            </div>
-
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-3 border-b border-white/10 flex-shrink-0">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 flex-shrink-0">
               <button onClick={onClose} className="p-1.5 -ml-1.5 rounded-xl hover:bg-white/10 transition-colors">
                 <X className="w-5 h-5 text-white" />
               </button>
@@ -258,7 +253,7 @@ export default function ProfileForm({ isOpen, onClose }: ProfileFormProps) {
             </div>
 
             {/* Tab Content */}
-            <div className="overflow-y-auto flex-1">
+            <div className="overflow-y-auto flex-1 min-h-0">
               <div className="px-5 py-4 space-y-5">
 
                 {/* ===== BASIC TAB ===== */}
