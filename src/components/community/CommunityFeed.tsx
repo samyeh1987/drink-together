@@ -137,12 +137,17 @@ export default function CommunityFeed() {
   };
 
   const handleSubmit = async () => {
-    if (!user?.id || (!content.trim() && !imageFile)) return;
+    console.log('[CommunityFeed] handleSubmit called', { content: content.trim(), imageFile });
+    if (!user?.id || (!content.trim() && !imageFile)) {
+      console.log('[CommunityFeed] blocked - no content or image');
+      return;
+    }
     setSubmitting(true);
     try {
       let imageUrl: string | undefined;
 
       if (imageFile) {
+        console.log('[CommunityFeed] uploading image...', imageFile.name);
         const supabase = createClient();
         const ext = imageFile.name.split('.').pop() || 'jpg';
         const fileName = `${Date.now()}.${ext}`;
@@ -153,6 +158,7 @@ export default function CommunityFeed() {
         console.log('[CommunityFeed] upload result:', { uploadError, uploadData });
         if (uploadError) {
           console.error('[CommunityFeed] upload error:', uploadError);
+          alert('Upload failed: ' + uploadError.message);
         } else {
           // Build public URL manually to avoid getPublicUrl inconsistency
           const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -161,16 +167,21 @@ export default function CommunityFeed() {
         }
       }
 
+      console.log('[CommunityFeed] creating post with imageUrl:', imageUrl);
       const { data, error } = await createPost(user.id, content.trim(), imageUrl);
+      console.log('[CommunityFeed] createPost result:', { data, error });
       if (!error && data) {
         setPosts(prev => [{ ...data as any, has_liked: false }, ...prev]);
         setContent('');
         setImagePreview(null);
         setImageFile(null);
         setShowCompose(false);
+      } else if (error) {
+        alert('Post failed: ' + error.message);
       }
     } catch (err) {
       console.error('Post error:', err);
+      alert('Error: ' + (err as Error).message);
     } finally {
       setSubmitting(false);
     }
