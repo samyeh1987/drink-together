@@ -170,6 +170,9 @@ export default function CommunityFeed() {
     }
   };
 
+  // Check if post has either content or image
+  const canPost = content.trim() || imageFile;
+
   return (
     <section className="px-4 pb-6">
       {/* Section header */}
@@ -239,19 +242,26 @@ export default function CommunityFeed() {
                 </div>
               </div>
 
-              {/* Content */}
-              {post.content && (
-                <p className="text-sm text-white/90 leading-relaxed mb-3">{post.content}</p>
-              )}
-
-              {/* Image */}
-              {post.image_url && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={post.image_url}
-                  alt=""
-                  className="w-full rounded-xl object-cover max-h-64 mb-3"
-                />
+              {/* Content - image-first when both exist */}
+              {post.image_url ? (
+                // Photo post: image on top
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={post.image_url}
+                    alt=""
+                    className="w-full rounded-xl object-cover max-h-72 mb-2"
+                  />
+                  {post.content && (
+                    <p className="text-sm text-white/90 leading-relaxed -mt-1">{post.content}</p>
+                  )}
+                </>
+              ) : (
+                // Text-only post: styled differently
+                <div className="relative pl-4">
+                  <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary to-coral rounded-full" />
+                  <p className="text-sm text-white/90 leading-relaxed italic">{post.content}</p>
+                </div>
               )}
 
               {/* Like button */}
@@ -307,7 +317,7 @@ export default function CommunityFeed() {
                 </h3>
                 <button
                   onClick={handleSubmit}
-                  disabled={submitting || (!content.trim() && !imageFile)}
+                  disabled={submitting || !canPost}
                   className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-primary text-white text-sm font-medium disabled:opacity-40 transition-all"
                 >
                   {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
@@ -315,8 +325,8 @@ export default function CommunityFeed() {
                 </button>
               </div>
 
-              {/* Avatar + textarea */}
-              <div className="flex gap-3 mb-4">
+              {/* Avatar row with photo button */}
+              <div className="flex gap-3 mb-3 items-start">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-coral flex items-center justify-center overflow-hidden flex-shrink-0">
                   {user?.avatar_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -325,40 +335,39 @@ export default function CommunityFeed() {
                     <span className="text-sm font-bold text-white">{(user?.nickname || '?').charAt(0)}</span>
                   )}
                 </div>
-                <textarea
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder={locale === 'zh-CN' ? '今晚喝了什麼好酒？分享一下...' : 'What are you drinking tonight? Share it...'}
-                  rows={4}
-                  maxLength={300}
-                  className="flex-1 bg-white/5 border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-gray resize-none outline-none focus:border-primary/40"
-                />
+
+                {/* Image upload / preview area */}
+                {!imagePreview ? (
+                  <button
+                    onClick={() => fileRef.current?.click()}
+                    className="flex items-center gap-2 px-4 py-2.5 glass rounded-xl border border-dashed border-white/30 text-sm text-gray hover:text-white hover:border-primary/50 transition-colors flex-1"
+                  >
+                    <Camera className="w-4 h-4 text-primary" />
+                    {locale === 'zh-CN' ? '加入照片' : 'Add Photo'}
+                  </button>
+                ) : (
+                  <div className="flex-1 relative rounded-xl overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={imagePreview} alt="" className="w-full h-32 object-cover" />
+                    <button
+                      onClick={() => { setImagePreview(null); setImageFile(null); }}
+                      className="absolute top-2 right-2 w-7 h-7 bg-black/60 rounded-full flex items-center justify-center"
+                    >
+                      <X className="w-4 h-4 text-white" />
+                    </button>
+                  </div>
+                )}
               </div>
 
-              {/* Image preview */}
-              {imagePreview && (
-                <div className="relative mb-4 rounded-xl overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={imagePreview} alt="" className="w-full max-h-48 object-cover" />
-                  <button
-                    onClick={() => { setImagePreview(null); setImageFile(null); }}
-                    className="absolute top-2 right-2 w-7 h-7 bg-black/60 rounded-full flex items-center justify-center"
-                  >
-                    <X className="w-4 h-4 text-white" />
-                  </button>
-                </div>
-              )}
-
-              {/* Add photo button */}
-              {!imagePreview && (
-                <button
-                  onClick={() => fileRef.current?.click()}
-                  className="flex items-center gap-2 px-4 py-2.5 glass rounded-xl border border-white/20 text-sm text-gray hover:text-white transition-colors w-full justify-center"
-                >
-                  <ImageIcon className="w-4 h-4" />
-                  {locale === 'zh-CN' ? '添加照片' : 'Add Photo'}
-                </button>
-              )}
+              {/* Textarea */}
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder={locale === 'zh-CN' ? '說說你的喝酒故事...' : 'Share your drinking story...'}
+                rows={3}
+                maxLength={300}
+                className="w-full bg-white/5 border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-gray resize-none outline-none focus:border-primary/40 mb-3"
+              />
 
               <input ref={fileRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
               <div className="h-6 safe-bottom" />
