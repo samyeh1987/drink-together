@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -14,7 +14,7 @@ import {
   Heart,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/auth-store';
-import { updateProfile } from '@/lib/api';
+import { updateProfile, uploadAvatar } from '@/lib/api';
 
 function useBodyScrollLock(lock: boolean) {
   useEffect(() => {
@@ -78,6 +78,8 @@ export default function ProfileForm({ isOpen, onClose }: ProfileFormProps) {
 
   const [activeTab, setActiveTab] = useState<TabKey>('basic');
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Lock body scroll when modal opens
   useBodyScrollLock(isOpen);
@@ -123,6 +125,34 @@ export default function ProfileForm({ isOpen, onClose }: ProfileFormProps) {
     setLanguages(prev =>
       prev.includes(lang) ? prev.filter(l => l !== lang) : [...prev, lang],
     );
+  };
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingAvatar(true);
+    try {
+      const result = await uploadAvatar(file);
+      if (result.success) {
+        await fetchUser();
+      } else {
+        alert(result.error || 'Upload failed');
+      }
+    } catch (err) {
+      console.error('Avatar upload error:', err);
+      alert('Upload failed');
+    } finally {
+      setIsUploadingAvatar(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
   const handleSave = async () => {
@@ -209,9 +239,14 @@ export default function ProfileForm({ isOpen, onClose }: ProfileFormProps) {
 
             {/* Avatar */}
             <div className="flex items-center gap-4 px-5 py-3 border-b border-white/10 flex-shrink-0">
-              <div className="relative">
+              <div
+                className="relative cursor-pointer group"
+                onClick={handleAvatarClick}
+              >
                 <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-coral flex items-center justify-center overflow-hidden">
-                  {user?.avatar_url ? (
+                  {isUploadingAvatar ? (
+                    <Loader2 className="w-6 h-6 text-white animate-spin" />
+                  ) : user?.avatar_url ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img src={user.avatar_url} alt="avatar" className="w-full h-full object-cover" />
                   ) : (
@@ -220,7 +255,7 @@ export default function ProfileForm({ isOpen, onClose }: ProfileFormProps) {
                     </span>
                   )}
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center border-2 border-dark">
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center border-2 border-dark group-hover:bg-primary/80 transition-colors">
                   <Camera className="w-3 h-3 text-white" />
                 </div>
               </div>
@@ -231,7 +266,18 @@ export default function ProfileForm({ isOpen, onClose }: ProfileFormProps) {
                     ? (locale === 'zh-CN' ? '✓ 已驗證' : '✓ Verified')
                     : (locale === 'zh-CN' ? '未驗證' : 'Not verified')}
                 </p>
+                <p className="text-[10px] text-gray mt-0.5">
+                  {locale === 'zh-CN' ? '點擊頭像更換' : 'Tap to change'}
+                </p>
               </div>
+              {/* Hidden file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarChange}
+              />
             </div>
 
             {/* Tabs */}
