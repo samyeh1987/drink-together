@@ -144,14 +144,17 @@ export default function CommunityFeed() {
 
       if (imageFile) {
         const supabase = createClient();
-        const ext = imageFile.name.split('.').pop();
+        const ext = imageFile.name.split('.').pop() || 'jpg';
         const path = `community/${user.id}/${Date.now()}.${ext}`;
-        const { error: uploadError } = await supabase.storage
-          .from('profile-photos')
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('community-photos')
           .upload(path, imageFile, { cacheControl: '3600', upsert: false });
-        if (!uploadError) {
-          const { data: { publicUrl } } = supabase.storage.from('profile-photos').getPublicUrl(path);
+        if (uploadError) {
+          console.error('[CommunityFeed] upload error:', uploadError);
+        } else {
+          const { data: { publicUrl } } = supabase.storage.from('community-photos').getPublicUrl(path);
           imageUrl = publicUrl;
+          console.log('[CommunityFeed] uploaded, url:', publicUrl);
         }
       }
 
