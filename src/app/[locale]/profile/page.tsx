@@ -474,7 +474,7 @@ export default function ProfilePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
-          className="card p-4"
+          className="card p-4 mb-4"
         >
           <h3 className="font-bold text-white mb-3">{t('profile.languagesSpoken')}</h3>
           <div className="flex flex-wrap gap-2">
@@ -485,6 +485,32 @@ export default function ProfilePage() {
             ))}
           </div>
         </motion.div>
+
+        {/* Contact Info */}
+        {((user as any).line_id || (user as any).whatsapp) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.55 }}
+            className="card p-4 mb-4"
+          >
+            <h3 className="font-bold text-white mb-3">{locale === 'zh-CN' ? '聯繫方式' : 'Contact'}</h3>
+            <div className="space-y-2">
+              {(user as any).line_id && (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-gray-light w-16">LINE</span>
+                  <span className="text-sm text-white font-mono">{(user as any).line_id}</span>
+                </div>
+              )}
+              {(user as any).whatsapp && (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-gray-light w-16">WhatsApp</span>
+                  <span className="text-sm text-white font-mono">{(user as any).whatsapp}</span>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
       </div>
 
       {/* Edit Profile Modal */}

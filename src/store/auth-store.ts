@@ -53,7 +53,16 @@ export const useAuthStore = create<AuthState>((set) => ({
             email_verified: profile.email_verified,
             created_at: profile.created_at,
             tags: (profile.user_tags || []).map((ut: any) => ut.tag),
-          },
+            // Extended profile fields
+            height: profile.height,
+            weight: profile.weight,
+            birthday: profile.birthday,
+            city: profile.city,
+            zodiac: profile.zodiac,
+            line_id: profile.line_id,
+            whatsapp: profile.whatsapp,
+            contact_visible: profile.contact_visible,
+          } as any,
           isLoading: false,
         });
       } else {
