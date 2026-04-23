@@ -700,9 +700,10 @@ export async function uploadAvatar(file: File): Promise<{ success: boolean; url?
     return { success: false, error: 'Image must be smaller than 2MB' };
   }
 
-  // Generate unique filename: avatars/{userId}/{timestamp}.{ext}
+  // Generate unique filename: {userId}/{timestamp}.{ext}
+  // Policy requires first folder to be user ID: auth.uid()::text = (storage.foldername(name))[1]
   const ext = file.name.split('.').pop() || 'jpg';
-  const filePath = `avatars/${user.id}/${Date.now()}.${ext}`;
+  const filePath = `${user.id}/${Date.now()}.${ext}`;
 
   // Upload to storage
   const { error: uploadError } = await supabase.storage
