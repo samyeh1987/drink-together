@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { fetchMealStats, fetchOpenMeals } from '@/lib/api';
+import CommunityFeed from '@/components/community/CommunityFeed';
 
 // Dynamically import map to avoid SSR issues with leaflet
 const NearbyMap = dynamic(() => import('@/components/map/NearbyMap'), { ssr: false });
@@ -471,6 +472,10 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Community Feed - 酒友圈 */}
+      <CommunityFeed />
+
     </div>
   );
 }

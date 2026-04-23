@@ -220,10 +220,37 @@ export default function ProfilePage() {
           ) : (
             <p className="text-sm text-gray-light italic">{locale === 'zh-CN' ? '還沒有自我介紹' : 'No bio yet'}</p>
           )}
-          <div className="flex items-center gap-4 mt-3 text-xs text-gray-light">
-            {user.age_range && <span>{user.age_range}</span>}
-            {user.age_range && user.email && <span>•</span>}
-            {user.email && <span>{user.email}</span>}
+
+          {/* Detail tags row */}
+          <div className="flex flex-wrap gap-2 mt-3">
+            {user.age_range && (
+              <span className="tag bg-white/10 text-gray text-xs">🎂 {user.age_range}</span>
+            )}
+            {(user as any).city && (
+              <span className="tag bg-white/10 text-gray text-xs">📍 {(user as any).city}</span>
+            )}
+            {(user as any).occupation && (
+              <span className="tag bg-white/10 text-gray text-xs">💼 {(user as any).occupation}</span>
+            )}
+            {(user as any).zodiac && (
+              <span className="tag bg-primary/20 text-primary text-xs">
+                ✨ {(user as any).zodiac.charAt(0).toUpperCase() + (user as any).zodiac.slice(1)}
+              </span>
+            )}
+            {(user as any).height && (
+              <span className="tag bg-white/10 text-gray text-xs">📏 {(user as any).height} cm</span>
+            )}
+            {(user as any).weight && (
+              <span className="tag bg-white/10 text-gray text-xs">⚖️ {(user as any).weight} kg</span>
+            )}
+            {(user as any).birthday && (
+              <span className="tag bg-gold/20 text-gold text-xs">
+                🎂 {new Date((user as any).birthday).toLocaleDateString(
+                  locale === 'zh-CN' ? 'zh-TW' : 'en-US',
+                  { month: 'short', day: 'numeric' }
+                )}
+              </span>
+            )}
           </div>
         </motion.div>
 
