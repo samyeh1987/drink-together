@@ -591,13 +591,14 @@ export default function ProfileForm({ isOpen, onClose }: ProfileFormProps) {
                         </p>
                       </div>
                       <button
-                        onClick={() => setContactVisible(!contactVisible)}
-                        className={`relative w-12 h-6 rounded-full transition-colors ${
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); setContactVisible(!contactVisible); }}
+                        className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${
                           contactVisible ? 'bg-primary' : 'bg-white/20'
                         }`}
                       >
                         <span
-                          className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                          className={`pointer-events-none absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
                             contactVisible ? 'translate-x-6' : 'translate-x-0.5'
                           }`}
                         />
