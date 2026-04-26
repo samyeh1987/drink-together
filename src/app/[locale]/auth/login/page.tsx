@@ -140,7 +140,7 @@ export default function LoginPage() {
                 mode === 'signup' ? 'bg-white text-primary shadow-sm' : 'text-gray-500'
               }`}
             >
-              Sign Up
+              {t('auth.signUp')}
             </button>
           </div>
 
@@ -156,13 +156,13 @@ export default function LoginPage() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
-            <span className="text-sm font-semibold text-gray-700">Continue with Google</span>
+            <span className="text-sm font-semibold text-gray-700">{t('auth.continueWithGoogle')}</span>
           </button>
 
           {/* Divider */}
           <div className="flex items-center gap-3 mb-4">
             <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-xs text-gray-400">or</span>
+            <span className="text-xs text-gray-400">{t('auth.or')}</span>
             <div className="flex-1 h-px bg-gray-200" />
           </div>
 
@@ -172,11 +172,11 @@ export default function LoginPage() {
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="email"
-                placeholder="Email"
+                placeholder={t('auth.email')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               />
             </div>
 
@@ -184,12 +184,12 @@ export default function LoginPage() {
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Password"
+                placeholder={t('auth.password')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full pl-10 pr-10 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                className="w-full pl-10 pr-10 py-3 rounded-xl border border-gray-200 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               />
               <button
                 type="button"
@@ -207,7 +207,7 @@ export default function LoginPage() {
                   href={`/${locale}/auth/reset-password`}
                   className="text-xs text-primary hover:underline"
                 >
-                  Forgot password?
+                  {t('auth.forgotPassword')}
                 </Link>
               </div>
             )}
@@ -248,7 +248,7 @@ export default function LoginPage() {
               ) : mode === 'login' ? (
                 t('nav.login')
               ) : (
-                'Create Account'
+                t('auth.createAccount')
               )}
             </button>
           </form>
@@ -256,7 +256,7 @@ export default function LoginPage() {
           {/* Hint */}
           {mode === 'signup' && (
             <p className="mt-3 text-center text-xs text-gray-400">
-              Password must be at least 6 characters
+              {t('auth.passwordHint')}
             </p>
           )}
         </motion.div>

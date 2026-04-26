@@ -32,6 +32,22 @@ const languageFlags: Record<string, string> = {
   ko: '🇰🇷',
 };
 
+// Zodiac emoji mapping
+const ZODIAC_EMOJI: Record<string, string> = {
+  aries: '♈',
+  taurus: '♉',
+  gemini: '♊',
+  cancer: '♋',
+  leo: '♌',
+  virgo: '♍',
+  libra: '♎',
+  scorpio: '♏',
+  sagittarius: '♐',
+  capricorn: '♑',
+  aquarius: '♒',
+  pisces: '♓',
+};
+
 // Gender emoji (stored in occupation or not used)
 // const genderEmoji: Record<string, string> = { ... };
 
@@ -67,7 +83,8 @@ export default function ProfilePage() {
     try {
       const supabase = createClient();
       const ext = file.name.split('.').pop();
-      const filePath = `profile-photos/${user.id}/${Date.now()}.${ext}`;
+      // RLS policy requires first folder to be user ID: auth.uid()::text = (storage.foldername(name))[1]
+      const filePath = `${user.id}/${Date.now()}.${ext}`;
 
       const { error: uploadError } = await supabase.storage
         .from('profile-photos')
@@ -224,7 +241,7 @@ export default function ProfilePage() {
           {/* Detail tags row */}
           <div className="flex flex-wrap gap-2 mt-3">
             {user.age_range && (
-              <span className="tag bg-white/10 text-gray text-xs">🎂 {user.age_range}</span>
+              <span className="tag bg-white/10 text-gray text-xs">🔢 {user.age_range}</span>
             )}
             {(user as any).city && (
               <span className="tag bg-white/10 text-gray text-xs">📍 {(user as any).city}</span>
@@ -234,7 +251,7 @@ export default function ProfilePage() {
             )}
             {(user as any).zodiac && (
               <span className="tag bg-primary/20 text-primary text-xs">
-                ✨ {(user as any).zodiac.charAt(0).toUpperCase() + (user as any).zodiac.slice(1)}
+                {ZODIAC_EMOJI[(user as any).zodiac]} {(user as any).zodiac.charAt(0).toUpperCase() + (user as any).zodiac.slice(1)}
               </span>
             )}
             {(user as any).height && (
