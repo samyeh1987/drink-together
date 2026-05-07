@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>不要一個人喝酒 - 探索頁 Explore</title>
   <link rel="stylesheet" href="common.css">
   <style>
@@ -368,154 +368,152 @@
   </style>
 </head>
 <body>
-  <div class="phone-frame">
-    <div class="phone-content" style="padding-bottom: 0;">
-      <!-- Status Bar -->
-      <div class="status-bar" style="background: transparent; position: absolute; z-index: 20;">
-        <span class="time">16:38</span>
-        <div class="icons">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+  <!-- Status Bar -->
+  <div class="status-bar" style="background: transparent; position: absolute; z-index: 20;">
+    <span class="time">16:38</span>
+    <div class="icons">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <!-- Map -->
+    <div class="map-container">
+      <div class="map-bg">
+        <!-- Map Pins -->
+        <div class="map-pin pink active" style="top: 30%; left: 45%;"></div>
+        <div class="map-pin purple" style="top: 45%; left: 25%;"></div>
+        <div class="map-pin blue" style="top: 55%; left: 60%;"></div>
+        <div class="map-pin green" style="top: 25%; left: 70%;"></div>
+        <div class="map-pin yellow" style="top: 60%; left: 35%;"></div>
+        <div class="map-pin orange" style="top: 40%; left: 55%;"></div>
+        <div class="map-pin pink" style="top: 35%; left: 15%;"></div>
+        <div class="map-pin blue" style="top: 65%; left: 75%;"></div>
+
+        <!-- User Location -->
+        <div class="user-location" style="top: 48%; left: 48%;"></div>
+      </div>
+
+      <!-- Search -->
+      <div class="map-search">
+        <svg class="ms-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input type="text" placeholder="在這附近搜尋...">
+      </div>
+
+      <!-- Map Controls -->
+      <div class="map-controls">
+        <div class="map-ctrl-btn">
+          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        </div>
+        <div class="map-ctrl-btn">
+          <svg viewBox="0 0 24 24"><path d="M7 14l5-5 5 5z"/></svg>
+        </div>
+        <div class="map-ctrl-btn">
+          <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+        </div>
+        <div class="map-ctrl-btn">
+          <svg viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
         </div>
       </div>
 
-      <!-- Map -->
-      <div class="map-container">
-        <div class="map-bg">
-          <!-- Map Pins -->
-          <div class="map-pin pink active" style="top: 30%; left: 45%;"></div>
-          <div class="map-pin purple" style="top: 45%; left: 25%;"></div>
-          <div class="map-pin blue" style="top: 55%; left: 60%;"></div>
-          <div class="map-pin green" style="top: 25%; left: 70%;"></div>
-          <div class="map-pin yellow" style="top: 60%; left: 35%;"></div>
-          <div class="map-pin orange" style="top: 40%; left: 55%;"></div>
-          <div class="map-pin pink" style="top: 35%; left: 15%;"></div>
-          <div class="map-pin blue" style="top: 65%; left: 75%;"></div>
-
-          <!-- User Location -->
-          <div class="user-location" style="top: 48%; left: 48%;"></div>
+      <!-- Bottom Panel -->
+      <div class="map-panel">
+        <div class="panel-handle"></div>
+        <div class="panel-tabs">
+          <div class="panel-tab active">全部</div>
+          <div class="panel-tab">威士忌吧</div>
+          <div class="panel-tab">天台酒吧</div>
+          <div class="panel-tab">Live音樂</div>
+          <div class="panel-tab">精釀</div>
         </div>
-
-        <!-- Search -->
-        <div class="map-search">
-          <svg class="ms-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-          <input type="text" placeholder="在這附近搜尋...">
-        </div>
-
-        <!-- Map Controls -->
-        <div class="map-controls">
-          <div class="map-ctrl-btn">
-            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        <div class="filters-row">
+          <div class="filter-chip active">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+            距離最近
           </div>
-          <div class="map-ctrl-btn">
-            <svg viewBox="0 0 24 24"><path d="M7 14l5-5 5 5z"/></svg>
+          <div class="filter-chip">
+            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            評分最高
           </div>
-          <div class="map-ctrl-btn">
-            <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+          <div class="filter-chip">
+            <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+            價格
           </div>
-          <div class="map-ctrl-btn">
-            <svg viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+          <div class="filter-chip">
+            <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+            營業中
           </div>
         </div>
-
-        <!-- Bottom Panel -->
-        <div class="map-panel">
-          <div class="panel-handle"></div>
-          <div class="panel-tabs">
-            <div class="panel-tab active">全部</div>
-            <div class="panel-tab">威士忌吧</div>
-            <div class="panel-tab">天台酒吧</div>
-            <div class="panel-tab">Live音樂</div>
-            <div class="panel-tab">精釀</div>
-          </div>
-          <div class="filters-row">
-            <div class="filter-chip active">
-              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
-              距離最近
-            </div>
-            <div class="filter-chip">
-              <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-              評分最高
-            </div>
-            <div class="filter-chip">
-              <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
-              價格
-            </div>
-            <div class="filter-chip">
-              <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
-              營業中
+        <div class="result-info">
+          <span>找到 <span class="count">36</span> 間酒吧</span>
+          <span>排序: 距離 ↑</span>
+        </div>
+        <div class="bar-list">
+          <div class="bar-list-item">
+            <div class="bli-img img-placeholder bar3"></div>
+            <div class="bli-info">
+              <div class="bli-name">Iron Fairies</div>
+              <div class="bli-type">主題酒吧 · 隱藏酒吧</div>
+              <div class="bli-meta">
+                <span class="r">★ 4.7</span>
+                <span class="d">📍 0.3km</span>
+              </div>
+              <span class="bli-status open">營業中</span>
             </div>
           </div>
-          <div class="result-info">
-            <span>找到 <span class="count">36</span> 間酒吧</span>
-            <span>排序: 距離 ↑</span>
+          <div class="bar-list-item">
+            <div class="bli-img img-placeholder bar2"></div>
+            <div class="bli-info">
+              <div class="bli-name">Sugar Ray</div>
+              <div class="bli-type">天台酒吧 · 派對</div>
+              <div class="bli-meta">
+                <span class="r">★ 4.4</span>
+                <span class="d">📍 0.6km</span>
+              </div>
+              <span class="bli-status open">營業中</span>
+            </div>
           </div>
-          <div class="bar-list">
-            <div class="bar-list-item">
-              <div class="bli-img img-placeholder bar3"></div>
-              <div class="bli-info">
-                <div class="bli-name">Iron Fairies</div>
-                <div class="bli-type">主題酒吧 · 隱藏酒吧</div>
-                <div class="bli-meta">
-                  <span class="r">★ 4.7</span>
-                  <span class="d">📍 0.3km</span>
-                </div>
-                <span class="bli-status open">營業中</span>
+          <div class="bar-list-item">
+            <div class="bli-img img-placeholder bar1"></div>
+            <div class="bli-info">
+              <div class="bli-name">Rabbit Hole Bar</div>
+              <div class="bli-type">威士忌吧 · 精選單一麥芽</div>
+              <div class="bli-meta">
+                <span class="r">★ 4.8</span>
+                <span class="d">📍 0.8km</span>
               </div>
-            </div>
-            <div class="bar-list-item">
-              <div class="bli-img img-placeholder bar2"></div>
-              <div class="bli-info">
-                <div class="bli-name">Sugar Ray</div>
-                <div class="bli-type">天台酒吧 · 派對</div>
-                <div class="bli-meta">
-                  <span class="r">★ 4.4</span>
-                  <span class="d">📍 0.6km</span>
-                </div>
-                <span class="bli-status open">營業中</span>
-              </div>
-            </div>
-            <div class="bar-list-item">
-              <div class="bli-img img-placeholder bar1"></div>
-              <div class="bli-info">
-                <div class="bli-name">Rabbit Hole Bar</div>
-                <div class="bli-type">威士忌吧 · 精選單一麥芽</div>
-                <div class="bli-meta">
-                  <span class="r">★ 4.8</span>
-                  <span class="d">📍 0.8km</span>
-                </div>
-                <span class="bli-status closing">即將打烊</span>
-              </div>
+              <span class="bli-status closing">即將打烊</span>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Bottom Nav -->
-    <div class="bottom-nav">
-      <div class="nav-item" onclick="location.href='home.html'">
-        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-        <span>首頁</span>
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="location.href='home.html'">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>首頁</span>
+    </div>
+    <div class="nav-item" onclick="location.href='moments.html'">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+      <span>動態</span>
+    </div>
+    <div class="nav-item party-tab" onclick="location.href='party.html'">
+      <div class="party-badge">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
       </div>
-      <div class="nav-item" onclick="location.href='moments.html'">
-        <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
-        <span>動態</span>
-      </div>
-      <div class="nav-item party-tab" onclick="location.href='party.html'">
-        <div class="party-badge">
-          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-        </div>
-        <span>約酒局</span>
-      </div>
-      <div class="nav-item" onclick="location.href='messages.html'">
-        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
-        <span>消息</span>
-      </div>
-      <div class="nav-item" onclick="location.href='profile.html'">
-        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-        <span>我的</span>
-      </div>
+      <span>約酒局</span>
+    </div>
+    <div class="nav-item" onclick="location.href='messages.html'">
+      <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+      <span>消息</span>
+    </div>
+    <div class="nav-item" onclick="location.href='profile.html'">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      <span>我的</span>
     </div>
   </div>
 </body>
