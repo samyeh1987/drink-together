@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>不要一個人喝酒 - 發佈頁 Publish</title>
   <link rel="stylesheet" href="common.css">
   <style>
@@ -211,7 +211,7 @@
     }
 
     .photo-slot.filled .remove-photo {
-      position: absolute;
+      position: fixed;
       top: 4px;
       right: 4px;
       width: 20px;
@@ -416,166 +416,169 @@
     .location-toggle .lt-icon {
       font-size: 18px;
     }
+
+    /* page-body safe-bottom padding for sub-page */
+    .page-body {
+      padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
   </style>
 </head>
 <body>
-  <div class="phone-frame">
-    <div class="phone-content">
-      <!-- Status Bar -->
-      <div class="status-bar">
-        <span class="time">16:38</span>
-        <div class="icons">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
-        </div>
-      </div>
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">16:38</span>
+    <div class="icons">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
 
-      <!-- Header -->
-      <div class="publish-header">
-        <button class="cancel-btn" onclick="history.back()">取消</button>
-        <span style="font-size: 16px; font-weight: 700;">發佈動態</span>
-        <button class="post-btn">發佈</button>
-      </div>
-
-      <!-- Publish Type -->
-      <div class="publish-types">
-        <div class="pub-type active">
-          <span class="pub-icon">📝</span>
-          <span class="pub-text">動態</span>
-        </div>
-        <div class="pub-type">
-          <span class="pub-icon">⭐</span>
-          <span class="pub-text">評論</span>
-        </div>
-        <div class="pub-type">
-          <span class="pub-icon">🍻</span>
-          <span class="pub-text">酒吧推薦</span>
-        </div>
-        <div class="pub-type">
-          <span class="pub-icon">📸</span>
-          <span class="pub-text">打卡</span>
-        </div>
-      </div>
-
-      <!-- Bar Selector -->
-      <div class="bar-selector">
-        <div class="bs-icon">🍸</div>
-        <div class="bs-info">
-          <div class="bs-label">選擇酒吧</div>
-          <div class="bs-name">Rabbit Hole Bar</div>
-        </div>
-        <svg class="bs-arrow" width="16" height="16" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
-      </div>
-
-      <!-- Check-in Badge -->
-      <div class="checkin-badge">
-        <div class="cb-icon">📍</div>
-        <div class="cb-text">已打卡 Rabbit Hole Bar</div>
-        <div class="cb-coin">+5 幣幣</div>
-      </div>
-
-      <!-- Photo Upload -->
-      <div class="photo-upload">
-        <div class="photo-grid">
-          <div class="photo-slot filled">
-            <div class="img-placeholder bar3" style="width:100%;height:100%;"></div>
-            <div class="remove-photo">
-              <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-            </div>
-          </div>
-          <div class="photo-slot filled">
-            <div class="img-placeholder bar1" style="width:100%;height:100%;"></div>
-            <div class="remove-photo">
-              <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-            </div>
-          </div>
-          <div class="photo-slot">
-            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            <span>添加照片</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Text Input -->
-      <div class="text-input-area">
-        <textarea placeholder="分享你今晚的喝酒體驗吧... 🍻"></textarea>
-        <div class="char-count">0 / 500</div>
-      </div>
-
-      <!-- Rating -->
-      <div class="rating-section">
-        <div class="rating-label">你的評分</div>
-        <div class="rating-stars">
-          <span class="rating-star active">★</span>
-          <span class="rating-star active">★</span>
-          <span class="rating-star active">★</span>
-          <span class="rating-star active">★</span>
-          <span class="rating-star">★</span>
-        </div>
-      </div>
-
-      <!-- Vibe Tags -->
-      <div class="vibe-section">
-        <div class="vibe-label">今晚的氛圍</div>
-        <div class="vibe-options">
-          <div class="vibe-option selected">🕺 派對</div>
-          <div class="vibe-option">😌 放鬆</div>
-          <div class="vibe-option selected">🎶 音樂</div>
-          <div class="vibe-option">💑 約會</div>
-          <div class="vibe-option">🤝 社交</div>
-          <div class="vibe-option">🎭 主題</div>
-        </div>
-      </div>
-
-      <!-- Tags -->
-      <div class="tags-section">
-        <div class="tags-label">標籤</div>
-        <div class="tag-options">
-          <div class="tag-option selected">#曼谷喝酒</div>
-          <div class="tag-option">#威士忌</div>
-          <div class="tag-option selected">#隱藏酒吧</div>
-          <div class="tag-option">#調酒</div>
-          <div class="tag-option">#素坤逸</div>
-          <div class="tag-option">+ 自訂</div>
-        </div>
-      </div>
-
-      <!-- Location -->
-      <div class="location-toggle">
-        <span class="lt-icon">📍</span>
-        <div class="lt-text" style="flex:1;">顯示當前位置</div>
-        <div class="toggle-switch">
-          <div class="toggle-dot"></div>
-        </div>
-      </div>
-
-      <div style="height: 100px;"></div>
+  <div class="page-body">
+    <!-- Header -->
+    <div class="publish-header">
+      <button class="cancel-btn" onclick="history.back()">取消</button>
+      <span style="font-size: 16px; font-weight: 700;">發佈動態</span>
+      <button class="post-btn">發佈</button>
     </div>
 
-    <!-- Bottom Nav -->
-    <div class="bottom-nav">
-      <div class="nav-item" onclick="location.href='home.html'">
-        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-        <span>首頁</span>
+    <!-- Publish Type -->
+    <div class="publish-types">
+      <div class="pub-type active">
+        <span class="pub-icon">📝</span>
+        <span class="pub-text">動態</span>
       </div>
-      <div class="nav-item" onclick="location.href='moments.html'">
-        <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
-        <span>動態</span>
+      <div class="pub-type">
+        <span class="pub-icon">⭐</span>
+        <span class="pub-text">評論</span>
       </div>
-      <div class="nav-item party-tab" onclick="location.href='party.html'">
-        <div class="party-badge">
-          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      <div class="pub-type">
+        <span class="pub-icon">🍻</span>
+        <span class="pub-text">酒吧推薦</span>
+      </div>
+      <div class="pub-type">
+        <span class="pub-icon">📸</span>
+        <span class="pub-text">打卡</span>
+      </div>
+    </div>
+
+    <!-- Bar Selector -->
+    <div class="bar-selector">
+      <div class="bs-icon">🍸</div>
+      <div class="bs-info">
+        <div class="bs-label">選擇酒吧</div>
+        <div class="bs-name">Rabbit Hole Bar</div>
+      </div>
+      <svg class="bs-arrow" width="16" height="16" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+    </div>
+
+    <!-- Check-in Badge -->
+    <div class="checkin-badge">
+      <div class="cb-icon">📍</div>
+      <div class="cb-text">已打卡 Rabbit Hole Bar</div>
+      <div class="cb-coin">+5 幣幣</div>
+    </div>
+
+    <!-- Photo Upload -->
+    <div class="photo-upload">
+      <div class="photo-grid">
+        <div class="photo-slot filled">
+          <div class="img-placeholder bar3" style="width:100%;height:100%;"></div>
+          <div class="remove-photo">
+            <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+          </div>
         </div>
-        <span>約酒局</span>
+        <div class="photo-slot filled">
+          <div class="img-placeholder bar1" style="width:100%;height:100%;"></div>
+          <div class="remove-photo">
+            <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+          </div>
+        </div>
+        <div class="photo-slot">
+          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          <span>添加照片</span>
+        </div>
       </div>
-      <div class="nav-item" onclick="location.href='messages.html'">
-        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
-        <span>消息</span>
+    </div>
+
+    <!-- Text Input -->
+    <div class="text-input-area">
+      <textarea placeholder="分享你今晚的喝酒體驗吧... 🍻"></textarea>
+      <div class="char-count">0 / 500</div>
+    </div>
+
+    <!-- Rating -->
+    <div class="rating-section">
+      <div class="rating-label">你的評分</div>
+      <div class="rating-stars">
+        <span class="rating-star active">★</span>
+        <span class="rating-star active">★</span>
+        <span class="rating-star active">★</span>
+        <span class="rating-star active">★</span>
+        <span class="rating-star">★</span>
       </div>
-      <div class="nav-item" onclick="location.href='profile.html'">
-        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-        <span>我的</span>
+    </div>
+
+    <!-- Vibe Tags -->
+    <div class="vibe-section">
+      <div class="vibe-label">今晚的氛圍</div>
+      <div class="vibe-options">
+        <div class="vibe-option selected">🕺 派對</div>
+        <div class="vibe-option">😌 放鬆</div>
+        <div class="vibe-option selected">🎶 音樂</div>
+        <div class="vibe-option">💑 約會</div>
+        <div class="vibe-option">🤝 社交</div>
+        <div class="vibe-option">🎭 主題</div>
       </div>
+    </div>
+
+    <!-- Tags -->
+    <div class="tags-section">
+      <div class="tags-label">標籤</div>
+      <div class="tag-options">
+        <div class="tag-option selected">#曼谷喝酒</div>
+        <div class="tag-option">#威士忌</div>
+        <div class="tag-option selected">#隱藏酒吧</div>
+        <div class="tag-option">#調酒</div>
+        <div class="tag-option">#素坤逸</div>
+        <div class="tag-option">+ 自訂</div>
+      </div>
+    </div>
+
+    <!-- Location -->
+    <div class="location-toggle">
+      <span class="lt-icon">📍</span>
+      <div class="lt-text" style="flex:1;">顯示當前位置</div>
+      <div class="toggle-switch">
+        <div class="toggle-dot"></div>
+      </div>
+    </div>
+
+    <div style="height: 100px;"></div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="location.href='home.html'">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>首頁</span>
+    </div>
+    <div class="nav-item" onclick="location.href='moments.html'">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+      <span>動態</span>
+    </div>
+    <div class="nav-item party-tab" onclick="location.href='party.html'">
+      <div class="party-badge">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      </div>
+      <span>約酒局</span>
+    </div>
+    <div class="nav-item" onclick="location.href='messages.html'">
+      <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+      <span>消息</span>
+    </div>
+    <div class="nav-item" onclick="location.href='profile.html'">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      <span>我的</span>
     </div>
   </div>
 </body>

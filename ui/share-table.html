@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>不要一個人喝酒 - 拚桌實況</title>
   <link rel="stylesheet" href="common.css">
   <style>
@@ -526,206 +526,204 @@
   </style>
 </head>
 <body>
-  <div class="phone-frame">
-    <div class="phone-content">
-      <!-- Status Bar -->
-      <div class="status-bar">
-        <span class="time">21:23</span>
-        <div class="icons">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
-        </div>
-      </div>
-
-      <!-- Header -->
-      <div class="st-header">
-        <div class="back-btn" onclick="history.back()">
-          <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-        </div>
-        <div class="header-title">拚桌實況</div>
-        <button class="open-table-btn">+ 開桌</button>
-      </div>
-
-      <!-- Bar Info -->
-      <div class="bar-info-card">
-        <div class="bar-top">
-          <div class="bar-cover img-placeholder bar1"></div>
-          <div class="bar-detail">
-            <div class="bar-name">Rabbit Hole Bar</div>
-            <div class="bar-type-addr">
-              <span class="bar-rating">★ 4.8</span>
-              <span>威士忌吧</span>
-              <span>·</span>
-              <span>Sukhumvit Soi 26</span>
-            </div>
-          </div>
-          <div class="bar-status-badge">
-            <span class="status-dot"></span>
-            營業中
-          </div>
-        </div>
-        <div class="bar-meta-row">
-          <div class="meta-item">
-            <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
-            營業至 02:00
-          </div>
-          <div class="meta-item">
-            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
-            0.5km
-          </div>
-          <div class="meta-item">
-            <span>💰💰</span>
-            人均 600 THB
-          </div>
-        </div>
-      </div>
-
-      <!-- Host Section -->
-      <div class="host-section">
-        <div class="host-header">
-          <div class="host-avatar img-placeholder avatar" style="background: linear-gradient(135deg, #ffe600, #ff6b35);">
-            <div class="online-dot"></div>
-          </div>
-          <div class="host-info">
-            <div class="host-name-row">
-              <span class="host-name">Kenny 🇹🇭</span>
-              <span class="host-badge">桌長</span>
-            </div>
-            <div class="host-bio">曼谷威士忌愛好者 · 每週至少喝三次 🥃</div>
-            <div class="host-stats">
-              <span>組織 <em>23</em> 次</span>
-              <span>好評 <em>98%</em></span>
-            </div>
-          </div>
-          <button class="msg-btn">💬 私信</button>
-        </div>
-        <div class="host-message">
-          <span class="quote-mark">"</span>
-          今天到 Rabbit Hole 試他們新到的日本威士忌！目前 2 個人，還有 2 個位子，歡迎來聊天～男女不拘，喜歡威士忌最好，不會喝也歡迎！
-        </div>
-      </div>
-
-      <!-- Participants -->
-      <div class="participants-section">
-        <div class="section-title">
-          已加入的人
-          <span class="count">2/4 人</span>
-        </div>
-        <div class="participant-list">
-          <div class="participant-item">
-            <div class="p-avatar img-placeholder avatar" style="background: linear-gradient(135deg, #ffe600, #ff6b35);"></div>
-            <div class="p-info">
-              <div class="p-name">
-                Kenny 🇹🇭
-                <span class="p-tag">桌長</span>
-              </div>
-              <div class="p-status">
-                <span class="p-online"><span class="dot"></span> 在酒吧中</span>
-                · 已到 30 分鐘
-              </div>
-            </div>
-          </div>
-          <div class="participant-item">
-            <div class="p-avatar img-placeholder avatar" style="background: linear-gradient(135deg, #00d4ff, #b829dd);"></div>
-            <div class="p-info">
-              <div class="p-name">
-                Yuki 🇯🇵
-                <span class="p-tag">威士忌新手</span>
-              </div>
-              <div class="p-status">
-                <span class="p-online"><span class="dot"></span> 在酒吧中</span>
-                · 剛到
-              </div>
-            </div>
-          </div>
-          <div class="participant-item" style="border-style: dashed; background: transparent;">
-            <div style="width: 40px; height: 40px; border-radius: 50%; border: 2px dashed var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-muted); flex-shrink: 0;">
-              ?
-            </div>
-            <div class="p-info">
-              <div class="p-name" style="color: var(--text-muted);">等你來加入...</div>
-              <div class="p-status">還有 2 個位子</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Join CTA -->
-      <div class="join-section">
-        <div class="join-title">想一起拚桌嗎？</div>
-        <div class="join-desc">Kenny 在 Rabbit Hole Bar 等你</div>
-        <div class="join-seats">✅ 還有 2 個空位</div>
-        <div class="join-btn-row">
-          <button class="join-main-btn">🍻 申請加入</button>
-          <button class="join-secondary-btn">💬 先聊聊</button>
-        </div>
-      </div>
-
-      <!-- Table Rules -->
-      <div class="rules-section">
-        <div class="rules-title">📋 拚桌小須知</div>
-        <div class="rule-item">
-          <span class="rule-icon">💳</span>
-          <span>費用各自結帳，不強制消費</span>
-        </div>
-        <div class="rule-item">
-          <span class="rule-icon">🤝</span>
-          <span>尊重每位同桌的人，友善交流</span>
-        </div>
-        <div class="rule-item">
-          <span class="rule-icon">📱</span>
-          <span>加入後可看到桌長的即時位置</span>
-        </div>
-        <div class="rule-item">
-          <span class="rule-icon">⏰</span>
-          <span>桌長會保留位子 30 分鐘</span>
-        </div>
-      </div>
-
-      <div class="neon-divider"></div>
-
-      <!-- Similar Tables -->
-      <div class="similar-section">
-        <div class="section-title" style="margin-bottom: 12px;">
-          附近其他拚桌
-        </div>
-        <div class="similar-list">
-          <div class="similar-item">
-            <div class="s-bar-icon img-placeholder bar2"></div>
-            <div class="s-info">
-              <div class="s-name">Tichuca Rooftop</div>
-              <div class="s-meta">
-                <span class="seats">4/8 人</span>
-                <span>女生限定</span>
-                <span>0.8km</span>
-              </div>
-            </div>
-            <div class="s-avatars">
-              <div class="av img-placeholder avatar" style="background: linear-gradient(135deg, #ff2d95, #ffe600);"></div>
-              <div class="av img-placeholder avatar" style="background: linear-gradient(135deg, #b829dd, #00d4ff);"></div>
-              <div class="av img-placeholder avatar" style="background: linear-gradient(135deg, #39ff14, #ff6b35);"></div>
-            </div>
-          </div>
-          <div class="similar-item">
-            <div class="s-bar-icon img-placeholder bar3"></div>
-            <div class="s-info">
-              <div class="s-name">Iron Fairies</div>
-              <div class="s-meta">
-                <span class="seats">3/6 人</span>
-                <span>不限</span>
-                <span>1.1km</span>
-              </div>
-            </div>
-            <div class="s-avatars">
-              <div class="av img-placeholder avatar" style="background: linear-gradient(135deg, #00d4ff, #39ff14);"></div>
-              <div class="av img-placeholder avatar" style="background: linear-gradient(135deg, #ff6b35, #ffe600);"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div style="height: 40px;" class="safe-bottom"></div>
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">21:23</span>
+    <div class="icons">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
     </div>
+  </div>
+
+  <!-- Header -->
+  <div class="st-header">
+    <div class="back-btn" onclick="history.back()">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    </div>
+    <div class="header-title">拚桌實況</div>
+    <button class="open-table-btn">+ 開桌</button>
+  </div>
+
+  <div class="page-body">
+    <!-- Bar Info -->
+    <div class="bar-info-card">
+      <div class="bar-top">
+        <div class="bar-cover img-placeholder bar1"></div>
+        <div class="bar-detail">
+          <div class="bar-name">Rabbit Hole Bar</div>
+          <div class="bar-type-addr">
+            <span class="bar-rating">★ 4.8</span>
+            <span>威士忌吧</span>
+            <span>·</span>
+            <span>Sukhumvit Soi 26</span>
+          </div>
+        </div>
+        <div class="bar-status-badge">
+          <span class="status-dot"></span>
+          營業中
+        </div>
+      </div>
+      <div class="bar-meta-row">
+        <div class="meta-item">
+          <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+          營業至 02:00
+        </div>
+        <div class="meta-item">
+          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+          0.5km
+        </div>
+        <div class="meta-item">
+          <span>💰💰</span>
+          人均 600 THB
+        </div>
+      </div>
+    </div>
+
+    <!-- Host Section -->
+    <div class="host-section">
+      <div class="host-header">
+        <div class="host-avatar img-placeholder avatar" style="background: linear-gradient(135deg, #ffe600, #ff6b35);">
+          <div class="online-dot"></div>
+        </div>
+        <div class="host-info">
+          <div class="host-name-row">
+            <span class="host-name">Kenny 🇹🇭</span>
+            <span class="host-badge">桌長</span>
+          </div>
+          <div class="host-bio">曼谷威士忌愛好者 · 每週至少喝三次 🥃</div>
+          <div class="host-stats">
+            <span>組織 <em>23</em> 次</span>
+            <span>好評 <em>98%</em></span>
+          </div>
+        </div>
+        <button class="msg-btn">💬 私信</button>
+      </div>
+      <div class="host-message">
+        <span class="quote-mark">"</span>
+        今天到 Rabbit Hole 試他們新到的日本威士忌！目前 2 個人，還有 2 個位子，歡迎來聊天～男女不拘，喜歡威士忌最好，不會喝也歡迎！
+      </div>
+    </div>
+
+    <!-- Participants -->
+    <div class="participants-section">
+      <div class="section-title">
+        已加入的人
+        <span class="count">2/4 人</span>
+      </div>
+      <div class="participant-list">
+        <div class="participant-item">
+          <div class="p-avatar img-placeholder avatar" style="background: linear-gradient(135deg, #ffe600, #ff6b35);"></div>
+          <div class="p-info">
+            <div class="p-name">
+              Kenny 🇹🇭
+              <span class="p-tag">桌長</span>
+            </div>
+            <div class="p-status">
+              <span class="p-online"><span class="dot"></span> 在酒吧中</span>
+              · 已到 30 分鐘
+            </div>
+          </div>
+        </div>
+        <div class="participant-item">
+          <div class="p-avatar img-placeholder avatar" style="background: linear-gradient(135deg, #00d4ff, #b829dd);"></div>
+          <div class="p-info">
+            <div class="p-name">
+              Yuki 🇯🇵
+              <span class="p-tag">威士忌新手</span>
+            </div>
+            <div class="p-status">
+              <span class="p-online"><span class="dot"></span> 在酒吧中</span>
+              · 剛到
+            </div>
+          </div>
+        </div>
+        <div class="participant-item" style="border-style: dashed; background: transparent;">
+          <div style="width: 40px; height: 40px; border-radius: 50%; border: 2px dashed var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-muted); flex-shrink: 0;">
+            ?
+          </div>
+          <div class="p-info">
+            <div class="p-name" style="color: var(--text-muted);">等你來加入...</div>
+            <div class="p-status">還有 2 個位子</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Join CTA -->
+    <div class="join-section">
+      <div class="join-title">想一起拚桌嗎？</div>
+      <div class="join-desc">Kenny 在 Rabbit Hole Bar 等你</div>
+      <div class="join-seats">✅ 還有 2 個空位</div>
+      <div class="join-btn-row">
+        <button class="join-main-btn">🍻 申請加入</button>
+        <button class="join-secondary-btn">💬 先聊聊</button>
+      </div>
+    </div>
+
+    <!-- Table Rules -->
+    <div class="rules-section">
+      <div class="rules-title">📋 拚桌小須知</div>
+      <div class="rule-item">
+        <span class="rule-icon">💳</span>
+        <span>費用各自結帳，不強制消費</span>
+      </div>
+      <div class="rule-item">
+        <span class="rule-icon">🤝</span>
+        <span>尊重每位同桌的人，友善交流</span>
+      </div>
+      <div class="rule-item">
+        <span class="rule-icon">📱</span>
+        <span>加入後可看到桌長的即時位置</span>
+      </div>
+      <div class="rule-item">
+        <span class="rule-icon">⏰</span>
+        <span>桌長會保留位子 30 分鐘</span>
+      </div>
+    </div>
+
+    <div class="neon-divider"></div>
+
+    <!-- Similar Tables -->
+    <div class="similar-section">
+      <div class="section-title" style="margin-bottom: 12px;">
+        附近其他拚桌
+      </div>
+      <div class="similar-list">
+        <div class="similar-item">
+          <div class="s-bar-icon img-placeholder bar2"></div>
+          <div class="s-info">
+            <div class="s-name">Tichuca Rooftop</div>
+            <div class="s-meta">
+              <span class="seats">4/8 人</span>
+              <span>女生限定</span>
+              <span>0.8km</span>
+            </div>
+          </div>
+          <div class="s-avatars">
+            <div class="av img-placeholder avatar" style="background: linear-gradient(135deg, #ff2d95, #ffe600);"></div>
+            <div class="av img-placeholder avatar" style="background: linear-gradient(135deg, #b829dd, #00d4ff);"></div>
+            <div class="av img-placeholder avatar" style="background: linear-gradient(135deg, #39ff14, #ff6b35);"></div>
+          </div>
+        </div>
+        <div class="similar-item">
+          <div class="s-bar-icon img-placeholder bar3"></div>
+          <div class="s-info">
+            <div class="s-name">Iron Fairies</div>
+            <div class="s-meta">
+              <span class="seats">3/6 人</span>
+              <span>不限</span>
+              <span>1.1km</span>
+            </div>
+          </div>
+          <div class="s-avatars">
+            <div class="av img-placeholder avatar" style="background: linear-gradient(135deg, #00d4ff, #39ff14);"></div>
+            <div class="av img-placeholder avatar" style="background: linear-gradient(135deg, #ff6b35, #ffe600);"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height: 40px;" class="safe-bottom"></div>
   </div>
 </body>
 </html>
