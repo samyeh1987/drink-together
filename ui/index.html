@@ -6,109 +6,448 @@
   <title>不要一個人喝酒</title>
   <link rel="stylesheet" href="common.css">
   <style>
-    /* Splash screen - redirect to home.html on mobile, show showcase on desktop */
-    body { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
-
-    .splash-logo {
-      font-size: 80px; margin-bottom: 20px;
-      animation: float 2s ease-in-out infinite;
+    /* ========== Header ========== */
+    .home-header {
+      padding: 10px 20px 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .splash-title {
-      font-size: 28px; font-weight: 900; text-align: center;
-      background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple), var(--neon-blue));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      margin-bottom: 8px;
-    }
-    .splash-sub {
-      font-size: 14px; color: var(--text-muted); text-align: center; margin-bottom: 40px;
-    }
-    .splash-enter {
-      display: inline-block; padding: 14px 48px; border-radius: 30px;
-      font-size: 16px; font-weight: 700; text-decoration: none;
+    .logo-area { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 36px; height: 36px; border-radius: 10px;
       background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
-      color: white; box-shadow: var(--shadow-neon-pink);
-      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; box-shadow: var(--shadow-neon-pink);
     }
-    .splash-enter:active { transform: scale(0.95); }
+    .logo-text {
+      font-size: 15px; font-weight: 900;
+      background: linear-gradient(90deg, var(--neon-pink), var(--neon-blue));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .header-right { display: flex; gap: 10px; align-items: center; }
+    .icon-btn {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--bg-card); border:1px solid var(--border-color);
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      position: relative;
+    }
+    .icon-btn .badge {
+      position: absolute; top: -2px; right: -2px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--neon-pink); box-shadow: 0 0 6px var(--neon-pink);
+    }
 
-    /* Quick page links grid */
-    .page-links {
-      margin-top: 50px; display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 12px; max-width: 360px; width: 100%; padding: 0 20px;
+    /* ========== Banner ========== */
+    .banner-section { padding: 10px 20px 14px; }
+    .banner-wrap {
+      border-radius: 18px; overflow: hidden; position: relative;
+      height: 160px; border:1.5px solid rgba(255,45,149,0.4);
+      box-shadow: 0 0 20px rgba(255,45,149,0.2);
     }
-    .page-link {
-      display: flex; flex-direction: column; align-items: center; gap: 6px;
-      padding: 16px 8px; border-radius: 14px; text-decoration: none;
-      background: var(--bg-card); border: 1px solid var(--border-color);
-      transition: border-color 0.3s;
+    .banner-slides { display: flex; width: 300%; transition: transform 0.4s ease; }
+    .banner-slide { width: 33.33%; height: 160px; flex-shrink: 0; position: relative; overflow: hidden; }
+    .banner-slide .bg { width: 100%; height: 100%; }
+    .banner-slide.s1 .bg { background: linear-gradient(135deg, #1a0533 0%, #3d0f5a 40%, #0a0a2e 100%); }
+    .banner-slide.s2 .bg { background: linear-gradient(135deg, #0a1a3a 0%, #0a3a5a 50%, #0a2a2a 100%); }
+    .banner-slide.s3 .bg { background: linear-gradient(135deg, #2a0a1a 0%, #4a0a2a 50%, #1a0533 100%); }
+    .banner-overlay {
+      position: absolute; inset: 0; padding: 18px 16px;
+      background: linear-gradient(to right, rgba(0,0,0,0.7) 0%, transparent 70%);
+      display: flex; flex-direction: column; justify-content: center; gap: 6px;
     }
-    .page-link:hover { border-color: var(--neon-pink); }
-    .page-link .pl-emoji { font-size: 28px; }
-    .page-link .pl-name { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+    .banner-label {
+      padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700;
+      width: fit-content; letter-spacing: 1px;
+    }
+    .banner-label.hot { background: rgba(255,45,149,0.9); color: white; }
+    .banner-label.new { background: rgba(0,212,255,0.9); color: #000; }
+    .banner-label.event { background: rgba(255,230,0,0.9); color: #000; }
+    .banner-title { font-size: 17px; font-weight: 800; color: white; line-height: 1.3; }
+    .banner-sub { font-size: 11px; color: rgba(255,255,255,0.7); }
+    .banner-dots { position: absolute; bottom: 10px; right: 12px; display: flex; gap: 5px; }
+    .banner-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4); }
+    .banner-dot.active { background: white; width: 14px; border-radius: 3px; }
+
+    /* ========== Quick Icons ========== */
+    .quick-icons { display: flex; justify-content: space-around; padding: 4px 16px 14px; }
+    .quick-item { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+    .quick-icon-wrap {
+      width: 52px; height: 52px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center; font-size: 24px;
+      position: relative; transition: transform 0.2s;
+    }
+    .quick-icon-wrap.gold { background: linear-gradient(135deg, #2a1a00, #3d2800); border:1.5px solid var(--neon-yellow); box-shadow: 0 0 12px rgba(255,230,0,0.3); }
+    .quick-icon-wrap.blue { background: linear-gradient(135deg, #001a2a, #002a3d); border:1.5px solid var(--neon-blue); box-shadow: 0 0 12px rgba(0,212,255,0.3); }
+    .quick-icon-wrap.pink { background: linear-gradient(135deg, #2a0015, #3d0020); border:1.5px solid var(--neon-pink); box-shadow: 0 0 12px rgba(255,45,149,0.3); }
+    .quick-icon-wrap.green { background: linear-gradient(135deg, #001a00, #002a00); border:1.5px solid var(--neon-green); box-shadow: 0 0 12px rgba(57,255,20,0.3); }
+    .quick-item span { font-size: 11px; color: var(--text-secondary); }
+    .coin-badge {
+      position: absolute; top: -5px; right: -5px;
+      background: var(--neon-orange); color: white;
+      font-size: 9px; font-weight: 700; padding: 1px 5px;
+      border-radius: 8px; white-space: nowrap;
+    }
+
+    /* ========== Tonight Parties ========== */
+    .tonight-header { display: flex; justify-content: space-between; align-items: center; padding: 6px 20px 10px; }
+    .tonight-header h2 { font-size: 17px; font-weight: 700; }
+    .tonight-header .live-badge {
+      display: flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 12px;
+      background: rgba(255,45,149,0.15); border: 1px solid var(--neon-pink);
+      font-size: 11px; color: var(--neon-pink); font-weight: 600;
+    }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--neon-pink); animation: neonPulse 1.5s infinite; }
+    .tonight-scroll { display: flex; gap: 12px; padding: 0 20px 16px; overflow-x: auto; scrollbar-width: none; }
+    .tonight-scroll::-webkit-scrollbar { display: none; }
+    .party-mini-card {
+      min-width: 200px; border-radius: 14px; overflow: hidden; flex-shrink: 0;
+      background: var(--bg-card); border:1px solid var(--border-color); transition: border-color 0.3s;
+    }
+    .party-mini-card:hover { border-color: var(--neon-yellow); }
+    .party-mini-card .pmc-top { height: 90px; position: relative; }
+    .pmc-bg { width: 100%; height: 100%; }
+    .pmc-bg.a { background: linear-gradient(135deg, #1a0533, #3d1a00); }
+    .pmc-bg.b { background: linear-gradient(135deg, #001a3d, #1a003d); }
+    .pmc-bg.c { background: linear-gradient(135deg, #1a2a00, #003d1a); }
+    .pmc-status { position: absolute; top: 8px; left: 8px; padding: 2px 8px; border-radius: 8px; font-size: 10px; font-weight: 600; }
+    .pmc-status.recruiting { background: rgba(57,255,20,0.2); color: var(--neon-green); border:1px solid var(--neon-green); }
+    .pmc-status.ongoing { background: rgba(255,230,0,0.2); color: var(--neon-yellow); border:1px solid var(--neon-yellow); }
+    .pmc-status.full { background: rgba(255,45,149,0.2); color: var(--neon-pink); border:1px solid var(--neon-pink); }
+    .pmc-host { position: absolute; bottom: -14px; left: 10px; width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--bg-card); }
+    .pmc-host .av-img { width: 100%; height: 100%; border-radius: 50%; }
+    .party-mini-card .pmc-body { padding: 20px 10px 10px; }
+    .pmc-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 5px; }
+    .pmc-meta { font-size: 11px; color: var(--text-muted); display: flex; gap: 8px; }
+    .pmc-join { margin-top: 8px; padding: 5px 0; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+    .pmc-avatars { display: flex; }
+    .pmc-av { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--bg-card); margin-left: -6px; }
+    .pmc-av:first-child { margin-left: 0; }
+    .pmc-join-btn {
+      padding: 3px 10px; border-radius: 10px; font-size: 10px; font-weight: 600;
+      background: linear-gradient(135deg, var(--neon-yellow), var(--neon-orange));
+      color: #000; border: none; cursor: pointer;
+    }
+
+    /* ========== Photo Wall ========== */
+    .photo-wall-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 20px 10px; }
+    .photo-wall-header h2 { font-size: 17px; font-weight: 700; }
+    .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 0 0 16px; }
+    .photo-cell { aspect-ratio: 1; position: relative; overflow: hidden; cursor: pointer; }
+    .photo-cell .photo-bg { width: 100%; height: 100%; transition: transform 0.3s; }
+    .photo-cell:hover .photo-bg { transform: scale(1.05); }
+    .photo-cell .photo-bg.p1 { background: linear-gradient(135deg, #2d0a3a 0%, #1a0533 50%, #3d1a00 100%); }
+    .photo-cell .photo-bg.p2 { background: linear-gradient(135deg, #001a3d 0%, #0a1628 50%, #1a003d 100%); }
+    .photo-cell .photo-bg.p3 { background: linear-gradient(135deg, #1a2a00 0%, #0a3a1a 50%, #003d1a 100%); }
+    .photo-cell .photo-bg.p4 { background: linear-gradient(135deg, #3d0010 0%, #2a000a 50%, #1a0533 100%); }
+    .photo-cell .photo-bg.p5 { background: linear-gradient(135deg, #001a2a 0%, #003d3d 50%, #1a3d00 100%); }
+    .photo-cell .photo-bg.p6 { background: linear-gradient(135deg, #3d2800 0%, #2a1a00 50%, #3d0010 100%); }
+    .photo-cell .photo-bg.p7 { background: linear-gradient(135deg, #1a003d 0%, #3d003d 50%, #2d0a3a 100%); }
+    .photo-cell .photo-bg.p8 { background: linear-gradient(135deg, #003d1a 0%, #1a3d00 50%, #0a3a1a 100%); }
+    .photo-cell .photo-bg.p9 { background: linear-gradient(135deg, #3d1a00 0%, #3d0010 50%, #1a0533 100%); }
+    .photo-cell .emoji-overlay {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 32px; opacity: 0.6;
+    }
+    .photo-cell .user-overlay { position: absolute; bottom: 5px; left: 5px; display: flex; align-items: center; gap: 3px; }
+    .photo-cell .user-av { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.5); }
+    .photo-cell .user-name { font-size: 9px; color: rgba(255,255,255,0.8); font-weight: 500; }
+    .photo-cell .like-count { position: absolute; top: 5px; right: 5px; font-size: 10px; color: rgba(255,255,255,0.7); display: flex; align-items: center; gap: 2px; }
+    .photo-cell.large { grid-column: span 2; grid-row: span 2; }
+    .see-more-cell {
+      background: var(--bg-card); display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 4px; cursor: pointer; aspect-ratio: 1;
+      border-top: 1px solid var(--border-color);
+    }
+    .see-more-cell span { font-size: 11px; color: var(--text-secondary); }
   </style>
 </head>
 <body>
-  <div class="splash-logo">🍸</div>
-  <div class="splash-title">不要一個人喝酒</div>
-  <div class="splash-sub">Don't Drink Alone</div>
-  <a href="home.html" class="splash-enter">進入 App</a>
 
-  <div class="page-links">
-    <a href="home.html" class="page-link">
-      <span class="pl-emoji">🏠</span>
-      <span class="pl-name">首頁</span>
-    </a>
-    <a href="moments.html" class="page-link">
-      <span class="pl-emoji">📸</span>
-      <span class="pl-name">動態</span>
-    </a>
-    <a href="party.html" class="page-link">
-      <span class="pl-emoji">🍻</span>
-      <span class="pl-name">約酒局</span>
-    </a>
-    <a href="explore.html" class="page-link">
-      <span class="pl-emoji">🗺️</span>
-      <span class="pl-name">探索</span>
-    </a>
-    <a href="messages.html" class="page-link">
-      <span class="pl-emoji">💬</span>
-      <span class="pl-name">消息</span>
-    </a>
-    <a href="profile.html" class="page-link">
-      <span class="pl-emoji">👤</span>
-      <span class="pl-name">我的</span>
-    </a>
-    <a href="bar-detail.html" class="page-link">
-      <span class="pl-emoji">🍸</span>
-      <span class="pl-name">酒吧詳情</span>
-    </a>
-    <a href="coin-shop.html" class="page-link">
-      <span class="pl-emoji">🪙</span>
-      <span class="pl-name">幣幣商城</span>
-    </a>
-    <a href="login.html" class="page-link">
-      <span class="pl-emoji">🔐</span>
-      <span class="pl-name">登入</span>
-    </a>
-    <a href="party-create.html" class="page-link">
-      <span class="pl-emoji">✏️</span>
-      <span class="pl-name">發起酒局</span>
-    </a>
-    <a href="share-table.html" class="page-link">
-      <span class="pl-emoji">🪑</span>
-      <span class="pl-name">拚桌實況</span>
-    </a>
-    <a href="publish.html" class="page-link">
-      <span class="pl-emoji">📝</span>
-      <span class="pl-name">發佈</span>
-    </a>
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">21:08</span>
+    <div class="icons">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <!-- Header -->
+    <div class="home-header">
+      <div class="logo-area">
+        <div class="logo-icon">🍸</div>
+        <span class="logo-text">不要一個人喝酒</span>
+      </div>
+      <div class="header-right">
+        <div class="icon-btn">
+          <div class="badge"></div>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--neon-blue)" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </div>
+        <div class="icon-btn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Banner -->
+    <div class="banner-section">
+      <div class="banner-wrap">
+        <div class="banner-slides" id="bannerSlides">
+          <div class="banner-slide s1">
+            <div class="bg"></div>
+            <div class="banner-overlay">
+              <span class="banner-label hot">🔥 今晚最熱</span>
+              <div class="banner-title">曼谷最強<br>拚桌夜</div>
+              <div class="banner-sub">Rabbit Hole Bar · 素坤逸 31</div>
+            </div>
+          </div>
+          <div class="banner-slide s2">
+            <div class="bg"></div>
+            <div class="banner-overlay">
+              <span class="banner-label new">✨ 新活動</span>
+              <div class="banner-title">週五 Jazz<br>深夜場</div>
+              <div class="banner-sub">Blue Note Bangkok · 22:00 起</div>
+            </div>
+          </div>
+          <div class="banner-slide s3">
+            <div class="bg"></div>
+            <div class="banner-overlay">
+              <span class="banner-label event">🎉 限時活動</span>
+              <div class="banner-title">新人首杯<br>免費送</div>
+              <div class="banner-sub">完成任務即可領取金幣</div>
+            </div>
+          </div>
+        </div>
+        <div class="banner-dots">
+          <div class="banner-dot active" id="dot0"></div>
+          <div class="banner-dot" id="dot1"></div>
+          <div class="banner-dot" id="dot2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Icons -->
+    <div class="quick-icons">
+      <div class="quick-item">
+        <div class="quick-icon-wrap gold"><div class="coin-badge">+任務</div>🪙</div>
+        <span>賺金幣</span>
+      </div>
+      <div class="quick-item">
+        <div class="quick-icon-wrap blue">🛍️</div>
+        <span>商城</span>
+      </div>
+      <div class="quick-item">
+        <div class="quick-icon-wrap pink">🍻</div>
+        <span>約酒局</span>
+      </div>
+      <div class="quick-item">
+        <div class="quick-icon-wrap green">📍</div>
+        <span>附近酒吧</span>
+      </div>
+    </div>
+
+    <div class="neon-divider"></div>
+
+    <!-- Tonight Parties -->
+    <div class="tonight-header">
+      <h2>🌙 今晚的酒局</h2>
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        <span>12 場進行中</span>
+      </div>
+    </div>
+    <div class="tonight-scroll">
+      <div class="party-mini-card">
+        <div class="pmc-top">
+          <div class="pmc-bg a"></div>
+          <div class="pmc-status recruiting">招募中</div>
+          <div class="pmc-host"><div class="av-img" style="background:linear-gradient(135deg,var(--neon-pink),var(--neon-purple));border-radius:50%;"></div></div>
+        </div>
+        <div class="pmc-body">
+          <div class="pmc-title">爵士迷集結！週五深夜場</div>
+          <div class="pmc-meta"><span>🕙 21:30</span><span>👥 4/6</span></div>
+          <div class="pmc-join">
+            <div class="pmc-avatars">
+              <div class="pmc-av" style="background:linear-gradient(135deg,#ff2d95,#b829dd);"></div>
+              <div class="pmc-av" style="background:linear-gradient(135deg,#00d4ff,#39ff14);"></div>
+              <div class="pmc-av" style="background:linear-gradient(135deg,#ffe600,#ff6b35);"></div>
+            </div>
+            <button class="pmc-join-btn">加入</button>
+          </div>
+        </div>
+      </div>
+      <div class="party-mini-card">
+        <div class="pmc-top">
+          <div class="pmc-bg b"></div>
+          <div class="pmc-status ongoing">進行中</div>
+          <div class="pmc-host"><div class="av-img" style="background:linear-gradient(135deg,var(--neon-blue),var(--neon-green));border-radius:50%;"></div></div>
+        </div>
+        <div class="pmc-body">
+          <div class="pmc-title">台灣人在曼谷聚餐後酒</div>
+          <div class="pmc-meta"><span>🕙 22:00</span><span>👥 3/5</span></div>
+          <div class="pmc-join">
+            <div class="pmc-avatars">
+              <div class="pmc-av" style="background:linear-gradient(135deg,#00d4ff,#1a3d00);"></div>
+              <div class="pmc-av" style="background:linear-gradient(135deg,#39ff14,#00d4ff);"></div>
+            </div>
+            <button class="pmc-join-btn">加入</button>
+          </div>
+        </div>
+      </div>
+      <div class="party-mini-card">
+        <div class="pmc-top">
+          <div class="pmc-bg c"></div>
+          <div class="pmc-status full">已滿</div>
+          <div class="pmc-host"><div class="av-img" style="background:linear-gradient(135deg,var(--neon-yellow),var(--neon-orange));border-radius:50%;"></div></div>
+        </div>
+        <div class="pmc-body">
+          <div class="pmc-title">威士忌品飲愛好者</div>
+          <div class="pmc-meta"><span>🕙 20:00</span><span>👥 6/6</span></div>
+          <div class="pmc-join">
+            <div class="pmc-avatars">
+              <div class="pmc-av" style="background:linear-gradient(135deg,#ffe600,#ff6b35);"></div>
+              <div class="pmc-av" style="background:linear-gradient(135deg,#ff2d95,#ffe600);"></div>
+              <div class="pmc-av" style="background:linear-gradient(135deg,#b829dd,#ff2d95);"></div>
+            </div>
+            <button class="pmc-join-btn" style="background:#333;color:var(--text-muted);">已滿</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="neon-divider"></div>
+
+    <!-- Photo Wall -->
+    <div class="photo-wall-header">
+      <h2>📸 酒友照片牆</h2>
+      <a href="#" style="font-size:12px;color:var(--neon-blue);">更多 →</a>
+    </div>
+    <div class="photo-grid">
+      <div class="photo-cell large">
+        <div class="photo-bg p1"></div>
+        <div class="emoji-overlay">🥂</div>
+        <div class="user-overlay">
+          <div class="user-av" style="background:linear-gradient(135deg,#ff2d95,#b829dd);"></div>
+          <span class="user-name">Mia</span>
+        </div>
+        <div class="like-count">❤️ 48</div>
+      </div>
+      <div class="photo-cell">
+        <div class="photo-bg p2"></div>
+        <div class="emoji-overlay">🍹</div>
+        <div class="user-overlay">
+          <div class="user-av" style="background:linear-gradient(135deg,#00d4ff,#b829dd);"></div>
+          <span class="user-name">Alex</span>
+        </div>
+        <div class="like-count">❤️ 23</div>
+      </div>
+      <div class="photo-cell">
+        <div class="photo-bg p7"></div>
+        <div class="emoji-overlay">🌃</div>
+        <div class="user-overlay">
+          <div class="user-av" style="background:linear-gradient(135deg,#ffe600,#ff6b35);"></div>
+          <span class="user-name">晴晴</span>
+        </div>
+        <div class="like-count">❤️ 17</div>
+      </div>
+      <div class="photo-cell">
+        <div class="photo-bg p3"></div>
+        <div class="emoji-overlay">🎵</div>
+        <div class="user-overlay">
+          <div class="user-av" style="background:linear-gradient(135deg,#39ff14,#00d4ff);"></div>
+          <span class="user-name">Jason</span>
+        </div>
+        <div class="like-count">❤️ 31</div>
+      </div>
+      <div class="photo-cell">
+        <div class="photo-bg p4"></div>
+        <div class="emoji-overlay">🎉</div>
+        <div class="user-overlay">
+          <div class="user-av" style="background:linear-gradient(135deg,#ff6b35,#ff2d95);"></div>
+          <span class="user-name">Amy</span>
+        </div>
+        <div class="like-count">❤️ 55</div>
+      </div>
+      <div class="photo-cell">
+        <div class="photo-bg p5"></div>
+        <div class="emoji-overlay">🍺</div>
+        <div class="user-overlay">
+          <div class="user-av" style="background:linear-gradient(135deg,#00d4ff,#39ff14);"></div>
+          <span class="user-name">Marco</span>
+        </div>
+        <div class="like-count">❤️ 19</div>
+      </div>
+      <div class="photo-cell">
+        <div class="photo-bg p8"></div>
+        <div class="emoji-overlay">🌙</div>
+        <div class="user-overlay">
+          <div class="user-av" style="background:linear-gradient(135deg,#ffe600,#39ff14);"></div>
+          <span class="user-name">Karen</span>
+        </div>
+        <div class="like-count">❤️ 27</div>
+      </div>
+      <div class="photo-cell">
+        <div class="photo-bg p9"></div>
+        <div class="emoji-overlay">🍷</div>
+        <div class="user-overlay">
+          <div class="user-av" style="background:linear-gradient(135deg,#b829dd,#ff2d95);"></div>
+          <span class="user-name">Lily</span>
+        </div>
+        <div class="like-count">❤️ 42</div>
+      </div>
+      <div class="photo-cell">
+        <div class="photo-bg p6"></div>
+        <div class="emoji-overlay">🎶</div>
+        <div class="user-overlay">
+          <div class="user-av" style="background:linear-gradient(135deg,#ff2d95,#ffe600);"></div>
+          <span class="user-name">Tom</span>
+        </div>
+        <div class="like-count">❤️ 11</div>
+      </div>
+    </div>
+
+    <div style="height:16px;"></div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="location.href='index.html'">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>首頁</span>
+    </div>
+    <div class="nav-item" onclick="location.href='moments.html'">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+      <span>動態</span>
+    </div>
+    <div class="nav-item party-tab" onclick="location.href='party.html'">
+      <div class="party-badge">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      </div>
+      <span>約酒局</span>
+    </div>
+    <div class="nav-item" onclick="location.href='messages.html'">
+      <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+      <span>消息</span>
+    </div>
+    <div class="nav-item" onclick="location.href='profile.html'">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      <span>我的</span>
+    </div>
   </div>
 
   <script>
-    // Auto-redirect on mobile
-    if (window.innerWidth <= 500 && !window.location.search.includes('show=splash')) {
-      window.location.replace('home.html');
-    }
+    let cur = 0;
+    const slides = document.getElementById('bannerSlides');
+    setInterval(() => {
+      cur = (cur + 1) % 3;
+      slides.style.transform = `translateX(-${cur * 33.333}%)`;
+      document.querySelectorAll('.banner-dot').forEach((d, i) => {
+        d.classList.toggle('active', i === cur);
+      });
+    }, 3000);
   </script>
 </body>
 </html>
