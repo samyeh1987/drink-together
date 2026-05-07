@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>不要一個人喝酒 - 登入頁 Login</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    /* Login Background */
+    .login-bg {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #0a0a2e 0%, #1a0533 40%, #0a0a1a 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Neon decorations */
+    .login-bg::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 45, 149, 0.12), transparent 70%);
+    }
+
+    .login-bg::after {
+      content: '';
+      position: absolute;
+      bottom: -50px;
+      left: -50px;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.1), transparent 70%);
+    }
+
+    .login-content {
+      position: relative;
+      z-index: 1;
+      padding: 0 32px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      justify-content: center;
+    }
+
+    /* Logo Area */
+    .login-logo {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .login-logo .logo-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 40px;
+      box-shadow: 0 0 40px rgba(255, 45, 149, 0.4), 0 0 80px rgba(184, 41, 221, 0.2);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .login-logo .app-name {
+      font-size: 24px;
+      font-weight: 900;
+      background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple), var(--neon-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .login-logo .app-slogan {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Welcome text */
+    .welcome-text {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .welcome-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    /* Input Fields */
+    .login-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      position: relative;
+    }
+
+    .input-group .input-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      fill: var(--text-muted);
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 14px 16px 14px 46px;
+      border-radius: 16px;
+      border: 1.5px solid var(--border-color);
+      background: rgba(22, 22, 58, 0.6);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: 'Noto Sans TC', sans-serif;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    .input-group input:focus {
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+    }
+
+    .input-group input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Forgot password */
+    .forgot-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 24px;
+    }
+
+    .forgot-link {
+      font-size: 12px;
+      color: var(--neon-blue);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* Login Button */
+    .login-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 0 30px rgba(255, 45, 149, 0.4);
+      transition: all 0.3s;
+      font-family: 'Noto Sans TC', sans-serif;
+      margin-bottom: 20px;
+    }
+
+    /* Divider */
+    .or-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .or-divider .line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+    }
+
+    .or-divider span {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Social Login */
+    .social-login {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .social-btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: 16px;
+      border: 1.5px solid var(--border-color);
+      background: var(--bg-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+
+    .social-btn:hover {
+      border-color: var(--neon-green);
+    }
+
+    .social-btn .social-icon {
+      font-size: 20px;
+    }
+
+    .social-btn .social-text {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    /* Register Link */
+    .register-link {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .register-link a {
+      color: var(--neon-pink);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    /* Terms */
+    .terms-text {
+      text-align: center;
+      font-size: 10px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .terms-text a {
+      color: var(--neon-blue);
+      text-decoration: none;
+    }
+
+    /* Phone number selector */
+    .phone-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .country-code {
+      width: 80px;
+      padding: 14px 12px;
+      border-radius: 16px;
+      border: 1.5px solid var(--border-color);
+      background: rgba(22, 22, 58, 0.6);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: 'Noto Sans TC', sans-serif;
+      text-align: center;
+      outline: none;
+      appearance: none;
+      cursor: pointer;
+    }
+
+    .phone-row .input-group {
+      flex: 1;
+    }
+
+    /* Tab switcher */
+    .login-tabs {
+      display: flex;
+      margin-bottom: 24px;
+      border-radius: 14px;
+      background: rgba(26, 26, 62, 0.5);
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+    }
+
+    .login-tab {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .login-tab.active {
+      background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+      color: white;
+      font-weight: 700;
+    }
+
+    .input-group .code-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 6px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--neon-blue);
+      background: transparent;
+      color: var(--neon-blue);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="phone-content" style="padding-bottom: 0;">
+      <div class="login-bg">
+        <!-- Status Bar -->
+        <div class="status-bar" style="background: transparent; position: absolute; z-index: 10;">
+          <span class="time">16:38</span>
+          <div class="icons">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+          </div>
+        </div>
+
+        <div class="login-content">
+          <!-- Logo -->
+          <div class="login-logo">
+            <div class="logo-icon">🍸</div>
+            <div class="app-name">不要一個人喝酒</div>
+            <div class="app-slogan">你的酒友都在這裡</div>
+          </div>
+
+          <!-- Welcome -->
+          <div class="welcome-text">歡迎回來！🍻</div>
+          <div class="welcome-sub">登入後開始探索曼谷最棒的酒吧，結識新酒友</div>
+
+          <!-- Login Tabs -->
+          <div class="login-tabs">
+            <div class="login-tab active">手機號登入</div>
+            <div class="login-tab">郵箱登入</div>
+          </div>
+
+          <!-- Inputs -->
+          <div class="login-inputs">
+            <div class="phone-row">
+              <select class="country-code">
+                <option>+66</option>
+                <option>+60</option>
+                <option>+886</option>
+                <option>+86</option>
+              </select>
+              <div class="input-group">
+                <input type="tel" placeholder="請輸入手機號碼">
+              </div>
+            </div>
+            <div class="input-group">
+              <svg class="input-icon" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+              <input type="text" placeholder="輸入驗證碼">
+              <button class="code-btn">發送驗證碼</button>
+            </div>
+          </div>
+
+          <!-- Login Button -->
+          <button class="login-btn">登入 / 註冊</button>
+
+          <!-- Divider -->
+          <div class="or-divider">
+            <div class="line"></div>
+            <span>或使用以下方式</span>
+            <div class="line"></div>
+          </div>
+
+          <!-- Social Login -->
+          <div class="social-login">
+            <div class="social-btn">
+              <span class="social-icon">💬</span>
+              <span class="social-text">LINE</span>
+            </div>
+            <div class="social-btn">
+              <span class="social-icon">🔵</span>
+              <span class="social-text">Google</span>
+            </div>
+            <div class="social-btn">
+              <span class="social-icon">🍎</span>
+              <span class="social-text">Apple</span>
+            </div>
+          </div>
+
+          <!-- Terms -->
+          <div class="terms-text" style="margin-bottom: 40px;">
+            登入即表示您同意我們的 <a href="#">服務條款</a> 和 <a href="#">隱私政策</a><br>
+            PDPA (泰國個人資料保護法) 合規
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

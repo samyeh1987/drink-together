@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>不要一個人喝酒 - 發起酒局</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    /* ========== Party Create Header ========== */
+    .create-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 20px 16px;
+    }
+
+    .create-header .back-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .create-header .back-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--text-secondary);
+    }
+
+    .create-header .header-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .create-header .draft-btn {
+      font-size: 13px;
+      color: var(--neon-blue);
+      cursor: pointer;
+    }
+
+    /* ========== Form Section ========== */
+    .form-section {
+      padding: 0 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .form-label .required {
+      color: var(--neon-pink);
+      font-size: 14px;
+    }
+
+    .form-label .label-emoji {
+      font-size: 16px;
+    }
+
+    /* Text Input */
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border-color);
+      background: var(--bg-input);
+      color: var(--text-primary);
+      font-size: 15px;
+      font-family: 'Noto Sans TC', sans-serif;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    .form-input:focus {
+      border-color: var(--neon-blue);
+      box-shadow: var(--shadow-neon-blue);
+    }
+
+    .form-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .form-input.title-input {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    /* Textarea */
+    .form-textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border-color);
+      background: var(--bg-input);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: 'Noto Sans TC', sans-serif;
+      outline: none;
+      resize: none;
+      min-height: 100px;
+      transition: all 0.3s;
+      line-height: 1.6;
+    }
+
+    .form-textarea:focus {
+      border-color: var(--neon-blue);
+      box-shadow: var(--shadow-neon-blue);
+    }
+
+    .form-textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    .char-count {
+      text-align: right;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ========== Bar Selector ========== */
+    .bar-selector {
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border-color);
+      background: var(--bg-input);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .bar-selector:hover {
+      border-color: var(--neon-purple);
+    }
+
+    .bar-selector .bar-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .bar-selector .bar-selected-info {
+      flex: 1;
+    }
+
+    .bar-selector .bar-selected-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .bar-selector .bar-selected-addr {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .bar-selector .arrow {
+      fill: var(--text-muted);
+    }
+
+    .bar-selector.placeholder {
+      justify-content: space-between;
+    }
+
+    .bar-selector.placeholder .bar-icon {
+      background: var(--bg-card);
+      border: 1px dashed var(--border-color);
+    }
+
+    /* ========== Date Time Picker ========== */
+    .datetime-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .datetime-row .datetime-item {
+      flex: 1;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border-color);
+      background: var(--bg-input);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: 'Noto Sans TC', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .datetime-row .datetime-item .dt-emoji {
+      font-size: 18px;
+    }
+
+    .datetime-row .datetime-item .dt-value {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .datetime-row .datetime-item .dt-label {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    /* ========== People Limit ========== */
+    .people-selector {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border-color);
+      background: var(--bg-input);
+    }
+
+    .people-selector .people-label {
+      flex: 1;
+      font-size: 14px;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .people-selector .people-label small {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    .people-controls {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .people-controls .ctrl-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--neon-blue);
+      font-size: 18px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .people-controls .ctrl-btn:hover {
+      border-color: var(--neon-blue);
+      box-shadow: var(--shadow-neon-blue);
+    }
+
+    .people-controls .people-count {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--neon-blue);
+      min-width: 28px;
+      text-align: center;
+    }
+
+    /* ========== Cost Mode ========== */
+    .cost-modes {
+      display: flex;
+      gap: 10px;
+    }
+
+    .cost-mode {
+      flex: 1;
+      padding: 14px 12px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border-color);
+      background: var(--bg-input);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .cost-mode:hover {
+      border-color: var(--neon-orange);
+    }
+
+    .cost-mode.active {
+      border-color: var(--neon-orange);
+      background: rgba(255, 107, 53, 0.1);
+      box-shadow: 0 0 10px rgba(255, 107, 53, 0.2);
+    }
+
+    .cost-mode .cost-emoji {
+      font-size: 24px;
+      margin-bottom: 6px;
+    }
+
+    .cost-mode .cost-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .cost-mode .cost-desc {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    /* ========== Vibe Tags ========== */
+    .vibe-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .vibe-tag-item {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      border: 1.5px solid var(--border-color);
+      background: var(--bg-input);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .vibe-tag-item:hover {
+      border-color: var(--neon-purple);
+    }
+
+    .vibe-tag-item.selected {
+      border-color: var(--neon-purple);
+      background: rgba(184, 41, 221, 0.15);
+      color: var(--neon-purple);
+      font-weight: 600;
+      box-shadow: 0 0 8px rgba(184, 41, 221, 0.2);
+    }
+
+    /* ========== Gender Restriction ========== */
+    .gender-options {
+      display: flex;
+      gap: 10px;
+    }
+
+    .gender-option {
+      flex: 1;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border-color);
+      background: var(--bg-input);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .gender-option.active {
+      border-color: var(--neon-green);
+      background: rgba(57, 255, 20, 0.08);
+    }
+
+    .gender-option .gender-emoji {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+
+    .gender-option .gender-text {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .gender-option.active .gender-text {
+      color: var(--neon-green);
+    }
+
+    /* ========== Submit Button ========== */
+    .submit-area {
+      padding: 20px;
+      padding-bottom: 40px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 16px;
+      border: none;
+      background: linear-gradient(135deg, var(--neon-yellow), var(--neon-orange), var(--neon-pink));
+      color: #0a0a1a;
+      font-size: 16px;
+      font-weight: 800;
+      font-family: 'Noto Sans TC', sans-serif;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(255, 230, 0, 0.3);
+      transition: all 0.3s;
+      letter-spacing: 1px;
+    }
+
+    .submit-btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 30px rgba(255, 230, 0, 0.5);
+    }
+
+    .submit-hint {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+
+    /* Neon Divider */
+    .form-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+      margin: 6px 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="phone-content">
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="time">21:18</span>
+        <div class="icons">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+        </div>
+      </div>
+
+      <!-- Header -->
+      <div class="create-header">
+        <div class="back-btn" onclick="location.href='party.html'">
+          <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </div>
+        <div class="header-title">發起酒局</div>
+        <div class="draft-btn">存草稿</div>
+      </div>
+
+      <!-- Title -->
+      <div class="form-section">
+        <div class="form-label">
+          <span class="required">*</span>
+          <span class="label-emoji">🍻</span>
+          酒局標題
+        </div>
+        <input type="text" class="form-input title-input" placeholder="取個吸引人的標題吧..." value="週五 Jazz 之夜">
+      </div>
+
+      <div class="form-divider"></div>
+
+      <!-- Description -->
+      <div class="form-section" style="margin-top: 14px;">
+        <div class="form-label">
+          <span class="label-emoji">💬</span>
+          酒局描述
+        </div>
+        <textarea class="form-textarea" placeholder="說說你想怎麼玩...">Blue Note Bangkok 每週五有很棒的 Jazz 樂團駐場，想找幾個人一起去聽！可以先喝一杯，然後享受音樂～歡迎新手老手都來！</textarea>
+        <div class="char-count">68/300</div>
+      </div>
+
+      <div class="form-divider"></div>
+
+      <!-- Bar Selector -->
+      <div class="form-section" style="margin-top: 14px;">
+        <div class="form-label">
+          <span class="required">*</span>
+          <span class="label-emoji">📍</span>
+          選擇酒吧
+        </div>
+        <div class="bar-selector">
+          <div class="bar-icon">🎷</div>
+          <div class="bar-selected-info">
+            <div class="bar-selected-name">Blue Note Bangkok</div>
+            <div class="bar-selected-addr">Sukhumvit Soi 26 · 1.8km</div>
+          </div>
+          <svg class="arrow" width="16" height="16" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </div>
+      </div>
+
+      <div class="form-divider"></div>
+
+      <!-- Date & Time -->
+      <div class="form-section" style="margin-top: 14px;">
+        <div class="form-label">
+          <span class="required">*</span>
+          <span class="label-emoji">🕐</span>
+          日期 & 時間
+        </div>
+        <div class="datetime-row">
+          <div class="datetime-item">
+            <span class="dt-emoji">📅</span>
+            <div>
+              <div class="dt-value">5 月 9 日</div>
+              <div class="dt-label">週五</div>
+            </div>
+          </div>
+          <div class="datetime-item">
+            <span class="dt-emoji">🕖</span>
+            <div>
+              <div class="dt-value">晚上 9:00</div>
+              <div class="dt-label">約 2 小時</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-divider"></div>
+
+      <!-- People Limit -->
+      <div class="form-section" style="margin-top: 14px;">
+        <div class="form-label">
+          <span class="label-emoji">👥</span>
+          人數限制
+        </div>
+        <div class="people-selector">
+          <div class="people-label">
+            <small>包含你自己</small>
+          </div>
+          <div class="people-controls">
+            <div class="ctrl-btn">−</div>
+            <div class="people-count">6</div>
+            <div class="ctrl-btn">+</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-divider"></div>
+
+      <!-- Cost Mode -->
+      <div class="form-section" style="margin-top: 14px;">
+        <div class="form-label">
+          <span class="label-emoji">💰</span>
+          費用模式
+        </div>
+        <div class="cost-modes">
+          <div class="cost-mode active">
+            <div class="cost-emoji">🤝</div>
+            <div class="cost-name">AA 制</div>
+            <div class="cost-desc">各自結帳</div>
+          </div>
+          <div class="cost-mode">
+            <div class="cost-emoji">🎁</div>
+            <div class="cost-name">我請客</div>
+            <div class="cost-desc">主人買單</div>
+          </div>
+          <div class="cost-mode">
+            <div class="cost-emoji">🧾</div>
+            <div class="cost-name">分攤</div>
+            <div class="cost-desc">總帳平分</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-divider"></div>
+
+      <!-- Gender Restriction -->
+      <div class="form-section" style="margin-top: 14px;">
+        <div class="form-label">
+          <span class="label-emoji">👫</span>
+          參加限制
+        </div>
+        <div class="gender-options">
+          <div class="gender-option active">
+            <div class="gender-emoji">🌈</div>
+            <div class="gender-text">不限</div>
+          </div>
+          <div class="gender-option">
+            <div class="gender-emoji">👨</div>
+            <div class="gender-text">限男生</div>
+          </div>
+          <div class="gender-option">
+            <div class="gender-emoji">👩</div>
+            <div class="gender-text">限女生</div>
+          </div>
+          <div class="gender-option">
+            <div class="gender-emoji">👫</div>
+            <div class="gender-text">男女各半</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-divider"></div>
+
+      <!-- Vibe Tags -->
+      <div class="form-section" style="margin-top: 14px;">
+        <div class="form-label">
+          <span class="label-emoji">✨</span>
+          酒局標籤
+        </div>
+        <div class="vibe-tags">
+          <div class="vibe-tag-item selected">🎵 Jazz</div>
+          <div class="vibe-tag-item selected">🎵 現場音樂</div>
+          <div class="vibe-tag-item selected">🤝 新朋友歡迎</div>
+          <div class="vibe-tag-item">🥃 威士忌</div>
+          <div class="vibe-tag-item">🍸 調酒</div>
+          <div class="vibe-tag-item">🍺 精釀啤酒</div>
+          <div class="vibe-tag-item">🎤 K歌</div>
+          <div class="vibe-tag-item">💃 夜店</div>
+          <div class="vibe-tag-item">🥃 品鑑</div>
+          <div class="vibe-tag-item">📸 拍照打卡</div>
+          <div class="vibe-tag-item">💬 深夜聊天</div>
+          <div class="vibe-tag-item">🧳 旅人交流</div>
+          <div class="vibe-tag-item">🏆 喝酒高手</div>
+          <div class="vibe-tag-item">🌸 適合約會</div>
+          <div class="vibe-tag-item">🎮 桌遊</div>
+          <div class="vibe-tag-item"> nfl 辯論</div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="submit-area">
+        <button class="submit-btn">🍻 發起酒局</button>
+        <div class="submit-hint">發布後可隨時修改或取消，開始前 1 小時鎖定</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

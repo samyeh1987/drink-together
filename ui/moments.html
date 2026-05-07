@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>不要一個人喝酒 - 動態</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    /* ========== Header ========== */
+    .moments-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 20px 8px;
+    }
+    .moments-header h1 {
+      font-size: 22px; font-weight: 900;
+      background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple), var(--neon-blue));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .post-btn {
+      display: flex; align-items: center; gap: 5px;
+      padding: 7px 14px; border-radius: 20px; font-size: 13px; font-weight: 600;
+      background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+      color: white; border: none; cursor: pointer;
+      box-shadow: var(--shadow-neon-pink);
+    }
+
+    /* ========== Story / Friend Row ========== */
+    .story-row {
+      display: flex; gap: 12px; padding: 4px 20px 14px;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .story-row::-webkit-scrollbar { display: none; }
+    .story-item {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .story-ring {
+      width: 52px; height: 52px; border-radius: 50%;
+      padding: 2px;
+      background: linear-gradient(135deg, var(--neon-pink), var(--neon-yellow), var(--neon-blue));
+    }
+    .story-ring.me {
+      background: var(--bg-card);
+      border: 2px dashed var(--neon-pink);
+      position: relative;
+    }
+    .story-av {
+      width: 100%; height: 100%; border-radius: 50%;
+      border: 2px solid var(--bg-primary);
+    }
+    .story-add {
+      position: absolute; bottom: 0; right: 0;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--neon-pink); color: white;
+      font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 6px var(--neon-pink);
+    }
+    .story-name { font-size: 10px; color: var(--text-secondary); max-width: 52px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ========== Post Card ========== */
+    .post-list { padding: 0 0 16px; }
+    .post-card {
+      margin: 0 0 12px;
+      border-bottom: 1px solid var(--border-color);
+      padding: 14px 20px;
+    }
+    .post-header {
+      display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px;
+    }
+    .post-av {
+      width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+      border: 2px solid var(--border-color); position: relative;
+    }
+    .post-av .online-dot {
+      position: absolute; bottom: 1px; right: 1px;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--neon-green); border: 2px solid var(--bg-primary);
+      box-shadow: 0 0 4px var(--neon-green);
+    }
+    .post-meta { flex: 1; }
+    .post-name { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
+    .post-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+    .post-tag {
+      padding: 1px 7px; border-radius: 8px; font-size: 10px; font-weight: 500;
+    }
+    .post-tag.loc { background: rgba(0,212,255,0.12); color: var(--neon-blue); border: 1px solid rgba(0,212,255,0.3); }
+    .post-tag.bar { background: rgba(255,45,149,0.12); color: var(--neon-pink); border: 1px solid rgba(255,45,149,0.3); }
+    .post-tag.vibe { background: rgba(184,41,221,0.12); color: var(--neon-purple); border: 1px solid rgba(184,41,221,0.3); }
+    .post-time { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+    .post-more {
+      color: var(--text-muted); font-size: 18px; cursor: pointer;
+      padding: 0 2px; line-height: 1;
+    }
+
+    .post-text {
+      font-size: 14px; line-height: 1.6; color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+    .post-text .highlight { color: var(--neon-blue); }
+
+    /* Photo grid in post */
+    .post-photos { margin-bottom: 10px; }
+    .post-photos.one .ph-item {
+      width: 100%; height: 200px; border-radius: 12px; overflow: hidden;
+    }
+    .post-photos.two {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 3px;
+    }
+    .post-photos.two .ph-item { height: 130px; border-radius: 8px; overflow: hidden; }
+    .post-photos.three {
+      display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; gap: 3px;
+    }
+    .post-photos.three .ph-item:first-child { grid-row: span 2; border-radius: 8px; overflow: hidden; }
+    .post-photos.three .ph-item { height: 88px; border-radius: 8px; overflow: hidden; }
+    .post-photos.four {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 3px;
+    }
+    .post-photos.four .ph-item { height: 100px; border-radius: 8px; overflow: hidden; }
+
+    .ph-item { position: relative; cursor: pointer; }
+    .ph-item .ph-bg { width: 100%; height: 100%; }
+    .ph-item .ph-emoji { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 36px; opacity: 0.5; }
+
+    /* Actions bar */
+    .post-actions {
+      display: flex; gap: 20px; align-items: center; padding-top: 8px;
+    }
+    .action-btn {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 13px; color: var(--text-muted); cursor: pointer;
+      transition: color 0.2s;
+    }
+    .action-btn.liked { color: var(--neon-pink); }
+    .action-btn svg { width: 18px; height: 18px; fill: currentColor; }
+    .action-divider { flex: 1; }
+
+    /* ========== Comments ========== */
+    .comments-area { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.05); }
+    .comment-item {
+      display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start;
+    }
+    .comment-av { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; }
+    .comment-body { flex: 1; }
+    .comment-name { font-size: 12px; color: var(--neon-blue); font-weight: 600; }
+    .comment-text { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+    /* ========== FAB Compose ========== */
+    .fab-compose {
+      position: absolute; bottom: 96px; right: 20px;
+      width: 52px; height: 52px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: var(--shadow-neon-pink);
+      cursor: pointer; z-index: 50;
+      animation: float 3s ease-in-out infinite;
+    }
+    .fab-compose svg { width: 24px; height: 24px; fill: white; }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="phone-content">
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="time">21:08</span>
+        <div class="icons">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+        </div>
+      </div>
+
+      <!-- Header -->
+      <div class="moments-header">
+        <h1>動態</h1>
+        <button class="post-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          發布動態
+        </button>
+      </div>
+
+      <!-- Stories / Friends Row -->
+      <div class="story-row">
+        <div class="story-item">
+          <div class="story-ring me" style="width:52px;height:52px;padding:0;display:flex;align-items:center;justify-content:center;">
+            <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#2a0015,#3d0020);display:flex;align-items:center;justify-content:center;font-size:20px;">😊</div>
+            <div class="story-add">+</div>
+          </div>
+          <span class="story-name">我的</span>
+        </div>
+        <div class="story-item">
+          <div class="story-ring" style="width:52px;height:52px;padding:2px;border-radius:50%;">
+            <div class="story-av" style="background:linear-gradient(135deg,#ff2d95,#b829dd);"></div>
+          </div>
+          <span class="story-name">Mia</span>
+        </div>
+        <div class="story-item">
+          <div class="story-ring" style="width:52px;height:52px;padding:2px;border-radius:50%;">
+            <div class="story-av" style="background:linear-gradient(135deg,#00d4ff,#39ff14);"></div>
+          </div>
+          <span class="story-name">Jason</span>
+        </div>
+        <div class="story-item">
+          <div class="story-ring" style="width:52px;height:52px;padding:2px;border-radius:50%;">
+            <div class="story-av" style="background:linear-gradient(135deg,#ffe600,#ff6b35);"></div>
+          </div>
+          <span class="story-name">晴晴</span>
+        </div>
+        <div class="story-item">
+          <div class="story-ring" style="width:52px;height:52px;padding:2px;border-radius:50%;">
+            <div class="story-av" style="background:linear-gradient(135deg,#b829dd,#00d4ff);"></div>
+          </div>
+          <span class="story-name">Amy</span>
+        </div>
+        <div class="story-item">
+          <div class="story-ring" style="width:52px;height:52px;padding:2px;border-radius:50%;">
+            <div class="story-av" style="background:linear-gradient(135deg,#39ff14,#ffe600);"></div>
+          </div>
+          <span class="story-name">Marco</span>
+        </div>
+      </div>
+
+      <div class="neon-divider"></div>
+
+      <!-- Posts -->
+      <div class="post-list">
+
+        <!-- Post 1: Text + 3 photos -->
+        <div class="post-card">
+          <div class="post-header">
+            <div class="post-av">
+              <div style="width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,#ff2d95,#b829dd);display:flex;align-items:center;justify-content:center;font-size:18px;">👩</div>
+              <div class="online-dot"></div>
+            </div>
+            <div class="post-meta">
+              <div class="post-name">Mia Chen 陳美雅</div>
+              <div class="post-tags">
+                <span class="post-tag loc">📍 曼谷</span>
+                <span class="post-tag bar">🍸 Rabbit Hole</span>
+                <span class="post-tag vibe">✨ 深夜場</span>
+              </div>
+              <div class="post-time">2 小時前</div>
+            </div>
+            <div class="post-more">···</div>
+          </div>
+          <div class="post-text">
+            今晚的威士忌真的太讚了！和 <span class="highlight">@Jason</span> 還有 <span class="highlight">@晴晴</span> 一起在 Rabbit Hole 喝到凌晨，下次還要來 🥃✨
+          </div>
+          <div class="post-photos three">
+            <div class="ph-item">
+              <div class="ph-bg" style="background:linear-gradient(135deg,#2d0a3a,#1a0533,#3d1a00);width:100%;height:100%;"></div>
+              <div class="ph-emoji">🥃</div>
+            </div>
+            <div class="ph-item">
+              <div class="ph-bg" style="background:linear-gradient(135deg,#001a3d,#0a1628);width:100%;height:100%;"></div>
+              <div class="ph-emoji">🌃</div>
+            </div>
+            <div class="ph-item">
+              <div class="ph-bg" style="background:linear-gradient(135deg,#1a2a00,#003d1a);width:100%;height:100%;"></div>
+              <div class="ph-emoji">🎵</div>
+            </div>
+          </div>
+          <div class="post-actions">
+            <div class="action-btn liked" id="like1" onclick="toggleLike('like1','32')">
+              <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              <span id="like1-count">32</span>
+            </div>
+            <div class="action-btn" onclick="this.style.color='var(--neon-blue)'">
+              <svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+              <span>8</span>
+            </div>
+            <div class="action-divider"></div>
+            <div class="action-btn">
+              <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+            </div>
+          </div>
+          <div class="comments-area">
+            <div class="comment-item">
+              <div class="comment-av" style="background:linear-gradient(135deg,#00d4ff,#39ff14);"></div>
+              <div class="comment-body">
+                <div class="comment-name">Jason</div>
+                <div class="comment-text">哈哈 那晚真的太歡樂了！還要再去 🥂</div>
+              </div>
+            </div>
+            <div class="comment-item">
+              <div class="comment-av" style="background:linear-gradient(135deg,#ffe600,#ff6b35);"></div>
+              <div class="comment-body">
+                <div class="comment-name">晴晴</div>
+                <div class="comment-text">下次記得帶我！😭</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Post 2: Text + 1 photo -->
+        <div class="post-card">
+          <div class="post-header">
+            <div class="post-av">
+              <div style="width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#39ff14);display:flex;align-items:center;justify-content:center;font-size:18px;">👨</div>
+            </div>
+            <div class="post-meta">
+              <div class="post-name">Jason Liu</div>
+              <div class="post-tags">
+                <span class="post-tag loc">📍 是隆</span>
+                <span class="post-tag bar">🎵 Saxophone Pub</span>
+              </div>
+              <div class="post-time">4 小時前</div>
+            </div>
+            <div class="post-more">···</div>
+          </div>
+          <div class="post-text">
+            Blue Note 的 Jazz 現場真的每週都不一樣，今晚的薩克斯風手太強了 🎷 有沒有人想一起約下週五？
+          </div>
+          <div class="post-photos one">
+            <div class="ph-item" style="height:200px;">
+              <div class="ph-bg" style="background:linear-gradient(135deg,#001a3d,#0a1628,#1a003d);width:100%;height:100%;"></div>
+              <div class="ph-emoji" style="font-size:48px;">🎷</div>
+            </div>
+          </div>
+          <div class="post-actions">
+            <div class="action-btn" id="like2" onclick="toggleLike('like2','18')">
+              <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              <span id="like2-count">18</span>
+            </div>
+            <div class="action-btn">
+              <svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+              <span>5</span>
+            </div>
+            <div class="action-divider"></div>
+            <div class="action-btn">
+              <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Post 3: Text + 4 photos -->
+        <div class="post-card">
+          <div class="post-header">
+            <div class="post-av">
+              <div style="width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,#ffe600,#ff6b35);display:flex;align-items:center;justify-content:center;font-size:18px;">🙋‍♀️</div>
+            </div>
+            <div class="post-meta">
+              <div class="post-name">晴晴 Qingqing</div>
+              <div class="post-tags">
+                <span class="post-tag loc">📍 Asok</span>
+                <span class="post-tag vibe">🎉 生日局</span>
+                <span class="post-tag bar">🍹 Smalls</span>
+              </div>
+              <div class="post-time">昨天</div>
+            </div>
+            <div class="post-more">···</div>
+          </div>
+          <div class="post-text">
+            昨晚的生日局超開心！謝謝所有來的朋友 🎂🥂 照片記錄一下這個美好的夜晚～
+          </div>
+          <div class="post-photos four">
+            <div class="ph-item">
+              <div class="ph-bg" style="background:linear-gradient(135deg,#3d0010,#2a000a);width:100%;height:100%;"></div>
+              <div class="ph-emoji" style="font-size:24px;">🎂</div>
+            </div>
+            <div class="ph-item">
+              <div class="ph-bg" style="background:linear-gradient(135deg,#001a2a,#003d3d);width:100%;height:100%;"></div>
+              <div class="ph-emoji" style="font-size:24px;">🥂</div>
+            </div>
+            <div class="ph-item">
+              <div class="ph-bg" style="background:linear-gradient(135deg,#3d2800,#2a1a00);width:100%;height:100%;"></div>
+              <div class="ph-emoji" style="font-size:24px;">🎉</div>
+            </div>
+            <div class="ph-item">
+              <div class="ph-bg" style="background:linear-gradient(135deg,#1a003d,#3d003d);width:100%;height:100%;"></div>
+              <div class="ph-emoji" style="font-size:24px;">💜</div>
+            </div>
+          </div>
+          <div class="post-actions">
+            <div class="action-btn liked" id="like3" onclick="toggleLike('like3','67')">
+              <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              <span id="like3-count">67</span>
+            </div>
+            <div class="action-btn">
+              <svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+              <span>14</span>
+            </div>
+            <div class="action-divider"></div>
+            <div class="action-btn">
+              <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+            </div>
+          </div>
+          <div class="comments-area">
+            <div class="comment-item">
+              <div class="comment-av" style="background:linear-gradient(135deg,#ff2d95,#b829dd);"></div>
+              <div class="comment-body">
+                <div class="comment-name">Mia Chen</div>
+                <div class="comment-text">生日快樂！下次我也要參加 🎉</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Post 4: Text only -->
+        <div class="post-card">
+          <div class="post-header">
+            <div class="post-av">
+              <div style="width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,#b829dd,#00d4ff);display:flex;align-items:center;justify-content:center;font-size:18px;">🧑</div>
+            </div>
+            <div class="post-meta">
+              <div class="post-name">Marco Rossi</div>
+              <div class="post-tags">
+                <span class="post-tag loc">📍 素坤逸</span>
+                <span class="post-tag vibe">🍺 精釀</span>
+              </div>
+              <div class="post-time">2 天前</div>
+            </div>
+            <div class="post-more">···</div>
+          </div>
+          <div class="post-text">
+            有沒有人今晚想去 Craft Beer 試新口味？剛入了幾款比利時啤酒，一個人喝有點浪費哈哈 😄 有意願的私我！
+          </div>
+          <div class="post-actions">
+            <div class="action-btn" id="like4" onclick="toggleLike('like4','9')">
+              <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              <span id="like4-count">9</span>
+            </div>
+            <div class="action-btn">
+              <svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+              <span>3</span>
+            </div>
+            <div class="action-divider"></div>
+            <div class="action-btn">
+              <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- FAB -->
+    <div class="fab-compose" onclick="alert('發布動態')">
+      <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="location.href='home.html'">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span>首頁</span>
+      </div>
+      <div class="nav-item active" onclick="location.href='moments.html'">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+        <span>動態</span>
+      </div>
+      <div class="nav-item party-tab" onclick="location.href='party.html'">
+        <div class="party-badge">
+          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        </div>
+        <span>約酒局</span>
+      </div>
+      <div class="nav-item" onclick="location.href='messages.html'">
+        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+        <span>消息</span>
+      </div>
+      <div class="nav-item" onclick="location.href='profile.html'">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        <span>我的</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleLike(id, base) {
+      const btn = document.getElementById(id);
+      const cnt = document.getElementById(id + '-count');
+      if (!btn || !cnt) return;
+      const isLiked = btn.classList.toggle('liked');
+      cnt.textContent = isLiked ? parseInt(base) + 1 : base;
+    }
+  </script>
+</body>
+</html>
