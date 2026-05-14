@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
-import type { Meal, MealParticipant, User, Tag, CreditHistory, Notification } from '@/types';
+import type { Meal, MealParticipant, User, Tag, CreditHistory, Notification, Bar, BarRating, BarCheckin, BarCoinGrant, CoinTransaction, DailyCheckin, ShopItem, ShopOrder, Moment, MomentComment, MessageThread, Message, Follow, UserBlock } from '@/types';
 
 // =============================================
 // DB Row types (Supabase query results)
@@ -455,7 +455,7 @@ export async function fetchProfile(userId: string): Promise<User | null> {
   return {
     ...(data as ProfileRow),
     tags: ((data as ProfileRow).user_tags || []).map(ut => ut.tag),
-  } as User;
+  } as unknown as User;
 }
 
 export async function updateProfile(updates: Record<string, unknown>): Promise<{ success: boolean; error?: string }> {
@@ -832,4 +832,1556 @@ function transformMeal(raw: MealRow): Meal {
     _currentParticipants: number;
     _languages: Array<{ key: string; flag: string }>;
   };
+}
+
+// =============================================
+// Bars (酒吧)
+// =============================================
+
+interface BarRow {
+  id: string;
+  name: string;
+  name_en: string | null;
+  address: string;
+  city: string;
+  latitude: number;
+  longitude: number;
+  category: string;
+  description: string | null;
+  opening_hours: Record<string, string> | null;
+  min_spend: number | null;
+  cover_image_url: string | null;
+  images: string[] | null;
+  average_rating: number;
+  rating_count: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function fetchBars(filters?: {
+  city?: string;
+  category?: string;
+  search?: string;
+}): Promise<Bar[]> {
+  const supabase = createClient();
+  let query = supabase
+    .from('bars')
+    .select('*')
+    .eq('is_active', true)
+    .order('rating_count', { ascending: false });
+
+  if (filters?.city && filters.city !== 'all') {
+    query = query.eq('city', filters.city);
+  }
+  if (filters?.category && filters.category !== 'all') {
+    query = query.eq('category', filters.category);
+  }
+  if (filters?.search) {
+    query = query.or(`name.ilike.%${filters.search}%,name_en.ilike.%${filters.search}%,address.ilike.%${filters.search}%`);
+  }
+
+  const { data, error } = await query;
+  if (error) {
+    console.error('fetchBars error:', error);
+    return [];
+  }
+  return ((data as BarRow[]) || []).map(transformBar);
+}
+
+export async function fetchBarById(barId: string): Promise<Bar | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('bars')
+    .select('*')
+    .eq('id', barId)
+    .eq('is_active', true)
+    .single();
+
+  if (error) {
+    console.error('fetchBarById error:', error);
+    return null;
+  }
+  return transformBar(data as BarRow);
+}
+
+export async function checkinBar(barId: string, latitude: number, longitude: number): Promise<{
+  success: boolean;
+  error?: string;
+  coins?: number;
+}> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { success: false, error: 'AUTH' };
+
+  // Check if already checked in today
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const { data: existing } = await supabase
+    .from('bar_checkins')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('bar_id', barId)
+    .eq('checkin_date', today)
+    .maybeSingle();
+
+  if (existing) {
+    return { success: false, error: 'TODAY' };
+  }
+
+  // Get bar location to verify distance (500m)
+  const { data: bar } = await supabase
+    .from('bars')
+    .select('latitude, longitude')
+    .eq('id', barId)
+    .single();
+
+  if (bar) {
+    const dist = haversineDistance(latitude, longitude, bar.latitude, bar.longitude);
+    if (dist > 500) {
+      return { success: false, error: 'DISTANCE' };
+    }
+  }
+
+  // Insert checkin — the AFTER INSERT trigger (on_bar_checkin) will
+  // automatically call grant_coins to award 5 coins
+  const { error } = await supabase
+    .from('bar_checkins')
+    .insert({
+      user_id: user.id,
+      bar_id: barId,
+      latitude,
+      longitude,
+    });
+
+  if (error) {
+    if (error.code === '23505') return { success: false, error: 'TODAY' };
+    return { success: false, error: error.message };
+  }
+
+  return { success: true, coins: 5 };
+}
+
+export async function rateBar(barId: string, data: {
+  environment_rating: number;
+  service_rating: number;
+  value_rating: number;
+  comment: string;
+}): Promise<{ success: boolean; error?: string }> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { success: false, error: 'AUTH' };
+
+  // Check if already rated
+  const { data: existing } = await supabase
+    .from('bar_ratings')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('bar_id', barId)
+    .maybeSingle();
+
+  if (existing) {
+    return { success: false, error: 'EXISTS' };
+  }
+
+  // Insert rating
+  const { error } = await supabase
+    .from('bar_ratings')
+    .insert({
+      user_id: user.id,
+      bar_id: barId,
+      environment_rating: data.environment_rating,
+      service_rating: data.service_rating,
+      value_rating: data.value_rating,
+      comment: data.comment,
+    });
+
+  if (error) {
+    if (error.code === '23505') return { success: false, error: 'EXISTS' };
+    return { success: false, error: error.message };
+  }
+
+  // Update bar average rating (transaction-safe via RPC would be better, but doing client-side for now)
+  const { data: ratings } = await supabase
+    .from('bar_ratings')
+    .select('environment_rating, service_rating, value_rating')
+    .eq('bar_id', barId);
+
+  if (ratings && ratings.length > 0) {
+    const avgEnv = ratings.reduce((s: number, r: any) => s + r.environment_rating, 0) / ratings.length;
+    const avgSvc = ratings.reduce((s: number, r: any) => s + r.service_rating, 0) / ratings.length;
+    const avgVal = ratings.reduce((s: number, r: any) => s + r.value_rating, 0) / ratings.length;
+    const avgRating = ((avgEnv + avgSvc + avgVal) / 3);
+
+    await supabase
+      .from('bars')
+      .update({
+        average_rating: Math.round(avgRating * 100) / 100,
+        rating_count: ratings.length,
+      })
+      .eq('id', barId);
+  }
+
+  return { success: true };
+}
+
+export async function fetchBarRatings(barId: string, limit = 20): Promise<BarRating[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('bar_ratings')
+    .select(`
+      *,
+      user:profiles!bar_ratings_user_id_fkey(id, nickname, avatar_url)
+    `)
+    .eq('bar_id', barId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('fetchBarRatings error:', error);
+    return [];
+  }
+  return (data as BarRating[]) || [];
+}
+
+export async function fetchMyBarCheckinToday(barId: string): Promise<boolean> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+
+  const today = new Date().toISOString().split('T')[0];
+  const { data } = await supabase
+    .from('bar_checkins')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('bar_id', barId)
+    .eq('checkin_date', today)
+    .maybeSingle();
+
+  return !!data;
+}
+
+export async function fetchMyBarRating(barId: string): Promise<BarRating | null> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data, error } = await supabase
+    .from('bar_ratings')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('bar_id', barId)
+    .maybeSingle();
+
+  if (error) return null;
+  return data as BarRating;
+}
+
+export async function fetchTodayCheckinCount(barId: string): Promise<number> {
+  const supabase = createClient();
+  const today = new Date().toISOString().split('T')[0];
+  const { count, error } = await supabase
+    .from('bar_checkins')
+    .select('*', { count: 'exact', head: true })
+    .eq('bar_id', barId)
+    .eq('checkin_date', today);
+
+  if (error) return 0;
+  return count || 0;
+}
+
+// =============================================
+// Helpers
+// =============================================
+
+function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371000; // Earth's radius in meters
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+function transformBar(raw: BarRow): Bar {
+  return {
+    id: raw.id,
+    name: raw.name,
+    name_en: raw.name_en || null,
+    address: raw.address,
+    city: raw.city as Bar['city'],
+    latitude: raw.latitude,
+    longitude: raw.longitude,
+    category: raw.category as Bar['category'],
+    description: raw.description || '',
+    opening_hours: raw.opening_hours || {},
+    min_spend: raw.min_spend,
+    cover_image_url: raw.cover_image_url,
+    images: raw.images || [],
+    average_rating: raw.average_rating,
+    rating_count: raw.rating_count,
+    is_active: raw.is_active,
+    created_at: raw.created_at,
+    updated_at: raw.updated_at,
+  };
+}
+
+// =============================================
+// Coins (金幣)
+// =============================================
+
+interface CoinTransactionRow {
+  id: string;
+  user_id: string;
+  amount: number;
+  balance_after: number;
+  source_type: string;
+  source_id: string | null;
+  description: string;
+  is_daily_task: boolean;
+  created_at: string;
+}
+
+export async function fetchCoinTransactions(limit = 30): Promise<CoinTransaction[]> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from('coin_transactions')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('fetchCoinTransactions error:', error);
+    return [];
+  }
+  return (data as CoinTransactionRow[]).map(row => ({
+    ...row,
+    source_type: row.source_type as CoinTransaction['source_type'],
+  }));
+}
+
+export async function dailyCheckin(): Promise<{
+  success: boolean;
+  coins?: number;
+  streakDays?: number;
+  error?: string;
+}> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'AUTH' };
+
+  const today = new Date().toISOString().split('T')[0];
+
+  // Check if already checked in
+  const { data: existing } = await supabase
+    .from('daily_checkins')
+    .select('id, streak_days, coins_earned')
+    .eq('user_id', user.id)
+    .eq('checkin_date', today)
+    .maybeSingle();
+
+  if (existing) {
+    return { success: false, error: 'TODAY', streakDays: existing.streak_days };
+  }
+
+  // Insert checkin record — the BEFORE INSERT trigger (on_daily_checkin) will:
+  // 1. Calculate streak_days and is_streak_bonus automatically
+  // 2. Call grant_coins RPC to award coins
+  const { data, error } = await supabase
+    .from('daily_checkins')
+    .insert({
+      user_id: user.id,
+      checkin_date: today,
+      coins_earned: 10, // default, trigger will override
+      streak_days: 1,   // default, trigger will override
+      is_streak_bonus: false,
+    })
+    .select('streak_days, coins_earned, is_streak_bonus')
+    .single();
+
+  if (error) {
+    if (error.code === '23505') return { success: false, error: 'TODAY', streakDays: 0 };
+    return { success: false, error: error.message };
+  }
+
+  return { success: true, coins: data.coins_earned, streakDays: data.streak_days };
+}
+
+export async function fetchTodayCheckinStatus(): Promise<{
+  hasCheckedIn: boolean;
+  streakDays: number;
+}> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { hasCheckedIn: false, streakDays: 0 };
+
+  const today = new Date().toISOString().split('T')[0];
+
+  const { data: todayCheckin } = await supabase
+    .from('daily_checkins')
+    .select('streak_days')
+    .eq('user_id', user.id)
+    .eq('checkin_date', today)
+    .maybeSingle();
+
+  if (todayCheckin) {
+    return { hasCheckedIn: true, streakDays: todayCheckin.streak_days };
+  }
+
+  // Get streak from yesterday
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+  const { data: yesterdayCheckin } = await supabase
+    .from('daily_checkins')
+    .select('streak_days')
+    .eq('user_id', user.id)
+    .eq('checkin_date', yesterday)
+    .maybeSingle();
+
+  return {
+    hasCheckedIn: false,
+    streakDays: yesterdayCheckin?.streak_days || 0,
+  };
+}
+
+// =============================================
+// Shop (商城)
+// =============================================
+
+interface ShopItemRow {
+  id: string;
+  name_zh: string;
+  name_en: string;
+  name_th: string;
+  description_zh: string;
+  description_en: string;
+  description_th: string;
+  category: string;
+  coin_price: number;
+  stock: number;
+  image_url: string | null;
+  terms: string;
+  is_active: boolean;
+  is_featured: boolean;
+  valid_days: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function fetchShopItems(category?: string): Promise<ShopItem[]> {
+  const supabase = createClient();
+
+  let query = supabase
+    .from('shop_items')
+    .select('*')
+    .eq('is_active', true)
+    .order('is_featured', { ascending: false })
+    .order('coin_price', { ascending: true });
+
+  if (category && category !== 'all') {
+    query = query.eq('category', category);
+  }
+
+  const { data, error } = await query;
+  if (error) {
+    console.error('fetchShopItems error:', error);
+    return [];
+  }
+
+  return (data as ShopItemRow[]).map(row => ({
+    ...row,
+    category: row.category as ShopItem['category'],
+  }));
+}
+
+export async function redeemShopItem(itemId: string): Promise<{
+  success: boolean;
+  orderId?: string;
+  error?: string;
+}> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'AUTH' };
+
+  // Call RPC to handle atomic redeem (check balance + deduct + create order)
+  const { data, error } = await supabase.rpc('redeem_shop_item', {
+    p_user_id: user.id,
+    p_item_id: itemId,
+  });
+
+  if (error) {
+    console.error('redeem_shop_item error:', error);
+    if (error.message.includes('Insufficient')) {
+      return { success: false, error: 'BALANCE' };
+    }
+    if (error.message.includes('Out of stock')) {
+      return { success: false, error: 'STOCK' };
+    }
+    return { success: false, error: error.message };
+  }
+
+  return { success: true, orderId: data };
+}
+
+export async function fetchMyShopOrders(): Promise<ShopOrder[]> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from('shop_orders')
+    .select(`
+      *,
+      item:shop_items(id, name_zh, name_en, name_th, image_url, coin_price, valid_days)
+    `)
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if (error) {
+    console.error('fetchMyShopOrders error:', error);
+    return [];
+  }
+  return (data as ShopOrder[]) || [];
+}
+
+// =============================================
+// Moments (動態)
+// =============================================
+
+interface MomentRow {
+  id: string;
+  user_id: string;
+  content: string;
+  images: string[] | null;
+  visibility: string;
+  mood_tag: string | null;
+  bar_id: string | null;
+  location_name: string;
+  latitude: number | null;
+  longitude: number | null;
+  likes_count: number;
+  comments_count: number;
+  reports_count: number;
+  is_deleted: boolean;
+  created_at: string;
+  updated_at: string;
+  // Joined
+  user?: { id: string; nickname: string | null; avatar_url: string | null; level: number | null };
+  bar?: { id: string; name: string; name_en: string | null };
+}
+
+interface MomentCommentRow {
+  id: string;
+  moment_id: string;
+  user_id: string;
+  content: string;
+  parent_id: string | null;
+  is_deleted: boolean;
+  created_at: string;
+  // Joined
+  user?: { id: string; nickname: string | null; avatar_url: string | null };
+  // Nested
+  replies?: MomentCommentRow[];
+}
+
+export async function fetchMoments(options?: {
+  userId?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<Moment[]> {
+  const supabase = createClient();
+
+  let query = supabase
+    .from('moments')
+    .select(`
+      *,
+      user:profiles!moments_user_id_fkey(id, nickname, avatar_url, level),
+      bar:bars!moments_bar_id_fkey(id, name, name_en)
+    `)
+    .eq('is_deleted', false)
+    .order('created_at', { ascending: false });
+
+  if (options?.userId) {
+    query = query.eq('user_id', options.userId);
+  }
+
+  const limit = options?.limit || 20;
+  const offset = options?.offset || 0;
+  query = query.range(offset, offset + limit - 1);
+
+  const { data, error } = await query;
+  if (error) {
+    console.error('fetchMoments error:', error);
+    return [];
+  }
+
+  return ((data as MomentRow[]) || []).map(transformMoment);
+}
+
+export async function fetchMomentById(momentId: string): Promise<Moment | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('moments')
+    .select(`
+      *,
+      user:profiles!moments_user_id_fkey(id, nickname, avatar_url, level),
+      bar:bars!moments_bar_id_fkey(id, name, name_en)
+    `)
+    .eq('id', momentId)
+    .eq('is_deleted', false)
+    .single();
+
+  if (error) {
+    console.error('fetchMomentById error:', error);
+    return null;
+  }
+  return transformMoment(data as MomentRow);
+}
+
+export async function createMoment(data: {
+  content: string;
+  images?: string[];
+  visibility?: 'public' | 'friends' | 'party_only';
+  mood_tag?: string | null;
+  bar_id?: string | null;
+  location_name?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+}): Promise<{ success: boolean; momentId?: string; error?: string }> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'AUTH' };
+
+  if (!data.content.trim() && (!data.images || data.images.length === 0)) {
+    return { success: false, error: 'EMPTY' };
+  }
+
+  const { error: insertError, data: moment } = await supabase
+    .from('moments')
+    .insert({
+      user_id: user.id,
+      content: data.content.trim(),
+      images: data.images || [],
+      visibility: data.visibility || 'public',
+      mood_tag: data.mood_tag || null,
+      bar_id: data.bar_id || null,
+      location_name: data.location_name || '',
+      latitude: data.latitude || null,
+      longitude: data.longitude || null,
+    })
+    .select('id')
+    .single();
+
+  if (insertError) {
+    console.error('createMoment error:', insertError);
+    return { success: false, error: insertError.message };
+  }
+
+  // Grant coins via RPC (+15 coins for posting a moment)
+  const { error: grantError } = await supabase.rpc('grant_coins', {
+    p_user_id: user.id,
+    p_amount: 15,
+    p_source_type: 'system_post_moment',
+    p_source_id: moment.id,
+    p_description: '发布动态奖励',
+    p_is_daily_task: true,
+  });
+
+  if (grantError) {
+    console.error('grant_coins for moment error:', grantError);
+  }
+
+  // Note: posts_count is automatically updated by the on_moment_created trigger
+
+  return { success: true, momentId: moment.id };
+}
+
+export async function deleteMoment(momentId: string): Promise<{ success: boolean; error?: string }> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'AUTH' };
+
+  const { error } = await supabase
+    .from('moments')
+    .update({ is_deleted: true })
+    .eq('id', momentId)
+    .eq('user_id', user.id);
+
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function likeMoment(momentId: string): Promise<{ success: boolean; isLiked: boolean; error?: string }> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, isLiked: false, error: 'AUTH' };
+
+  const { error } = await supabase
+    .from('moment_likes')
+    .insert({ user_id: user.id, moment_id: momentId });
+
+  if (error) {
+    if (error.code === '23505') {
+      return { success: true, isLiked: true }; // Already liked
+    }
+    return { success: false, isLiked: false, error: error.message };
+  }
+
+  // Note: likes_count is automatically updated by the on_moment_liked trigger
+
+  return { success: true, isLiked: true };
+}
+
+export async function unlikeMoment(momentId: string): Promise<{ success: boolean; error?: string }> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'AUTH' };
+
+  const { error } = await supabase
+    .from('moment_likes')
+    .delete()
+    .eq('user_id', user.id)
+    .eq('moment_id', momentId);
+
+  if (error) return { success: false, error: error.message };
+
+  // Update likes_count
+  void supabase.rpc('increment_moment_likes', { p_moment_id: momentId, p_delta: -1 });
+
+  return { success: true };
+}
+
+export async function checkMomentLiked(momentId: string): Promise<boolean> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+
+  const { data } = await supabase
+    .from('moment_likes')
+    .select('user_id')
+    .eq('user_id', user.id)
+    .eq('moment_id', momentId)
+    .maybeSingle();
+
+  return !!data;
+}
+
+export async function fetchComments(momentId: string): Promise<MomentComment[]> {
+  const supabase = createClient();
+
+  // Fetch top-level comments
+  const { data, error } = await supabase
+    .from('moment_comments')
+    .select(`
+      *,
+      user:profiles!moment_comments_user_id_fkey(id, nickname, avatar_url)
+    `)
+    .eq('moment_id', momentId)
+    .is('parent_id', null)
+    .eq('is_deleted', false)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('fetchComments error:', error);
+    return [];
+  }
+
+  // Fetch replies for all comments
+  const commentIds = (data || []).map((c: MomentCommentRow) => c.id);
+  let replies: Record<string, MomentCommentRow[]> = {};
+
+  if (commentIds.length > 0) {
+    const { data: repliesData } = await supabase
+      .from('moment_comments')
+      .select(`
+        *,
+        user:profiles!moment_comments_user_id_fkey(id, nickname, avatar_url)
+      `)
+      .in('parent_id', commentIds)
+      .eq('is_deleted', false)
+      .order('created_at', { ascending: true });
+
+    if (repliesData) {
+      replies = (repliesData as MomentCommentRow[]).reduce((acc, r) => {
+        if (!acc[r.parent_id!]) acc[r.parent_id!] = [];
+        acc[r.parent_id!].push(r);
+        return acc;
+      }, {} as Record<string, MomentCommentRow[]>);
+    }
+  }
+
+  return ((data as MomentCommentRow[]) || []).map(row => ({
+    id: row.id,
+    moment_id: row.moment_id,
+    user_id: row.user_id,
+    content: row.content,
+    parent_id: row.parent_id,
+    is_deleted: row.is_deleted,
+    created_at: row.created_at,
+    user: row.user ? { id: row.user.id, nickname: row.user.nickname, avatar_url: row.user.avatar_url } as any : undefined,
+    replies: (replies[row.id] || []).map(r => ({
+      id: r.id,
+      moment_id: r.moment_id,
+      user_id: r.user_id,
+      content: r.content,
+      parent_id: r.parent_id,
+      is_deleted: r.is_deleted,
+      created_at: r.created_at,
+      user: r.user ? { id: r.user.id, nickname: r.user.nickname, avatar_url: r.user.avatar_url } as any : undefined,
+    })),
+  })) as MomentComment[];
+}
+
+export async function addComment(momentId: string, content: string, parentId?: string): Promise<{
+  success: boolean;
+  commentId?: string;
+  error?: string;
+}> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'AUTH' };
+
+  if (!content.trim()) return { success: false, error: 'EMPTY' };
+
+  const { data, error } = await supabase
+    .from('moment_comments')
+    .insert({
+      moment_id: momentId,
+      user_id: user.id,
+      content: content.trim(),
+      parent_id: parentId || null,
+    })
+    .select('id')
+    .single();
+
+  if (error) {
+    console.error('addComment error:', error);
+    return { success: false, error: error.message };
+  }
+
+  // Note: comments_count is automatically updated by the on_moment_commented trigger
+
+  return { success: true, commentId: data.id };
+}
+
+export async function deleteComment(commentId: string): Promise<{ success: boolean; error?: string }> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'AUTH' };
+
+  const { data: comment } = await supabase
+    .from('moment_comments')
+    .select('moment_id')
+    .eq('id', commentId)
+    .single();
+
+  const { error } = await supabase
+    .from('moment_comments')
+    .update({ is_deleted: true })
+    .eq('id', commentId)
+    .eq('user_id', user.id);
+
+  if (error) return { success: false, error: error.message };
+
+  return { success: true };
+}
+
+export async function reportMoment(momentId: string, reason: string): Promise<{ success: boolean; error?: string }> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'AUTH' };
+
+  const { error } = await supabase
+    .from('user_reports')
+    .insert({
+      reporter_id: user.id,
+      moment_id: momentId,
+      reason,
+    });
+
+  if (error) {
+    if (error.code === '23505') return { success: false, error: 'EXISTS' };
+    return { success: false, error: error.message };
+  }
+
+  return { success: true };
+}
+
+function transformMoment(raw: MomentRow): Moment {
+  return {
+    id: raw.id,
+    user_id: raw.user_id,
+    content: raw.content,
+    images: raw.images || [],
+    visibility: raw.visibility as Moment['visibility'],
+    mood_tag: raw.mood_tag,
+    bar_id: raw.bar_id,
+    location_name: raw.location_name,
+    latitude: raw.latitude,
+    longitude: raw.longitude,
+    likes_count: raw.likes_count,
+    comments_count: raw.comments_count,
+    reports_count: raw.reports_count,
+    is_deleted: raw.is_deleted,
+    created_at: raw.created_at,
+    updated_at: raw.updated_at,
+    user: raw.user ? {
+      id: raw.user.id,
+      email: '',
+      nickname: raw.user.nickname,
+      avatar_url: raw.user.avatar_url,
+      level: (raw.user.level as any) || 1,
+      age_range: null,
+      gender: null,
+      birth_year: null,
+      nationality: null,
+      zodiac: null,
+      height: null,
+      weight: null,
+      bio: null,
+      languages_spoken: [],
+      phone: null,
+      phone_verified: false,
+      credit_score: 100,
+      email_verified: true,
+      status: 'active',
+      total_coins: 0,
+      daily_coin_earned: 0,
+      daily_coin_reset_date: '',
+      completed_meals_count: 0,
+      hosted_meals_count: 0,
+      posts_count: 0,
+      recommend_count: 0,
+      last_credit_recovery_date: '',
+      credit_recovery_this_month: 0,
+      block_count: 0,
+      report_received_count: 0,
+      invite_count: 0,
+      invited_by: null,
+      created_at: '',
+      updated_at: '',
+      tags: [],
+    } : undefined,
+    bar: raw.bar ? {
+      id: raw.bar.id,
+      name: raw.bar.name,
+      name_en: raw.bar.name_en || null,
+      address: '',
+      city: 'bangkok',
+      latitude: 0,
+      longitude: 0,
+      category: 'bar',
+      description: '',
+      opening_hours: {},
+      min_spend: null,
+      cover_image_url: null,
+      images: [],
+      average_rating: 0,
+      rating_count: 0,
+      is_active: true,
+      created_at: '',
+      updated_at: '',
+    } : undefined,
+  };
+}
+
+// =============================================
+// Chat / Messages (私信)
+// =============================================
+
+interface MessageThreadRow {
+  id: string;
+  participant_a: string;
+  participant_b: string;
+  last_message_at: string;
+  created_at: string;
+  // Joined
+  participant_a_user?: { id: string; nickname: string | null; avatar_url: string | null; level: number | null };
+  participant_b_user?: { id: string; nickname: string | null; avatar_url: string | null; level: number | null };
+}
+
+interface MessageRow {
+  id: string;
+  thread_id: string;
+  sender_id: string;
+  content: string;
+  message_type: string;
+  image_urls: string[] | null;
+  metadata: Record<string, unknown> | null;
+  is_deleted: boolean;
+  created_at: string;
+  // Joined
+  sender?: { id: string; nickname: string | null; avatar_url: string | null };
+}
+
+export async function fetchThreads(limit = 50): Promise<MessageThread[]> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from('message_threads')
+    .select(`
+      *,
+      participant_a_user:profiles!message_threads_participant_a_fkey(id, nickname, avatar_url, level),
+      participant_b_user:profiles!message_threads_participant_b_fkey(id, nickname, avatar_url, level)
+    `)
+    .or(`participant_a.eq.${user.id},participant_b.eq.${user.id}`)
+    .order('last_message_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('fetchThreads error:', error);
+    return [];
+  }
+
+  return ((data as MessageThreadRow[]) || []).map(row => transformThread(row, user.id));
+}
+
+export async function getOrCreateThread(otherUserId: string): Promise<{
+  success: boolean;
+  threadId?: string;
+  error?: string;
+}> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'AUTH' };
+  if (user.id === otherUserId) return { success: false, error: 'SELF' };
+
+  // Try to find existing thread (UNIQUE constraint on participant_a, participant_b)
+  // Since the constraint is (participant_a, participant_b), need to check both orderings
+  const { data: existing } = await supabase
+    .from('message_threads')
+    .select('id')
+    .or(`and(participant_a.eq.${user.id},participant_b.eq.${otherUserId}),and(participant_a.eq.${otherUserId},participant_b.eq.${user.id})`)
+    .maybeSingle();
+
+  if (existing) {
+    return { success: true, threadId: existing.id };
+  }
+
+  // Create new thread - ensure participant_a < participant_b for consistent ordering
+  const [a, b] = user.id < otherUserId ? [user.id, otherUserId] : [otherUserId, user.id];
+
+  const { data, error } = await supabase
+    .from('message_threads')
+    .insert({ participant_a: a, participant_b: b })
+    .select('id')
+    .single();
+
+  if (error) {
+    if (error.code === '23505') {
+      // Concurrent insert race — fetch the existing one
+      const { data: retry } = await supabase
+        .from('message_threads')
+        .select('id')
+        .or(`and(participant_a.eq.${user.id},participant_b.eq.${otherUserId}),and(participant_a.eq.${otherUserId},participant_b.eq.${user.id})`)
+        .maybeSingle();
+      return retry ? { success: true, threadId: retry.id } : { success: false, error: error.message };
+    }
+    console.error('getOrCreateThread error:', error);
+    return { success: false, error: error.message };
+  }
+
+  return { success: true, threadId: data.id };
+}
+
+export async function fetchMessages(threadId: string, options?: {
+  limit?: number;
+  before?: string; // cursor: created_at of last message
+}): Promise<Message[]> {
+  const supabase = createClient();
+
+  let query = supabase
+    .from('messages')
+    .select(`
+      *,
+      sender:profiles!messages_sender_id_fkey(id, nickname, avatar_url)
+    `)
+    .eq('thread_id', threadId)
+    .eq('is_deleted', false)
+    .order('created_at', { ascending: false });
+
+  const limit = options?.limit || 30;
+  if (options?.before) {
+    query = query.lt('created_at', options.before);
+  }
+  query = query.limit(limit);
+
+  const { data, error } = await query;
+  if (error) {
+    console.error('fetchMessages error:', error);
+    return [];
+  }
+
+  return ((data as MessageRow[]) || [])
+    .reverse() // Reverse to get chronological order
+    .map(transformMessage);
+}
+
+export async function sendMessage(threadId: string, content: string, messageType: string = 'text', imageUrls: string[] = [], metadata: Record<string, unknown> = {}): Promise<{
+  success: boolean;
+  messageId?: string;
+  error?: string;
+}> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'AUTH' };
+
+  if (!content.trim() && imageUrls.length === 0) {
+    return { success: false, error: 'EMPTY' };
+  }
+
+  const { data, error } = await supabase
+    .from('messages')
+    .insert({
+      thread_id: threadId,
+      sender_id: user.id,
+      content: content.trim(),
+      message_type: messageType,
+      image_urls: imageUrls,
+      metadata,
+    })
+    .select('id')
+    .single();
+
+  if (error) {
+    console.error('sendMessage error:', error);
+    return { success: false, error: error.message };
+  }
+
+  // Update thread's last_message_at
+  void supabase
+    .from('message_threads')
+    .update({ last_message_at: new Date().toISOString() })
+    .eq('id', threadId);
+
+  return { success: true, messageId: data.id };
+}
+
+export async function deleteMessage(messageId: string): Promise<{ success: boolean; error?: string }> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'AUTH' };
+
+  const { error } = await supabase
+    .from('messages')
+    .update({ is_deleted: true })
+    .eq('id', messageId)
+    .eq('sender_id', user.id);
+
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function fetchLastMessage(threadId: string): Promise<Message | null> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('messages')
+    .select(`
+      *,
+      sender:profiles!messages_sender_id_fkey(id, nickname, avatar_url)
+    `)
+    .eq('thread_id', threadId)
+    .eq('is_deleted', false)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) return null;
+  return data ? transformMessage(data as MessageRow) : null;
+}
+
+function transformThread(raw: MessageThreadRow, currentUserId: string): MessageThread {
+  const isParticipantA = raw.participant_a === currentUserId;
+  const otherUser = isParticipantA ? raw.participant_b_user : raw.participant_a_user;
+
+  return {
+    id: raw.id,
+    participant_a: raw.participant_a,
+    participant_b: raw.participant_b,
+    last_message_at: raw.last_message_at,
+    created_at: raw.created_at,
+    participant_a_user: raw.participant_a_user ? {
+      id: raw.participant_a_user.id,
+      email: '',
+      nickname: raw.participant_a_user.nickname,
+      avatar_url: raw.participant_a_user.avatar_url,
+      age_range: null,
+      gender: null,
+      birth_year: null,
+      nationality: null,
+      zodiac: null,
+      height: null,
+      weight: null,
+      bio: null,
+      languages_spoken: [],
+      phone: null,
+      phone_verified: false,
+      credit_score: 100,
+      email_verified: true,
+      status: 'active',
+      level: (raw.participant_a_user.level as any) || 1,
+      total_coins: 0,
+      daily_coin_earned: 0,
+      daily_coin_reset_date: '',
+      completed_meals_count: 0,
+      hosted_meals_count: 0,
+      posts_count: 0,
+      recommend_count: 0,
+      last_credit_recovery_date: '',
+      credit_recovery_this_month: 0,
+      block_count: 0,
+      report_received_count: 0,
+      invite_count: 0,
+      invited_by: null,
+      created_at: '',
+      updated_at: '',
+      tags: [],
+    } : undefined,
+    participant_b_user: raw.participant_b_user ? {
+      id: raw.participant_b_user.id,
+      email: '',
+      nickname: raw.participant_b_user.nickname,
+      avatar_url: raw.participant_b_user.avatar_url,
+      age_range: null,
+      gender: null,
+      birth_year: null,
+      nationality: null,
+      zodiac: null,
+      height: null,
+      weight: null,
+      bio: null,
+      languages_spoken: [],
+      phone: null,
+      phone_verified: false,
+      credit_score: 100,
+      email_verified: true,
+      status: 'active',
+      level: (raw.participant_b_user.level as any) || 1,
+      total_coins: 0,
+      daily_coin_earned: 0,
+      daily_coin_reset_date: '',
+      completed_meals_count: 0,
+      hosted_meals_count: 0,
+      posts_count: 0,
+      recommend_count: 0,
+      last_credit_recovery_date: '',
+      credit_recovery_this_month: 0,
+      block_count: 0,
+      report_received_count: 0,
+      invite_count: 0,
+      invited_by: null,
+      created_at: '',
+      updated_at: '',
+      tags: [],
+    } : undefined,
+    // Compute unread count (will be updated by real-time or polling)
+    unread_count: 0,
+    // Client convenience: the other participant as a direct reference
+    _otherUser: otherUser ? {
+      id: otherUser.id,
+      nickname: otherUser.nickname,
+      avatar_url: otherUser.avatar_url,
+      level: otherUser.level,
+    } : undefined,
+  } as MessageThread & { _otherUser?: { id: string; nickname: string | null; avatar_url: string | null; level: number | null } };
+}
+
+function transformMessage(raw: MessageRow): Message {
+  return {
+    id: raw.id,
+    thread_id: raw.thread_id,
+    sender_id: raw.sender_id,
+    content: raw.content,
+    message_type: raw.message_type as Message['message_type'],
+    image_urls: raw.image_urls || [],
+    metadata: raw.metadata || {},
+    is_deleted: raw.is_deleted,
+    created_at: raw.created_at,
+    sender: raw.sender ? {
+      id: raw.sender.id,
+      email: '',
+      nickname: raw.sender.nickname,
+      avatar_url: raw.sender.avatar_url,
+      age_range: null,
+      gender: null,
+      birth_year: null,
+      nationality: null,
+      zodiac: null,
+      height: null,
+      weight: null,
+      bio: null,
+      languages_spoken: [],
+      phone: null,
+      phone_verified: false,
+      credit_score: 100,
+      email_verified: true,
+      status: 'active',
+      level: 1,
+      total_coins: 0,
+      daily_coin_earned: 0,
+      daily_coin_reset_date: '',
+      completed_meals_count: 0,
+      hosted_meals_count: 0,
+      posts_count: 0,
+      recommend_count: 0,
+      last_credit_recovery_date: '',
+      credit_recovery_this_month: 0,
+      block_count: 0,
+      report_received_count: 0,
+      invite_count: 0,
+      invited_by: null,
+      created_at: '',
+      updated_at: '',
+      tags: [],
+    } as any : undefined,
+  };
+}
+
+// =============================================
+// Social (社交關係 — Follow / Block / Report)
+// =============================================
+
+export async function followUser(targetUserId: string): Promise<{ success: boolean; error?: string }> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'AUTH' };
+  if (user.id === targetUserId) return { success: false, error: 'SELF' };
+
+  const { error } = await supabase
+    .from('follows')
+    .insert({ follower_id: user.id, following_id: targetUserId });
+
+  if (error) {
+    if (error.code === '23505') return { success: true }; // Already following
+    return { success: false, error: error.message };
+  }
+
+  return { success: true };
+}
+
+export async function unfollowUser(targetUserId: string): Promise<{ success: boolean; error?: string }> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'AUTH' };
+
+  const { error } = await supabase
+    .from('follows')
+    .delete()
+    .eq('follower_id', user.id)
+    .eq('following_id', targetUserId);
+
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function blockUser(targetUserId: string): Promise<{ success: boolean; error?: string }> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'AUTH' };
+  if (user.id === targetUserId) return { success: false, error: 'SELF' };
+
+  const { error } = await supabase
+    .from('user_blocks')
+    .insert({ blocker_id: user.id, blocked_id: targetUserId });
+
+  if (error) {
+    if (error.code === '23505') return { success: true }; // Already blocked
+    return { success: false, error: error.message };
+  }
+
+  return { success: true };
+}
+
+export async function unblockUser(targetUserId: string): Promise<{ success: boolean; error?: string }> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'AUTH' };
+
+  const { error } = await supabase
+    .from('user_blocks')
+    .delete()
+    .eq('blocker_id', user.id)
+    .eq('blocked_id', targetUserId);
+
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function fetchFollowers(userId: string, limit = 50): Promise<Follow[]> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('follows')
+    .select(`
+      follower:profiles!follows_follower_id_fkey(id, nickname, avatar_url, level, bio)
+    `)
+    .eq('following_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('fetchFollowers error:', error);
+    return [];
+  }
+
+  return ((data || []) as any[]).map((row: any) => ({
+    follower_id: row.follower?.id || '',
+    following_id: userId,
+    created_at: '',
+    follower: row.follower,
+  }));
+}
+
+export async function fetchFollowing(userId: string, limit = 50): Promise<Follow[]> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('follows')
+    .select(`
+      following:profiles!follows_following_id_fkey(id, nickname, avatar_url, level, bio)
+    `)
+    .eq('follower_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('fetchFollowing error:', error);
+    return [];
+  }
+
+  return ((data || []) as any[]).map((row: any) => ({
+    follower_id: userId,
+    following_id: row.following?.id || '',
+    created_at: '',
+    following: row.following,
+  }));
+}
+
+export async function checkFollowStatus(targetUserId: string): Promise<{
+  isFollowing: boolean;
+  isMutual: boolean;
+  isBlocked: boolean;
+}> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user || user.id === targetUserId) {
+    return { isFollowing: false, isMutual: false, isBlocked: false };
+  }
+
+  const [followRes, reverseFollowRes, blockRes] = await Promise.all([
+    supabase
+      .from('follows')
+      .select('follower_id')
+      .eq('follower_id', user.id)
+      .eq('following_id', targetUserId)
+      .maybeSingle(),
+    supabase
+      .from('follows')
+      .select('follower_id')
+      .eq('follower_id', targetUserId)
+      .eq('following_id', user.id)
+      .maybeSingle(),
+    supabase
+      .from('user_blocks')
+      .select('blocker_id')
+      .or(`and(blocker_id.eq.${user.id},blocked_id.eq.${targetUserId}),and(blocker_id.eq.${targetUserId},blocked_id.eq.${user.id})`)
+      .maybeSingle(),
+  ]);
+
+  return {
+    isFollowing: !!followRes.data,
+    isMutual: !!followRes.data && !!reverseFollowRes.data,
+    isBlocked: !!blockRes.data,
+  };
+}
+
+export async function fetchBlockedUsers(limit = 50): Promise<UserBlock[]> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from('user_blocks')
+    .select(`
+      blocked:profiles!user_blocks_blocked_id_fkey(id, nickname, avatar_url)
+    `)
+    .eq('blocker_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('fetchBlockedUsers error:', error);
+    return [];
+  }
+
+  return ((data || []) as any[]).map((row: any) => ({
+    blocker_id: user.id,
+    blocked_id: row.blocked?.id || '',
+    created_at: '',
+    blocked_user: row.blocked,
+  }));
+}
+
+export async function reportUser(targetUserId: string, reason: string): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'AUTH' };
+  if (user.id === targetUserId) return { success: false, error: 'SELF' };
+
+  const { error } = await supabase
+    .from('user_reports')
+    .insert({
+      reporter_id: user.id,
+      reported_user_id: targetUserId,
+      reason,
+    });
+
+  if (error) {
+    if (error.code === '23505') return { success: false, error: 'EXISTS' };
+    return { success: false, error: error.message };
+  }
+
+  // Note: report_received_count is automatically handled by the on_report_resolved trigger
+  // when admin changes status to 'resolved'
+
+  return { success: true };
+}
+
+export async function fetchFollowerCount(userId: string): Promise<number> {
+  const supabase = createClient();
+  const { count, error } = await supabase
+    .from('follows')
+    .select('*', { count: 'exact', head: true })
+    .eq('following_id', userId);
+
+  if (error) return 0;
+  return count || 0;
+}
+
+export async function fetchFollowingCount(userId: string): Promise<number> {
+  const supabase = createClient();
+  const { count, error } = await supabase
+    .from('follows')
+    .select('*', { count: 'exact', head: true })
+    .eq('follower_id', userId);
+
+  if (error) return 0;
+  return count || 0;
 }

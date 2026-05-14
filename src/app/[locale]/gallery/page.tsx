@@ -7,62 +7,58 @@ import { motion } from 'framer-motion';
 import {
   ArrowLeft,
   Heart,
-  Image as ImageIcon,
   Loader2,
   Camera,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { fetchMoments, likeMoment } from '@/lib/api';
+import { useAuthStore } from '@/store/auth-store';
 
 interface GalleryPhoto {
   id: string;
   url: string;
-  mealTitle: string;
-  restaurant: string;
+  content: string;
   author: string;
   authorAvatar?: string;
+  authorId: string;
   likes: number;
   timestamp: string;
   likedByMe?: boolean;
+  momentId: string;
 }
 
 export default function GalleryPage() {
   const t = useTranslations();
   const locale = useLocale();
+  const { user } = useAuthStore();
   const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [likedPhotos, setLikedPhotos] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     async function loadPhotos() {
       try {
-        const { createClient } = await import('@/lib/supabase/client');
-        const supabase = createClient();
-        const { data, error } = await supabase
-          .from('meal_photos')
-          .select(`
-            id,
-            url,
-            caption,
-            likes_count,
-            created_at,
-            meal:meals(title, restaurant_name),
-            uploader:profiles!meal_photos_uploader_id_fkey(nickname, avatar_url)
-          `)
-          .eq('status', 'approved')
-          .order('created_at', { ascending: false })
-          .limit(50);
-
-        if (!error && data) {
-          const mapped = data.map((p: any) => ({
-            id: p.id,
-            url: p.url,
-            mealTitle: p.meal?.title || 'Meal',
-            restaurant: p.meal?.restaurant_name || '',
-            author: p.uploader?.nickname || 'User',
-            authorAvatar: p.uploader?.avatar_url || null,
-            likes: p.likes_count || 0,
-            timestamp: p.created_at,
-          }));
+        // Fetch moments with images from the moments table
+        const result = await fetchMoments({ limit: 50 });
+        if (result && result.length > 0) {
+          // Filter only moments that have images, then flatten into photo grid
+          const mapped: GalleryPhoto[] = [];
+          result.forEach((m: any) => {
+            if (m.images && m.images.length > 0) {
+              m.images.forEach((url: string, imgIdx: number) => {
+                mapped.push({
+                  id: `${m.id}-${imgIdx}`,
+                  url,
+                  content: m.content || '',
+                  author: m.author?.nickname || 'User',
+                  authorAvatar: m.author?.avatar_url || undefined,
+                  authorId: m.user_id,
+                  likes: m.likes_count || 0,
+                  timestamp: m.created_at,
+                  likedByMe: m.has_liked || false,
+                  momentId: m.id,
+                });
+              });
+            }
+          });
           setPhotos(mapped);
         }
       } catch (err) {
@@ -74,16 +70,16 @@ export default function GalleryPage() {
     loadPhotos();
   }, []);
 
-  const toggleLike = (photoId: string) => {
-    setLikedPhotos(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(photoId)) {
-        newSet.delete(photoId);
-      } else {
-        newSet.add(photoId);
-      }
-      return newSet;
-    });
+  const toggleLike = async (photo: GalleryPhoto) => {
+    if (!user?.id) return;
+    const newLiked = !photo.likedByMe;
+    // Optimistic update
+    setPhotos(prev => prev.map(p =>
+      p.id === photo.id
+        ? { ...p, likedByMe: newLiked, likes: newLiked ? p.likes + 1 : p.likes - 1 }
+        : p
+    ));
+    await likeMoment(photo.momentId);
   };
 
   function relativeTime(dateStr: string): string {
@@ -93,10 +89,10 @@ export default function GalleryPage() {
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
-    if (minutes < 1) return 'just now';
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    if (days < 7) return `${days}d ago`;
+    if (minutes < 1) return locale === 'zh-CN' ? '剛剛' : 'just now';
+    if (minutes < 60) return locale === 'zh-CN' ? `${minutes}分鐘前` : `${minutes}m ago`;
+    if (hours < 24) return locale === 'zh-CN' ? `${hours}小時前` : `${hours}h ago`;
+    if (days < 7) return locale === 'zh-CN' ? `${days}天前` : `${days}d ago`;
     return new Date(dateStr).toLocaleDateString();
   }
 
@@ -112,7 +108,7 @@ export default function GalleryPage() {
             <ArrowLeft className="w-5 h-5 text-white" />
           </Link>
           <h1 className="text-base font-semibold text-white">
-            {t('gallery.title')}
+            {locale === 'zh-CN' ? '酒友相簿' : locale === 'th' ? 'แกลเลอรี' : 'Gallery'}
           </h1>
           <div className="w-9" />
         </div>
@@ -134,16 +130,16 @@ export default function GalleryPage() {
           </p>
           <p className="text-xs text-gray-light text-center mt-1">
             {locale === 'zh-CN'
-              ? '參加酒局後，拍下歡樂時光，分享給大家吧！'
+              ? '發布動態時附上照片，一起分享喝酒時刻！'
               : locale === 'th'
-                ? 'เข้าร่วมงานดื่ม ถ่ายรูปช่วงเวลาดีๆ และแชร์กับทุกคน!'
-                : 'Join a drink, capture the moment, and share it with everyone!'}
+                ? 'แชร์รูปภาพในโมเมนต์ของคุณ!'
+                : 'Add photos to your moments and share the fun!'}
           </p>
           <Link
-            href={`/${locale}/meals`}
+            href={`/${locale}/moments`}
             className="btn-primary inline-flex items-center gap-2 py-2.5 px-5 text-sm mt-6"
           >
-            {locale === 'zh-CN' ? '探索酒局' : locale === 'th' ? 'ค้นหางานดื่ม' : 'Explore Drinks'}
+            {locale === 'zh-CN' ? '查看動態' : locale === 'th' ? 'ดูโมเมนต์' : 'View Moments'}
           </Link>
         </div>
       ) : (
@@ -151,7 +147,7 @@ export default function GalleryPage() {
           {/* Stats bar */}
           <div className="px-4 pb-3">
             <p className="text-xs text-gray-light">
-              {photos.length} {t('gallery.photosCount')}
+              {photos.length} {locale === 'zh-CN' ? '張照片' : locale === 'th' ? 'รูปภาพ' : 'photos'}
             </p>
           </div>
 
@@ -172,25 +168,30 @@ export default function GalleryPage() {
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={photo.url}
-                        alt={photo.mealTitle}
+                        alt={photo.content || 'Gallery photo'}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       {/* Like badge */}
-                      <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full bg-black/40 backdrop-blur-sm">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); toggleLike(photo); }}
+                        className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors"
+                      >
                         <Heart
-                          className={`w-3 h-3 ${likedPhotos.has(photo.id) ? 'text-coral fill-coral' : 'text-white'}`}
-                          fill={likedPhotos.has(photo.id) ? 'currentColor' : 'none'}
+                          className={`w-3 h-3 ${photo.likedByMe ? 'text-coral' : 'text-white'}`}
+                          fill={photo.likedByMe ? 'currentColor' : 'none'}
                         />
                         <span className="text-[10px] text-white font-medium">
                           {photo.likes}
                         </span>
-                      </div>
+                      </button>
                     </div>
                     {/* Info */}
                     <div className="p-2.5">
-                      <p className="text-xs font-semibold text-white truncate">{photo.mealTitle}</p>
-                      <div className="flex items-center justify-between mt-1.5">
-                        <div className="flex items-center gap-1.5">
+                      {photo.content && (
+                        <p className="text-xs text-white/80 line-clamp-2 mb-1.5">{photo.content}</p>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <Link href={`/${locale}/user/${photo.authorId}`} className="flex items-center gap-1.5">
                           <div className="w-4 h-4 rounded-full bg-gradient-to-br from-primary/30 to-coral/30 flex items-center justify-center overflow-hidden">
                             {photo.authorAvatar ? (
                               <img src={photo.authorAvatar} alt="" className="w-full h-full object-cover" />
@@ -199,7 +200,7 @@ export default function GalleryPage() {
                             )}
                           </div>
                           <span className="text-[10px] text-gray-light truncate">{photo.author}</span>
-                        </div>
+                        </Link>
                         <span className="text-[10px] text-gray-light">{relativeTime(photo.timestamp)}</span>
                       </div>
                     </div>

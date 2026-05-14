@@ -1,0 +1,39 @@
+(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,22429,e=>{"use strict";var t=e.i(43476),a=e.i(71645),s=e.i(18566),i=e.i(46932),r=e.i(9165);let n=[13.7563,100.5018],o={japanese:"🍣",thai:"🍜",chinese:"🥡",korean:"🍖",italian:"🍕",western:"🥩",hotpot:"🫕",bbq:"🔥",buffet:"🍽️",seafood:"🦐",dimsum:"🥟",vegetarian:"🥗",other:"🍴"};e.s(["default",0,function({mapTitle:l,mapSubtitle:d,viewDetailsText:c,openMealsText:u,locale:p}){let m=(0,a.useRef)(null),x=(0,a.useRef)(null),h=(0,a.useRef)(null);(0,s.useRouter)();let[f,g]=(0,a.useState)(!0),[b,v]=(0,a.useState)(!1),[y,j]=(0,a.useState)([]),w=(0,a.useRef)([]);(0,a.useEffect)(()=>{!async function(){try{let e=(await (0,r.fetchOpenMeals)()).filter(e=>e.latitude&&e.longitude).map(e=>({id:e.id,title:e.title,restaurant:e.restaurant_name,lat:e.latitude,lng:e.longitude,current:e._currentParticipants??e.participants?.length??1,max:e.max_participants,min:e.min_participants,status:e.status,cuisineEmoji:e._cuisineEmoji||o[e.cuisine_type]||"🍴",datetime:e.datetime}));j(e)}catch(e){console.error("Failed to load meals for map:",e)}}()},[]),(0,a.useEffect)(()=>{if(!m.current||x.current)return;let t=null,a=null;return(async()=>{let s=await e.A(40005);if(h.current=t=s.default||s,delete t.Icon.Default.prototype._getIconUrl,t.Icon.Default.mergeOptions({iconRetinaUrl:"https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",iconUrl:"https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",shadowUrl:"https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png"}),!document.getElementById("leaflet-css")){let e=document.createElement("link");e.id="leaflet-css",e.rel="stylesheet",e.href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css",document.head.appendChild(e)}x.current=a=t.map(m.current,{zoomControl:!1,attributionControl:!1}).setView(n,13),t.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19}).addTo(a),t.control.zoom({position:"bottomright"}).addTo(a),navigator.geolocation?navigator.geolocation.getCurrentPosition(e=>{g(!1),a.setView([e.coords.latitude,e.coords.longitude],14);let s=t.divIcon({className:"user-location-dot",html:`
+                <div style="position:relative;width:40px;height:40px;">
+                  <div style="position:absolute;inset:0;background:rgba(59,130,246,0.15);border-radius:50%;animation:userPulse 2s ease-out infinite;"></div>
+                  <div style="position:absolute;top:12px;left:12px;width:16px;height:16px;background:#3B82F6;border:3px solid white;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>
+                </div>
+              `,iconSize:[40,40],iconAnchor:[20,20]});t.marker([e.coords.latitude,e.coords.longitude],{icon:s,zIndexOffset:1e3}).addTo(a);let i=document.createElement("style");i.textContent=`
+              @keyframes userPulse {
+                0% { transform: scale(0.5); opacity: 1; }
+                100% { transform: scale(2); opacity: 0; }
+              }
+            `,document.head.appendChild(i)},()=>{g(!1),v(!0)},{enableHighAccuracy:!1,timeout:1e4}):(g(!1),v(!0))})(),()=>{x.current&&(x.current.remove(),x.current=null)}},[p,c]),(0,a.useEffect)(()=>{if(!x.current||!h.current)return;let e=x.current,t=h.current;w.current.forEach(e=>e.remove()),w.current=[],y.forEach(a=>{let s="open"===a.status,i="confirmed"===a.status,r=t.divIcon({className:"meal-pin",html:`
+          <div style="
+            width: 36px; height: 36px;
+            background: ${s?"#FF6B6B":i?"#22C55E":"#9CA3AF"};
+            border: 3px solid white;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+          ">
+            <span style="transform: rotate(45deg)">${a.cuisineEmoji}</span>
+          </div>
+        `,iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-36]}),n=new Date(a.datetime).toLocaleDateString("th"===p?"th-TH":p,{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}),o=t.popup({closeButton:!1,className:"meal-popup",offset:[0,0]}).setContent(`
+        <div style="min-width:200px;font-family:-apple-system,BlinkMacSystemFont,sans-serif">
+          <div style="font-size:14px;font-weight:700;margin-bottom:4px;color:#1a1a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.title}</div>
+          <div style="font-size:12px;color:#666;margin-bottom:6px">📍 ${a.restaurant}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px;color:#888">
+            <span>📅 ${n}</span>
+            <span>👥 ${a.current}/${a.max}</span>
+          </div>
+          <a href="/${p}/meals/${a.id}" style="
+            display:block;text-align:center;padding:6px 0;
+            background:${s?"#FF6B6B":"#e5e7eb"};
+            color:white;border-radius:8px;font-size:12px;font-weight:600;
+            text-decoration:none;cursor:pointer;
+          ">${c}</a>
+        </div>
+      `),l=t.marker([a.lat,a.lng],{icon:r}).addTo(e).bindPopup(o);w.current.push(l)})},[y,p,c]);let N=y.filter(e=>"open"===e.status).length;return(0,t.jsx)("div",{className:"mb-6",children:(0,t.jsxs)(i.motion.div,{initial:{opacity:0,y:15},animate:{opacity:1,y:0},transition:{duration:.5,delay:.15},children:[(0,t.jsxs)("div",{className:"flex items-center justify-between px-4 mb-3",children:[(0,t.jsxs)("div",{children:[(0,t.jsx)("h2",{className:"text-lg font-bold text-dark",children:l}),(0,t.jsx)("p",{className:"text-xs text-gray mt-0.5",children:d})]}),(0,t.jsxs)("span",{className:"tag text-[11px] bg-coral/10 text-coral",children:[N," ",u]})]}),(0,t.jsxs)("div",{className:"mx-4 rounded-2xl overflow-hidden shadow-sm border border-gray-lighter/50",children:[(0,t.jsx)("div",{ref:m,className:"w-full",style:{height:"280px"}}),f&&(0,t.jsxs)("div",{className:"absolute top-3 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm text-xs text-gray-600 flex items-center gap-1.5 z-[1000] pointer-events-none",children:[(0,t.jsx)("div",{className:"w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"}),"zh-CN"===p?"定位中...":"th"===p?"กำลังหาตำแหน่ง...":"Locating..."]}),b&&(0,t.jsx)("div",{className:"absolute top-3 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm text-xs text-gray-500 z-[1000] pointer-events-none",children:"zh-CN"===p?"📍 使用預設位置（曼谷）":"th"===p?"📍 ใช้ตำแหน่งเริ่มต้น (กรุงเทพฯ)":"📍 Using default location (Bangkok)"})]}),(0,t.jsxs)("div",{className:"flex items-center gap-4 px-4 mt-2.5",children:[(0,t.jsxs)("div",{className:"flex items-center gap-1.5",children:[(0,t.jsx)("div",{className:"w-2.5 h-2.5 rounded-full bg-[#FF6B6B]"}),(0,t.jsx)("span",{className:"text-[11px] text-gray",children:"zh-CN"===p?"報名中":"th"===p?"เปิดรับสมัคร":"Open"})]}),(0,t.jsxs)("div",{className:"flex items-center gap-1.5",children:[(0,t.jsx)("div",{className:"w-2.5 h-2.5 rounded-full bg-[#22C55E]"}),(0,t.jsx)("span",{className:"text-[11px] text-gray",children:"zh-CN"===p?"已成立":"th"===p?"ยืนยันแล้ว":"Confirmed"})]}),(0,t.jsxs)("div",{className:"flex items-center gap-1.5",children:[(0,t.jsx)("div",{className:"w-2.5 h-2.5 rounded-full bg-[#9CA3AF]"}),(0,t.jsx)("span",{className:"text-[11px] text-gray",children:"zh-CN"===p?"已截止":"th"===p?"ปิดรับสมัคร":"Closed"})]}),(0,t.jsxs)("div",{className:"flex items-center gap-1.5 ml-auto",children:[(0,t.jsx)("div",{className:"w-2.5 h-2.5 rounded-full bg-[#3B82F6] border border-white"}),(0,t.jsx)("span",{className:"text-[11px] text-gray",children:"zh-CN"===p?"我的位置":"th"===p?"ตำแหน่งของฉัน":"You"})]})]})]})})}])},72056,e=>{e.n(e.i(22429))},40005,e=>{e.v(t=>Promise.all(["static/chunks/06r9_3ub2r-4z.js"].map(t=>e.l(t))).then(()=>t(32322)))}]);

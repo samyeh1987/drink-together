@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "functions": {
+    "/api/cron/check-meals": {
+      "maxDuration": 30
+    }
+  }
+}

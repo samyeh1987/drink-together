@@ -11,6 +11,8 @@ import {
   PlusCircle,
   Bell,
   User,
+  MapPin,
+  MessageSquare,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth-store';
@@ -35,11 +37,14 @@ export default function TabBar() {
     })();
   }, [user?.id, pathname]); // re-fetch on page change
 
-  // Hide TabBar on form pages, login, and meal detail pages
+  // Hide TabBar on form pages, login, meal detail, bar detail, messages, and user profile sub-pages
   const isCreatePage = pathname.includes('/meals/create');
   const isAuthPage = pathname.includes('/auth/');
-  const isMealDetailPage = /^\/[^/]+\/meals\/\d+$/.test(pathname);
-  const shouldHide = isCreatePage || isAuthPage || isMealDetailPage;
+  const isMealDetailPage = /^\/[^/]+\/meals\/[^/]+$/.test(pathname);
+  const isBarDetailPage = /^\/[^/]+\/bars\/[^/]+$/.test(pathname);
+  const isMessagesPage = /^\/[^/]+\/messages/.test(pathname);
+  const isUserProfilePage = /^\/[^/]+\/user\/[^/]+/.test(pathname);
+  const shouldHide = isCreatePage || isAuthPage || isMealDetailPage || isBarDetailPage || isMessagesPage || isUserProfilePage;
   if (shouldHide) return null;
 
   const tabs = [
@@ -50,10 +55,10 @@ export default function TabBar() {
       activeIcon: UtensilsCrossed,
     },
     {
-      href: `/${locale}/meals`,
-      label: t('nav.meals'),
-      icon: Search,
-      activeIcon: Search,
+      href: `/${locale}/bars`,
+      label: t('bar.title'),
+      icon: MapPin,
+      activeIcon: MapPin,
     },
     {
       href: `/${locale}/meals/create`,
@@ -63,11 +68,16 @@ export default function TabBar() {
       isCreate: true,
     },
     {
-      href: `/${locale}/notifications`,
-      label: t('nav.notifications'),
-      icon: Bell,
-      activeIcon: Bell,
-      badge: Math.max(0, Number(unreadCount) || 0),
+      href: `/${locale}/meals`,
+      label: t('nav.meals'),
+      icon: Search,
+      activeIcon: Search,
+    },
+    {
+      href: `/${locale}/messages`,
+      label: t('nav.messages'),
+      icon: MessageSquare,
+      activeIcon: MessageSquare,
     },
     {
       href: `/${locale}/profile`,
@@ -81,7 +91,7 @@ export default function TabBar() {
     <nav className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-primary/30 safe-bottom">
       <div className="flex items-center justify-around h-14 px-2">
           {tabs.map((tab) => {
-            const isActive = pathname === tab.href || 
+            const isActive = pathname === tab.href ||
               (tab.href !== `/${locale}` && pathname.startsWith(tab.href));
             const Icon = tab.icon;
 
@@ -118,11 +128,6 @@ export default function TabBar() {
                       isActive ? 'text-primary' : 'text-gray-light'
                     )}
                   />
-                  {typeof tab.badge === 'number' && tab.badge > 0 && (
-                    <span className="absolute -top-1.5 -right-2 min-w-4 h-4 px-1 bg-coral text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-                      {tab.badge > 99 ? '99+' : tab.badge}
-                    </span>
-                  )}
                 </div>
                 <span
                   className={cn(

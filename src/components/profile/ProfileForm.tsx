@@ -36,6 +36,19 @@ function useBodyScrollLock(lock: boolean) {
 }
 
 const AGE_OPTIONS = ['18-24', '25-30', '31-35', '36-40', '40+'];
+const GENDER_OPTIONS = [
+  { key: 'male', label: { 'zh-CN': '👨 男生', en: '👨 Male', th: '👨 ชาย' } },
+  { key: 'female', label: { 'zh-CN': '👩 女生', en: '👩 Female', th: '👩 หญิง' } },
+  { key: 'prefer_not_to_say', label: { 'zh-CN': '✨ 不想說', en: '✨ Prefer not to say', th: '✨ ไม่ต้องการระบุ' } },
+];
+const NATIONALITY_OPTIONS = [
+  '🇹🇭 Thai', '🇨🇳 Chinese', '🇹🇼 Taiwanese', '🇭🇰 Hong Kong', '🇲🇾 Malaysian',
+  '🇸🇬 Singaporean', '🇯🇵 Japanese', '🇰🇷 Korean', '🇻🇳 Vietnamese', '🇵🇭 Filipino',
+  '🇮🇩 Indonesian', '🇲🇲 Myanmar', '🇰🇭 Cambodian', '🇱🇦 Laotian', '🇮🇳 Indian',
+  '🇦🇺 Australian', '🇬🇧 British', '🇺🇸 American', '🇨🇦 Canadian', '🇫🇷 French',
+  '🇩🇪 German', '🇷🇺 Russian', '🇧🇷 Brazilian', '🇦🇪 Emirati', '🇸🇦 Saudi',
+  'Other',
+];
 const OCCUPATION_OPTIONS = [
   'Technology', 'Design', 'Marketing', 'Finance', 'Education',
   'Healthcare', 'Food & Beverage', 'Consulting', 'Freelance',
@@ -88,6 +101,8 @@ export default function ProfileForm({ isOpen, onClose }: ProfileFormProps) {
   const [nickname, setNickname] = useState('');
   const [bio, setBio] = useState('');
   const [ageRange, setAgeRange] = useState('');
+  const [gender, setGender] = useState('');
+  const [nationality, setNationality] = useState('');
   const [occupation, setOccupation] = useState('');
   const [languages, setLanguages] = useState<string[]>([]);
   const [city, setCity] = useState('');
@@ -99,6 +114,7 @@ export default function ProfileForm({ isOpen, onClose }: ProfileFormProps) {
   const [birthday, setBirthday] = useState('');
 
   // Contact
+  const [phone, setPhone] = useState('');
   const [lineId, setLineId] = useState('');
   const [whatsapp, setWhatsapp] = useState('');
   const [contactVisible, setContactVisible] = useState(false);
@@ -108,6 +124,8 @@ export default function ProfileForm({ isOpen, onClose }: ProfileFormProps) {
       setNickname(user.nickname || '');
       setBio(user.bio || '');
       setAgeRange(user.age_range || '');
+      setGender(user.gender || '');
+      setNationality(user.nationality || '');
       setOccupation((user as any).occupation || '');
       setLanguages(user.languages_spoken || []);
       setCity((user as any).city || '');
@@ -116,6 +134,7 @@ export default function ProfileForm({ isOpen, onClose }: ProfileFormProps) {
       setWeight((user as any).weight ? String((user as any).weight) : '');
       setBirthday((user as any).birthday || '');
       setLineId((user as any).line_id || '');
+      setPhone(user.phone || '');
       setWhatsapp((user as any).whatsapp || '');
       setContactVisible((user as any).contact_visible || false);
     }
@@ -165,6 +184,8 @@ export default function ProfileForm({ isOpen, onClose }: ProfileFormProps) {
         nickname,
         bio,
         age_range: ageRange || null,
+        gender: (gender || null) as any,
+        nationality: nationality || null,
         occupation: occupation || null,
         languages_spoken: languages,
         city: city || null,
@@ -174,6 +195,7 @@ export default function ProfileForm({ isOpen, onClose }: ProfileFormProps) {
         birthday: birthday || null,
         line_id: lineId || null,
         whatsapp: whatsapp || null,
+        phone: phone || null,
         contact_visible: contactVisible,
       } as any);
 
@@ -341,6 +363,48 @@ export default function ProfileForm({ isOpen, onClose }: ProfileFormProps) {
                           </button>
                         ))}
                       </div>
+                    </div>
+
+                    {/* Gender */}
+                    <div>
+                      <label className="text-xs font-semibold text-gray mb-2 block">
+                        {locale === 'zh-CN' ? '性別' : 'Gender'}
+                      </label>
+                      <div className="flex gap-2">
+                        {GENDER_OPTIONS.map((g) => (
+                          <button
+                            key={g.key}
+                            onClick={() => setGender(gender === g.key ? '' : g.key)}
+                            className={`flex-1 px-3 py-2.5 rounded-xl text-sm transition-all text-center ${
+                              gender === g.key
+                                ? 'bg-primary/20 text-primary font-medium border border-primary/40'
+                                : 'glass border-white/20 text-gray hover:border-white/40'
+                            }`}
+                          >
+                            {(g.label as Record<string, string>)[locale] || g.label.en}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Nationality */}
+                    <div>
+                      <label className="text-xs font-semibold text-gray mb-2 block">
+                        {locale === 'zh-CN' ? '國籍' : 'Nationality'}
+                      </label>
+                      <input
+                        type="text"
+                        value={nationality}
+                        onChange={(e) => setNationality(e.target.value)}
+                        list="nationalities"
+                        placeholder={locale === 'zh-CN' ? '例如：Thai, Chinese, Taiwanese' : 'e.g., Thai, Chinese, Taiwanese'}
+                        className="input w-full py-2.5 text-sm bg-white/5 border-white/20 text-white placeholder:text-gray"
+                      />
+                      <datalist id="nationalities">
+                        {NATIONALITY_OPTIONS.map((n) => (
+                          <option key={n} value={n} />
+                        ))}
+                      </datalist>
                     </div>
 
                     {/* Occupation */}
@@ -543,6 +607,28 @@ export default function ProfileForm({ isOpen, onClose }: ProfileFormProps) {
                         {locale === 'zh-CN'
                           ? '聯繫方式僅在酒局確認後，對同場酒局的成員可見。陌生人無法查看。'
                           : 'Contact info is only visible to confirmed participants of the same drink session. Strangers cannot see it.'}
+                      </p>
+                    </div>
+
+                    {/* Phone */}
+                    <div>
+                      <label className="text-xs font-semibold text-gray mb-1.5 block">
+                        {locale === 'zh-CN' ? '電話號碼' : 'Phone Number'}
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray text-sm">📱</span>
+                        <input
+                          type="tel"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          placeholder="+66 812345678"
+                          className="input w-full py-2.5 text-sm pl-8 bg-white/5 border-white/20 text-white placeholder:text-gray"
+                        />
+                      </div>
+                      <p className="text-[10px] text-gray mt-1">
+                        {user?.phone_verified
+                          ? (locale === 'zh-CN' ? '✓ 已驗證' : '✓ Verified')
+                          : (locale === 'zh-CN' ? '用於帳號安全驗證' : 'Used for account verification')}
                       </p>
                     </div>
 
